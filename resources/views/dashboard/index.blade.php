@@ -322,7 +322,7 @@
                 <div>
                     <!-- TradingView Widget -->
                     <div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 pb-3">
-                        <h2 class="text-lg font-bold text-[#0C3A30] dark:text-white mb-4">Live Market Charts (Crypto, Forex, Stocks, Metaverse)</h2>
+                        <h2 class="text-lg font-bold text-[#0C3A30] dark:text-white mb-4">Live Market Charts (Crypto, Forex, Stocks, Metaverse etc...)</h2>
                         <div class="tradingview-widget-container">
                             <div class="tradingview-widget-container__widget"></div>
                             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
