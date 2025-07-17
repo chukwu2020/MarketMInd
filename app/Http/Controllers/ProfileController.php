@@ -33,6 +33,8 @@ public function updateProfile(Request $request)
     /** @var \App\Models\User $user */
     $user = auth()->user();
 
+    
+
     $request->validate([
         'name' => 'required|string|max:255',
         'phone' => 'nullable|string|max:20',
