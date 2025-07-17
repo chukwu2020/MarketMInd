@@ -151,11 +151,14 @@ document.getElementById('withdraw-form').addEventListener('submit', function (e)
                 } else if (value === 'digital_wallet') {
                     walletInfo.classList.remove('hidden');
                     walletInfo.innerHTML = `
-      <div class="text-m text-gray-700 bg-[#f9f9f9] border border-[#8AC304] p-4 rounded-lg">
+    <div class="text-sm text-gray-800 bg-[#f9f9f9] border border-[#8AC304] p-4 rounded-lg shadow-sm">
     For digital wallet withdrawals, please 
-<a href="#" onclick="smartsupp('chat:open'); return false;" class=" underline" >Contact Support</a>
-
+    <a href="#" onclick="smartsupp('chat:open'); return false;" 
+      class="underline text-blue-600">
+        contact support
+    </a>.
 </div>
+
 
 
                     `;

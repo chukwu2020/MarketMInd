@@ -2,7 +2,6 @@
 
 @section('content')
 
-
  <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <h6 class="font-semibold mb-0 dark:text-white">User Messages</h6>
         <ul class="flex items-center gap-[6px]">
@@ -31,6 +30,7 @@
                     <th class="px-4 py-2 text-left border border-gray-300">Subject</th>
                     <th class="px-4 py-2 text-left border border-gray-300">Message</th>
                     <th class="px-4 py-2 text-left border border-gray-300">Sent</th>
+                    <th class="px-4 py-2 text-left border border-gray-300">Actions</th> <!-- New -->
                 </tr>
             </thead>
             <tbody>
@@ -42,10 +42,17 @@
                         <td class="px-4 py-2 border border-gray-300">{{ $msg->subject }}</td>
                         <td class="px-4 py-2 border border-gray-300">{{ $msg->message }}</td>
                         <td class="px-4 py-2 border border-gray-300 text-sm text-gray-500">{{ $msg->created_at->diffForHumans() }}</td>
+                        <td class="px-4 py-2 border border-gray-300">
+                            <form action="{{ route('admin.messages.destroy', $msg->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this message?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-800 font-semibold">Delete</button>
+                            </form>
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center py-6 text-gray-500">No messages yet.</td>
+                        <td colspan="7" class="text-center py-6 text-gray-500">No messages yet.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -62,6 +69,12 @@
                 <p><strong>Subject:</strong> {{ $msg->subject }}</p>
                 <p><strong>Message:</strong> {{ $msg->message }}</p>
                 <p class="text-sm text-gray-500"><strong>Sent:</strong> {{ $msg->created_at->diffForHumans() }}</p>
+
+                <form action="{{ route('admin.messages.destroy', $msg->id) }}" method="POST" class="mt-3" onsubmit="return confirm('Are you sure you want to delete this message?');">
+                    @csrf
+                    @method('DELETE')
+                    <button  type="submit"  class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 rounded-lg font-semibold shadow-md transition">Delete</button>
+                </form>
             </div>
         @empty
             <p class="text-center text-gray-500">No messages yet.</p>

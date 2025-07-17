@@ -216,6 +216,7 @@ Route::middleware(['auth'])->group(function () {
         // admin contact us
 
         Route::get('/messages', [AdminController::class, 'index'])->name('admin.messages.index');
+Route::delete('/admin/messages/{message}', [AdminController::class, 'destroy'])->name('admin.messages.destroy');
 
         Route::middleware(['auth'])->group(function () {
 

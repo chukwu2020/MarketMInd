@@ -3,7 +3,7 @@
 @section('content')
 
 <!-- Main Container with fixed background -->
-<div class="w-full min-h-screen bg-cover bg-center bg-no-repeat" style="background-image: url('{{ asset('assets/images/hero/hero-image-1.svg') }}');">
+<div class="w-full min-h-screen bg-cover bg-center bg-no-repeat"style="background-image: url(assets/images/hero/hero-image-1.svg); " >
     <!-- Optional: dark overlay (enable if needed for contrast) -->
     {{-- <div class="absolute inset-0 bg-black opacity-30 z-0"></div> --}}
 
@@ -69,7 +69,7 @@
                                         <form method="POST" action="{{ route('investments.withdraw', $investment->id) }}">
                                             @csrf
                                             <button type="submit" class="font-medium text-xs py-2 px-4 rounded transition" style="background-color: #9EDD05; color:#0C3A30;">
-                                                Withdraw
+                                                Withdraw from investment
                                             </button>
                                         </form>
                                     @else

@@ -52,7 +52,7 @@
             </li>
             <li>
                 <a href="{{ route('plan.dashboard') }}" class="menu-link {{ request()->routeIs('plan.dashboard') ? 'active-link' : '' }}">
-                    <iconify-icon icon="solar:home-smile-angle-outline"></iconify-icon>
+                    <iconify-icon icon="hugeicons:invoice-03" class="menu-icon"></iconify-icon>
                     <span>Our Plans</span>
                 </a>
             </li>

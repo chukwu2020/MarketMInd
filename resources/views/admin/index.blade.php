@@ -2,9 +2,9 @@
 
 @section('content')
 @foreach(auth()->user()->unreadNotifications as $notification)
-    <div class="p-2 bg-gray-100 text-sm mb-2 rounded">
-        {{ $notification->data['message'] }}
-    </div>
+<div class="p-2 bg-gray-100 text-sm mb-2 rounded">
+    {{ $notification->data['message'] }}
+</div>
 @endforeach
 
 <div class="dashboard-main-body">
@@ -36,7 +36,7 @@
                         <iconify-icon icon="gridicons:multiple-users" class="text-white text-2xl"></iconify-icon>
                     </div>
                 </div>
-                
+
             </div>
         </div>
 
@@ -46,13 +46,13 @@
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <p class="font-medium text-neutral-900 dark:text-white mb-1">User Total Available Balance</p>
-                  <h6 class="mb-0 dark:text-white">${{ number_format($totalDeposits, 2) }}</h6>
+                        <h6 class="mb-0 dark:text-white">${{ number_format($totalDeposits, 2) }}</h6>
                     </div>
                     <div class="w-[50px] h-[50px] bg-green-600 rounded-full flex justify-center items-center">
                         <iconify-icon icon="solar:wallet-bold" class="text-white text-2xl"><iconify-icon>
                     </div>
                 </div>
-                
+
             </div>
         </div>
 
@@ -62,32 +62,34 @@
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <p class="font-medium text-neutral-900 dark:text-white mb-1">Total Withdrawals</p>
-                     <h6 class="mb-0 dark:text-white">${{ number_format($totalWithdrawals, 2) }}</h6>
+                        <h6 class="mb-0 dark:text-white">${{ number_format($totalWithdrawals, 2) }}</h6>
                     </div>
                     <div class="w-[50px] h-[50px] bg-red-600 rounded-full flex justify-center items-center">
                         <iconify-icon icon="fa6-solid:file-invoice-dollar" class="text-white text-2xl"></iconify-icon>
                     </div>
                 </div>
-                
+
             </div>
         </div>
 
 
 
-<!-- card -->
-       <div class="rounded-xl border border-red-200 dark:border-neutral-600 dark:bg-neutral-700 bg-gradient-to-r from-red-600/10 to-white shadow-md transition hover:shadow-lg">
+     <!-- Edit User Balance Card -->
+<div class="rounded-xl border border-red-200 dark:border-neutral-600 dark:bg-neutral-700 bg-gradient-to-r from-red-600/10 to-white shadow-md transition hover:shadow-lg">
     <div class="p-5">
         <div class="flex items-center justify-between gap-4 flex-wrap">
-             <p class="font-medium text-neutral-900 dark:text-white mb-1">Edit user balance</p>
-            <!-- Left Content -->
+            <p class="font-medium text-neutral-900 dark:text-white mb-1">Edit user balance</p>
+
+            <!-- Strong visible link -->
             <div>
-                <a href="{{ route('user.index') }}" class="flex items-center gap-2 text-red-700 dark:text-red-400 hover:text-red-800 font-medium transition">
-                    <i class="ri-circle-fill text-red-600"></i>
+                <a href="{{ route('user.index') }}"
+                   class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 rounded-lg font-semibold shadow-md transition">
+                    <i class="ri-circle-fill text-white text-xs"></i>
                     Click here
                 </a>
             </div>
 
-            <!-- Icon Circle -->
+            <!-- Icon -->
             <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-md">
                 <iconify-icon icon="fa6-solid:file-invoice-dollar" class="text-white text-2xl"></iconify-icon>
             </div>
@@ -95,27 +97,29 @@
     </div>
 </div>
 
-
-<!-- contact us messages -->
-   <div class="rounded-xl border border-red-200 dark:border-neutral-600 dark:bg-neutral-700 bg-gradient-to-r from-red-600/10 to-white shadow-md transition hover:shadow-lg">
+<!-- View Messages Card -->
+<div class="rounded-xl border border-red-200 dark:border-neutral-600 dark:bg-neutral-700 bg-gradient-to-r from-red-600/10 to-white shadow-md transition hover:shadow-lg">
     <div class="p-5">
         <div class="flex items-center justify-between gap-4 flex-wrap">
-             <p class="font-medium text-neutral-900 dark:text-white mb-1">View messages</p>
-            <!-- Left Content -->
+            <p class="font-medium text-neutral-900 dark:text-white mb-1">View messages</p>
+
+            <!-- Strong visible link -->
             <div>
-                <a href="{{ route('admin.messages.index') }}" class="flex items-center gap-2 text-red-700 dark:text-red-400 hover:text-red-800 font-medium transition">
-                    <i class="ri-circle-fill text-red-600"></i>
+                <a href="{{ route('admin.messages.index') }}"
+                   class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 rounded-lg font-semibold shadow-md transition">
+                    <i class="ri-circle-fill text-white text-xs"></i>
                     Click here
                 </a>
             </div>
 
-            <!-- Icon Circle -->
+            <!-- Icon -->
             <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-md">
                 <iconify-icon icon="fa6-solid:file-invoice-dollar" class="text-white text-2xl"></iconify-icon>
             </div>
         </div>
     </div>
 </div>
+
 
     </div>
 </div>

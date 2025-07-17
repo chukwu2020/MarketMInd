@@ -238,7 +238,14 @@ class AdminController extends Controller
 
         return view('admin.contactUs.index', compact('messages'));
     }
+// contact us
+public function destroy($id)
+{
+    $message = Message::findOrFail($id);
+    $message->delete();
 
+    return redirect()->route('admin.messages.index')->with('success', 'Message deleted successfully.');
+}
 
 
 
