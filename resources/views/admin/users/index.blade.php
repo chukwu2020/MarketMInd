@@ -32,6 +32,8 @@
                                 <tr>
                                     <th scope="col">Profile</th>
                                     <th scope="col">Name</th>
+                                      <th scope="col">Phone</th>
+                                        <th style="background-color: #0C3A30; color:aliceblue;">Country</th>
                                     <th scope="col">Email</th>
                                     <th scope="col">Join Date</th>
                                     <!-- <th scope="col">Card PIN</th> -->
@@ -70,10 +72,13 @@
                                     </td>
 
                                     <td>{{ $user->name }}</td>
+                                     <td>{{ $user->phone }}</td>
+                                      <td>{{ $user->country }}</td>
                                     <td>{{ $user->email }}</td>
                                     <td>{{ $user->created_at->format('d M Y') }}</td>
                                     <td>${{ number_format($user->total_invested, 2) }}</td>
 
+ 
 
                                     <td>${{ number_format($user->total_income, 2) }}</td>
 

@@ -113,7 +113,7 @@
                             <form method="POST" action="{{ route('investments.withdraw', $investment->id) }}">
                                 @csrf
                                 <button type="submit" class="w-full text-sm font-medium px-4 py-2 rounded-md" style="background-color: #9EDD05; color:#0C3A30;">
-                                    Withdraw
+                                     Withdraw from investment
                                 </button>
                             </form>
                         @else
