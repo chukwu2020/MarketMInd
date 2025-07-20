@@ -212,33 +212,36 @@ class UserController extends Controller
             });
 
         // Active Investments
-        $activeInvestments = Investment::where('user_id', $user->id)
-            ->where('status', 'active')
-            ->latest()
-            ->take(5)
-            ->get()
-            ->map(function ($investment) {
-                return [
-                    'type' => 'Investment Active',
-                    'amount' => $investment->amount_invested,
-                    'status' => 'Active',
-                    'date' => $investment->created_at,
-                    'reference' => 'INV-' . $investment->id,
-                    'icon' => 'chart-line',
-                    'plan_name' => $investment->plan->name ?? 'N/A',
-                    'action_url' => null,
-                    'action_text' => null
-                ];
-            });
+       // Active Investments
+$activeInvestments = Investment::with('plan') 
+    ->where('user_id', $user->id)
+    ->where('status', 'active')
+    ->latest()
+    ->take(5)
+    ->get()
+    ->map(function ($investment) {
+        return [
+            'type' => 'Investment Active',
+            'amount' => $investment->amount_invested,
+            'status' => 'Active',
+            'date' => $investment->created_at,
+            'reference' => 'INV-' . $investment->id,
+            'icon' => 'chart-line',
+            'plan_name' => $investment->plan->name ?? 'N/A',
+            'action_url' => null,
+            'action_text' => null
+        ];
+    });
+
 
         // Matured Investments (ready for withdrawal)
-    // Get matured investments that are withdrawable and not yet withdrawn
-$maturedInvestments = Investment::where('user_id', $user->id)
+        // Get matured investments that are withdrawable and not yet withdrawn
+       $maturedInvestments = Investment::with('plan') // <- fix here
+    ->where('user_id', $user->id)
     ->where('status', 'completed')
-    
     ->latest()
     ->get()
-    ->filter(fn($inv) => $inv->is_withdrawable) // filter AFTER querying
+    ->filter(fn($inv) => $inv->is_withdrawable)
     ->take(5)
     ->map(function ($investment) {
         return [
@@ -253,6 +256,7 @@ $maturedInvestments = Investment::where('user_id', $user->id)
             'action_text' => 'Withdraw Now'
         ];
     });
+
 
 
         // Combine all activities
