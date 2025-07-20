@@ -66,7 +66,7 @@
 
 </head>
 
-<body class="text-gray-800 min-h-screen flex flex-col">
+<body class="text-gray-800 min-h-screen flex flex-col bg-[#f9f9f9] text-[#0C3A30]" >
 
     @include('snippets.user_sidebar')
 

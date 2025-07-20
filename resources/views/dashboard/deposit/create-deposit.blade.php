@@ -160,39 +160,11 @@
             <div class="grid md:grid-cols-2 gap-6">
 
                 <!-- Select Package -->
-                <!-- <div>
-                    <label for="plan_id" class="block mb-2 font-semibold text-neutral-900 dark:text-white">
-                        Select Package <span class="text-red-600">*</span>
-                    </label>
-                    <select name="plan_id" id="plan_id" class="form-control">
-                        <option selected disabled>Choose Package</option>
-                        @foreach($plans as $index => $plan)
-                        @php
-                        $number = $index + 1;
-                        $name = 'Plan (' . ucfirst($plan->name) . ')';
-                        $duration = 'Duration: ' . $plan->duration . ' Day' . ($plan->duration > 1 ? 's' : '');
-                        $roi = 'ROI: ' . $plan->interest_rate . '%';
-
-                        // Format sections with fixed width using str_pad
-                        $col1 = str_pad("$number. $name", 30); // Left
-                        $col2 = str_pad($duration, 25, ' ', STR_PAD_BOTH); // Centered
-                        $col3 = str_pad($roi, 15, ' ', STR_PAD_LEFT); // Right
-
-                        $optionText = $col1 . $col2 . $col3;
-                        @endphp
-
-                        <option value="{{ $plan->id }}" {{ old('plan_id') == $plan->id ? 'selected' : '' }}>
-                            {{ $optionText }}
-                        </option>
-                        @endforeach
-
-                    </select>
-                    <span class="text-red-600 text-sm mt-1 block">@error('plan_id'){{ $message }}@enderror</span>
-                </div> -->
+               
 
 
                 <div>
-                    <label for="plan_id" class="block mb-2 font-semibold text-neutral-900 ">
+                    <label for="plan_id" class="block mb-2 font-bold text-neutral-900 p-3">
                         Select Package <span class="text-red-600">*</span>
                     </label>
                  <select name="plan_id" id="plan_id" class="form-control text-sm sm:text-base">

@@ -72,12 +72,12 @@ Route::post('/set-language', function (\Illuminate\Http\Request $request) {
 
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
-// Route::fallback(function () {
-//     if (auth()->check()) {
-//         return redirect()->route('user_dashboard')->with('error', 'Page not found. You were redirected to your dashboard.');
-//     }
-//     return redirect()->route('login')->with('error', 'Page not found. Please log in.');
-// });
+Route::fallback(function () {
+    if (auth()->check()) {
+        return redirect()->route('user_dashboard')->with('error', 'Page not found. You were redirected to your dashboard.');
+    }
+    return redirect()->route('login')->with('error', 'Page not found. Please log in.');
+});
 
 
 
