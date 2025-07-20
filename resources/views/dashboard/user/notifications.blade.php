@@ -70,7 +70,7 @@
               <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
                 <tr>
                   <td align="center">
-                    <a href="{{ route('marketmindinvestments/user_dashboard') }}" style="background-color: #8bc905; color: white; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; display: inline-block; box-shadow: 0 4px 16px rgba(139, 201, 5, 0.3); transition: all 0.3s ease;">
+                    <a href="{{ route('user.dashboard') }}" style="background-color: #8bc905; color: white; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; display: inline-block; box-shadow: 0 4px 16px rgba(139, 201, 5, 0.3); transition: all 0.3s ease;">
                       {{ $actionText ?? 'View My Account' }}
                       <span style="margin-left: 8px;">→</span>
                     </a>
