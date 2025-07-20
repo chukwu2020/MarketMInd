@@ -19,7 +19,7 @@ $user = auth()->user();
                     <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
                 </button>
 
-                <h1 class="text-lg font-semibold text-neutral-900 dark:text-white">
+                    <h1 class="text-lg font-semibold text-neutral-900">
                     Welcome <span class="wave-hand">👋</span> {{ auth()->user()->name ?? 'Guest' }}
                 </h1>
 
@@ -32,29 +32,30 @@ $user = auth()->user();
 
 
 
-                <button data-dropdown-toggle="dropdownProfile" class="rounded-full overflow-hidden w-10 h-10 focus:outline-none border-2 border-transparent hover:border-primary-500 transition">
-                    @php
-                    $profilePic = $user->profile->profile_pic ?? null;
-                    $hasProfilePic = $profilePic && file_exists(public_path('uploads/' . $profilePic));
+        <button data-dropdown-toggle="dropdownProfile" class="rounded-full overflow-hidden w-10 h-10 focus:outline-none border-2 border-transparent hover:border-primary-500 transition">
+    @php
+        use Illuminate\Support\Facades\Storage;
 
-                    // Get initials from user name, fallback "U"
-                    $initials = collect(explode(' ', $user->name))
+        $profilePic = $user->profile->profile_pic ?? null;
+        $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
+
+        $initials = collect(explode(' ', $user->name))
                     ->map(fn($word) => strtoupper(substr($word, 0, 1)))
                     ->take(2)
                     ->join('') ?: 'U';
-                    @endphp
+    @endphp
 
-                    @if ($hasProfilePic)
-                    <img src="{{ asset('uploads/' . $profilePic) }}"
-                        alt="{{ $user->name }}"
-                        class="mx-auto rounded-full object-cover"
-                        style="width: 2.8rem; height: 2.8rem;" />
-                    @else
-                    <div class="mx-auto w-28 h-28 rounded-full  flex items-center justify-center font-semibold text-3xl select-none" style="background-color: #9EDD05; color:#0C3A30;">
-                        {{ $initials }}
-                    </div>
-                    @endif
-                </button>
+    @if ($hasProfilePic)
+        <img src="{{ asset('storage/' . $profilePic) }}"
+            alt="{{ $user->name }}"
+            class="mx-auto rounded-full object-cover w-10 h-10" />
+    @else
+        <div class="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm select-none bg-[#9EDD05] text-[#0C3A30]">
+            {{ $initials }}
+        </div>
+    @endif
+</button>
+
                 <div id="dropdownProfile" class="z-10 hidden bg-white dark:bg-neutral-700 rounded-lg shadow-lg dropdown-menu-sm p-3">
                     <div class="py-3 px-4 rounded-lg bg-primary-50 dark:bg-primary-600/25 mb-4 flex items-center justify-between gap-2">
 

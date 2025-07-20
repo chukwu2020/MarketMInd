@@ -174,7 +174,7 @@
                     <div class="pricing-card bg-color-ffffff radius-30">
                         <div class="title position-relative">
                             <h3>{{ $plan->name }} Plan</h3>
-                            <h4>{{ $plan->interest_rate }}% / <span>Per Day</span></h4>
+                            <h4>{{ $plan->interest_rate }}% / <span>Per Term</span></h4>
                             <img class="about-image-2" src="assets/images/about/about-image-2.png" alt="image">
                         </div>
 
@@ -194,7 +194,7 @@
                                 </li>
                                 <li>
                                     <i class="ri-check-line"></i>
-                                    Maximum Deposit: &#8358;{{ number_format($plan->maximum_amount) }}
+                                    Maximum Deposit: ${{ number_format($plan->maximum_amount) }}
                                 </li>
                             </ul>
 

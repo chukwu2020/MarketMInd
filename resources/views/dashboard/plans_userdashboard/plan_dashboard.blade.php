@@ -45,7 +45,7 @@
     }
 </style>
 
-<div class="bg-white dark:bg-gray-800 py-20 min-h-screen" style="background-image: url(assets/images/hero/hero-image-1.svg);">
+<div class="bg-white  py-20 min-h-screen" style="background-image: url(assets/images/hero/hero-image-1.svg);">
     <div class="container mx-auto   px-4 py-10">
         <!-- Section Header -->
 
@@ -53,13 +53,13 @@
         <h5 class="font-semibold mb-0  " style="color: #0C3A30; padding-right:0.8rem;">Plans </h5>
         <ul class="flex items-center gap-[6px]">
             <li class="font-medium">
-                <a href="{{ route('user_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 dark:text-white" onmouseover="this.style.backgroundColor='transparent'; this.style.color='#9EDD05';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0C3A30';">
+                <a href="{{ route('user_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 " onmouseover="this.style.backgroundColor='transparent'; this.style.color='#9EDD05';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0C3A30';">
                     <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
                     Dashboard
                 </a>
             </li>
-            <li class="dark:text-white">-</li>
-            <li class="font-medium dark:text-white">Plans</li>
+            <li >-</li>
+            <li class="font-medium ">Plans</li>
         </ul>
     </div>
         <div class="text-center mb-16">
@@ -71,7 +71,7 @@
         <!-- Plan Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10" >
             @foreach($plans as $plan)
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg hover:shadow-2xl transition duration-300 p-6 flex flex-col justify-between relative group" style="background-image: url(assets/images/hero/hero-image-1.svg);">
+            <div class="bg-white  border border-gray-200 rounded-lg shadow-lg hover:shadow-2xl transition duration-300 p-6 flex flex-col justify-between relative group" style="background-image: url(assets/images/hero/hero-image-1.svg);">
                 
                 <!-- Popular Badge -->
                 @if($loop->first)
@@ -90,15 +90,15 @@
                     <h3 class="text-2xl font-semibold capitalize plan-heading">
                         {{ $plan->name }} Plan
                     </h3>
-                    <p class="text-lg mt-1 text-gray-700 dark:text-gray-200">
+                    <p class="text-lg mt-1 text-gray-700 ">
                         <span class="font-bold">{{ $plan->interest_rate }}%</span>
-                        <span class="text-sm font-normal">/ Per Day</span>
+                        <span class="text-sm font-normal">/ Per Term</span>
                     </p>
                 </div>
 
                 <!-- Features List -->
                 <div class="flex justify-center">
-                    <ul class="space-y-4 text-sm text-gray-700 dark:text-gray-300 text-left">
+                    <ul class="space-y-4 text-sm text-gray-700text-left">
                         <li class="flex items-start gap-3">
                             <span class="check-icon">
                                 <i class="ri-check-line"></i>
@@ -115,13 +115,13 @@
                             <span class="check-icon">
                                 <i class="ri-check-line"></i>
                             </span>
-                            <span><strong>Min Deposit:</strong> ₦{{ number_format($plan->minimum_amount) }}</span>
+                            <span><strong>Min Deposit:</strong> ${{ number_format($plan->minimum_amount) }}</span>
                         </li>
                         <li class="flex items-start gap-3">
                             <span class="check-icon">
                                 <i class="ri-check-line"></i>
                             </span>
-                            <span><strong>Max Deposit:</strong> ₦{{ number_format($plan->maximum_amount) }}</span>
+                            <span><strong>Max Deposit:</strong> ${{ number_format($plan->maximum_amount) }}</span>
                         </li>
                     </ul>
                 </div>

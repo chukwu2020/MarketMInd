@@ -186,15 +186,15 @@
             <h6 class="font-semibold mb-0" style="color: #0C3A30;">MY Virtual Card</h6>
             <ul class="flex items-center gap-[6px]">
                 <li class="font-medium">
-                    <a href="{{ route('user_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 dark:text-white"
+                    <a href="{{ route('user_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 "
                        onmouseover="this.style.color='#9EDD05';"
                        onmouseout="this.style.color='#0C3A30';">
                         <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
                         Dashboard
                     </a>
                 </li>
-                <li class="dark:text-white">-</li>
-                <li class="font-medium dark:text-white">Card</li>
+                <li >-</li>
+                <li class="font-medium ">Card</li>
             </ul>
         </div>
 
@@ -270,7 +270,7 @@
 </div>
 
         @else
-            <p class="text-gray-600 dark:text-gray-300 mt-12">No card has been generated yet.</p>
+            <p class="text-gray-600  mt-12">No card has been generated yet.</p>
         @endif
 
         <p class="info-text text-sm">

@@ -3,16 +3,16 @@
 @section('content')
 
  <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
-        <h6 class="font-semibold mb-0 dark:text-white">User Messages</h6>
+        <h6 class="font-semibold mb-0 ">User Messages</h6>
         <ul class="flex items-center gap-[6px]">
             <li class="font-medium">
-                <a href="{{route('admin_dashboard')}}" class="flex items-center gap-2 hover:text-primary-600 dark:text-white">
+                <a href="{{route('admin_dashboard')}}" class="flex items-center gap-2 hover:text-primary-600 ">
                     <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
                     Dashboard
                 </a>
             </li>
-            <li class="dark:text-white">-</li>
-            <li class="font-medium dark:text-white">message</li>
+            <li>-</li>
+            <li class="font-medium ">message</li>
         </ul>
     </div>
 
@@ -73,7 +73,7 @@
                 <form action="{{ route('admin.messages.destroy', $msg->id) }}" method="POST" class="mt-3" onsubmit="return confirm('Are you sure you want to delete this message?');">
                     @csrf
                     @method('DELETE')
-                    <button  type="submit"  class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 rounded-lg font-semibold shadow-md transition">Delete</button>
+                    <button  type="submit"  class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg font-semibold shadow-md transition">Delete</button>
                 </form>
             </div>
         @empty

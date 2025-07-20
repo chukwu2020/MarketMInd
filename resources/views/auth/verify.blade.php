@@ -35,7 +35,15 @@
 
                         <div class="mb-3">
                             <label for="otp" class="form-label text-[#0c3a30]">
-                                Enter the OTP sent to <strong>{{ $email }}</strong>
+                                Enter the OTP sent to<strong style="
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+">{{ $email }}</strong>
+
                             </label>
                             <input type="text" name="otp" maxlength="6" class="form-control text-center" required placeholder="6-digit OTP">
                         </div>

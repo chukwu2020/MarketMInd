@@ -23,7 +23,9 @@
     <link rel="stylesheet" href="assets/css/responsive.css">
 </head>
 
-<body>
+
+    <body class="bg-white text-neutral-900 !dark:bg-white !dark:text-neutral-900">
+
 
     <!-- Preloader -->
     <div class="preloader-area" id="preloader">

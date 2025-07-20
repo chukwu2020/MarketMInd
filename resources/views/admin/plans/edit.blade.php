@@ -3,16 +3,16 @@
 
 <div class="dashboard-main-body">
     <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
-        <h6 class="font-semibold mb-0 dark:text-white">Edit Plan</h6>
+        <h6 class="font-semibold mb-0">Edit Plan</h6>
         <ul class="flex items-center gap-[6px]">
             <li class="font-medium">
-                <a href="{{route('admin_dashboard')}}" class="flex items-center gap-2 hover:text-primary-600 dark:text-white">
+                <a href="{{route('admin_dashboard')}}" class="flex items-center gap-2 hover:text-primary-600 ">
                     <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
                     Dashboard
                 </a>
             </li>
-            <li class="dark:text-white">-</li>
-            <li class="font-medium dark:text-white">Edit Plan</li>
+            <li >-</li>
+            <li class="font-medium ">Edit Plan</li>
         </ul>
     </div>
 
@@ -22,34 +22,34 @@
                 @csrf
                 <div class="grid md:grid-cols-2 gap-x-5">
                     <div class="mb-5">
-                        <label for="firebaseSecretKey" class="text-sm font-semibold mb-2 block text-neutral-900 dark:text-white">Plan Name</label>
+                        <label for="firebaseSecretKey" class="text-sm font-semibold mb-2 block text-neutral-900 ">Plan Name</label>
                         <input type="text" class="form-control rounded-lg" name="name" placeholder="Plan Name" value="{{ $data->name }}">
                         <span class="text-danger">@error ('name') {{ $message }} @enderror</span>
                     </div>
 
                     <div class="mb-5">
-                        <label for="firebaseSecretKey" class="text-sm font-semibold mb-2 block text-neutral-900 dark:text-white">Duration (days)</label>
+                        <label for="firebaseSecretKey" class="text-sm font-semibold mb-2 block text-neutral-900 ">Duration (days)</label>
                         <input type="number" class="form-control rounded-lg" name="duration" placeholder="Duration" value="{{ $data->duration }}">
                         <span class="text-red">@error ('duration') {{ $message }} @enderror</span>
                     </div>
 
                     <div class="mb-5">
-                        <label for="firebasePublicVapidKey" class="text-sm font-semibold mb-2 block text-neutral-900 dark:text-white">Minimum Amount</label>
+                        <label for="firebasePublicVapidKey" class="text-sm font-semibold mb-2 block text-neutral-900 ">Minimum Amount</label>
                         <input type="number" name="minimum_amount" class="form-control rounded-lg" placeholder="Minimum Amount" value="{{ $data->minimum_amount }}">
                         <span class="text-red">@error ('minimum_amount') {{ $message }} @enderror</span>
                     </div>
                     <div class="mb-5">
-                        <label for="firebasePublicVapidKey" class="text-sm font-semibold mb-2 block text-neutral-900 dark:text-white">Maximum Amount</label>
+                        <label for="firebasePublicVapidKey" class="text-sm font-semibold mb-2 block text-neutral-900">Maximum Amount</label>
                         <input type="number" name="maximum_amount" class="form-control rounded-lg" placeholder="Maximum Amount" value="{{ $data->maximum_amount }}">
                         <span class="text-red">@error ('maximum_amount') {{ $message }} @enderror</span>
                     </div>
                     <div class="mb-2">
-                        <label for="firebaseAuthDomain" class="text-sm font-semibold mb-2 block text-neutral-900 dark:text-white">Interest Rate (%)</label>
+                        <label for="firebaseAuthDomain" class="text-sm font-semibold mb-2 block text-neutral-900 ">Interest Rate (%)</label>
                         <input type="number" name="interest_rate" class="form-control rounded-lg" placeholder="Interest Rate" value="{{ $data->interest_rate }}">
                         <span class="text-red">@error ('interest_rate') {{ $message }} @enderror</span>
                     </div>
                     <div class="form-group mb-2">
-                        <label for="firebaseProjectID" class="text-sm font-semibold mb-2 block text-neutral-900 dark:text-white">Status</label>
+                        <label for="firebaseProjectID" class="text-sm font-semibold mb-2 block text-neutral-900 ">Status</label>
                         <select name="status" class="form-control rounded-lg">
                             <option value="active" {{ old('status', $data->status) == 'active' ? 'selected' : '' }}>Active</option>
                             <option value="inactive" {{ old('status', $data->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>

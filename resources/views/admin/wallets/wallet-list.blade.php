@@ -3,23 +3,23 @@
 
 <div class="dashboard-main-body">
     <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
-        <h6 class="font-semibold mb-0 dark:text-white">Wallet List</h6>
+        <h6 class="font-semibold mb-0 ">Wallet List</h6>
         <ul class="flex items-center gap-[6px]">
             <li class="font-medium">
-                <a href="{{ route('admin_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 dark:text-white">
+                <a href="{{ route('admin_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 ">
                     <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
                     Dashboard
                 </a>
             </li>
-            <li class="dark:text-white">-</li>
-            <li class="font-medium dark:text-white">Wallet List</li>
+            <li >-</li>
+            <li class="font-medium ">Wallet List</li>
         </ul>
     </div>
 
     <div class="grid grid-cols-12">
         <div class="col-span-12">
             <div class="card h-full p-0 rounded-xl border-0 overflow-hidden">
-                <div class="card-header border-b border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-700 py-4 px-6 flex items-center justify-between">
+                <div class="card-header border-b border-neutral-200  bg-white py-4 px-6 flex items-center justify-between">
                     <h6 class="text-base font-medium text-secondary-light mb-0">All Wallets</h6>
                     <a href="{{ route('create_wallet') }}" class="btn btn-primary text-sm btn-sm px-3 py-3 rounded-lg flex items-center gap-2">
                         <iconify-icon icon="ic:baseline-plus" class="icon text-xl"></iconify-icon>
@@ -44,14 +44,14 @@
                                     <td>{{ $wallet->wallet_address }}</td>
                                     <td class="text-center">
                                         <div class="flex items-center gap-3 justify-center">
-                                            <button type="button" class="bg-info-100 dark:bg-info-600/25 hover:bg-info-200 text-info-600 dark:text-info-400 font-medium w-10 h-10 flex justify-center items-center rounded-full">
+                                            <button type="button" class="bg-info-100 hover:bg-info-200 text-info-600  font-medium w-10 h-10 flex justify-center items-center rounded-full">
                                                 <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
                                             </button>
 
                                             <form action="{{ route('wallet.delete', $wallet->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this wallet?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="bg-danger-100 dark:bg-danger-600/25 hover:bg-danger-200 text-danger-600 dark:text-danger-500 font-medium w-10 h-10 flex justify-center items-center rounded-full">
+                                                <button type="submit" class="bg-danger-100 hover:bg-danger-200 text-danger-600 font-medium w-10 h-10 flex justify-center items-center rounded-full">
                                                     <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
                                                 </button>
                                             </form>

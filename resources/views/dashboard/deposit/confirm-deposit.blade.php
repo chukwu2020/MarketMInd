@@ -8,15 +8,15 @@
         <h5 class="font-semibold mb-0" style="color: #0C3A30;">Deposit</h5>
         <ul class="flex items-center gap-[6px]">
             <li class="font-medium">
-                <a href="{{ route('user_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 dark:text-white"
+                <a href="{{ route('user_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 "
                    onmouseover="this.style.backgroundColor='transparent'; this.style.color='#9EDD05';"
                    onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0C3A30';">
                     <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
                     Dashboard
                 </a>
             </li>
-            <li class="dark:text-white">-</li>
-            <li class="font-medium dark:text-white">confirm deposit</li>
+            <li >-</li>
+            <li class="font-medium ">confirm deposit</li>
         </ul>
     </div>
 
@@ -69,7 +69,7 @@
                 <div class="flex items-center justify-center gap-2 max-w-xs mx-auto">
                     <!-- Wallet Address -->
                     <span
-                        class="truncate max-w-[150px] px-2 py-1 rounded text-sm bg-gray-100 text-black dark:bg-neutral-800 dark:text-white dark:border dark:border-neutral-600"
+                        class="truncate max-w-[150px] px-2 py-1 rounded text-sm bg-gray-100 text-black "
                         title="{{ $wallet->wallet_address }}">
                         {{ $wallet->wallet_address }}
                     </span>
@@ -94,35 +94,56 @@
                 </div>
 
                 <div class="col-span-12 lg:col-span-10 xl:col-span-12 2xl:col-span-6 2xl:col-start-4">
-                    <div class="card border border-neutral-200 dark:border-neutral-600">
+                    <div class="card border border-neutral-200">
                         <div class="card-body">
-                            <h6 class="text-base text-neutral-600 dark:text-neutral-200 mb-4">Proof of payment</h6>
+                            <h6 class="text-base text-neutral-600  mb-4">Proof of payment</h6>
 
                             <form action="{{ route('deposit.submit') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <div class="mb-5">
-                                    <label for="proof" class="inline-block font-semibold text-neutral-600 dark:text-neutral-200 text-sm mb-2">
+                                    <label for="proof" class="inline-block font-semibold text-neutral-600  text-sm mb-2">
                                         Screenshot <span class="text-danger-600">*</span>
                                     </label>
                                     <input type="file" name="proof" class="form-control rounded-lg" id="proof" placeholder="Proof">
                                     <span class="text-danger">@error('proof'){{ $message }}@enderror</span>
                                 </div>
-                                <div class="flex items-center justify-center gap-3">
-                                    <button
-                                        type="button"
-                                        class="border border-danger-600 bg-hover-danger-200 text-danger-600 text-base px-14 py-[11px] rounded-lg"
-                                        onclick="window.history.back()"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        class="text-base px-14 py-3 rounded-lg transition duration-300 border border-[#9EDD05] bg-[#0C3A30] text-[#9EDD05] hover:bg-[#9EDD05] hover:text-[#0C3A30]"
-                                        onmouseout="this.style.backgroundColor=' #9EDD05'; this.style.color='#0C3A30';"
-                                    >
-                                        Submit
-                                    </button>
-                                </div>
+                               <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; max-width: 100%;">
+    <button
+        type="button"
+        onclick="window.history.back()"
+        style="
+            border: 2px solid #dc2626;
+            background-color: #fff;
+            color: #dc2626;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            max-width: 220px;
+            box-sizing: border-box;
+        "
+    >
+        Cancel
+    </button>
+
+    <button
+        type="submit"
+        style="
+            border: 2px solid #9EDD05;
+            background-color: #9EDD05;
+            color: #0C3A30;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            max-width: 220px;
+            box-sizing: border-box;
+        "
+    >
+        Submit Deposit
+    </button>
+</div>
+
                             </form>
                         </div>
                     </div>

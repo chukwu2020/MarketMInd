@@ -34,16 +34,19 @@
           
           <!-- Gradient Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, #8bc905 0%, #7bb005 100%); padding: 40px 20px; text-align: center;">
+        <td style="background: linear-gradient(135deg, #8bc905 0%, #7bb005 100%); padding: 20px 20px 25px; text-align: center;">
+
               <table width="100%">
                 <tr>
                   <td style="text-align: center;">
                     <!-- Logo with subtle shadow -->
-                    <div style="display: inline-block; background-color: none; border-radius: 16px; padding: 14px 24px; margin-bottom: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);">
-                <img src="https://res.cloudinary.com/dswwq3xks/image/upload/v1752508147/mymarketmindmainlogo_qonmlk.png" alt="Your Company Logo" style="height: 80px; width: auto; display: block; margin: 0 auto;" />
+                  
 
+<div style="display: inline-block; background-color: none; border-radius: 12px; padding: 8px 16px; margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+  <img src="https://res.cloudinary.com/dswwq3xks/image/upload/v1752508147/mymarketmindmainlogo_qonmlk.png" alt="Your Company Logo" style="height: 60px; width: auto; display: block; margin: 0 auto;" />
+</div>
 
-                    </div>
+                  
                     <p style="margin: 8px 0 0; font-size: 16px; color: white; font-weight: 500; letter-spacing: 0.5px;">{{ $subject }}</p>
                   </td>
                 </tr>
@@ -66,8 +69,8 @@
               <!-- CTA Button -->
               <table width="100%" cellpadding="0" cellspacing="0" style="margin: 40px 0;">
                 <tr>
-                  <td align="center">
-                    <a href="{{ 'user_dashboard'}}" style="background-color: #8bc905; color: white; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; display: inline-block; box-shadow: 0 4px 16px rgba(139, 201, 5, 0.3); transition: all 0.3s ease;">
+                  <td align="center">{{ route('marketmindinvestments/user.dashboard') }}
+                    <a href="" style="background-color: #8bc905; color: white; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; display: inline-block; box-shadow: 0 4px 16px rgba(139, 201, 5, 0.3); transition: all 0.3s ease;">
                       {{ $actionText ?? 'View My Account' }}
                       <span style="margin-left: 8px;">→</span>
                     </a>

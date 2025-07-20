@@ -11,13 +11,13 @@
         <h5 class="font-semibold mb-0  " style="color: #0C3A30; padding-right:0.8rem;">Withdrawn </h5>
         <ul class="flex items-center gap-[6px]">
             <li class="font-medium">
-                <a href="{{ route('user_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 dark:text-white" onmouseover="this.style.backgroundColor='transparent'; this.style.color='#9EDD05';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0C3A30';">
+                <a href="{{ route('user_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 " onmouseover="this.style.backgroundColor='transparent'; this.style.color='#9EDD05';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0C3A30';">
                     <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
                     Dashboard
                 </a>
             </li>
-            <li class="dark:text-white">-</li>
-            <li class="font-medium dark:text-white">Investments</li>
+            <li >-</li>
+            <li class="font-medium ">Investments</li>
         </ul>
     </div>
    

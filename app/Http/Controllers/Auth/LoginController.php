@@ -19,10 +19,16 @@ class LoginController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function showLoginForm()
-    {
-        return view('auth.login'); // Ensure this view exists
+  public function showLoginForm()
+{
+    if (auth()->check()) {
+        // Redirect already logged-in users
+        return redirect()->route('user_dashboard'); // or any dashboard/home route
     }
+
+    return view('auth.login'); // Continue if not logged in
+}
+
 
     /**
      * Handle the authenticated user.

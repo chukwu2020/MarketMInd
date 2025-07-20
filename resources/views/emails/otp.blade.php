@@ -10,24 +10,22 @@
     <tr>
       <td align="center">
         <table width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-          
+
           <!-- Header -->
           <tr>
-           <td style="background-color: #8bc905; padding: 30px 20px; text-align: center;">
-           <img src="https://res.cloudinary.com/dswwq3xks/image/upload/v1752508147/mymarketmindmainlogo_qonmlk.png" alt="MarketMind" style="height: 80px; width: auto; display: block; margin: 0 auto;">
-<p style="margin: 8px 0 0; font-size: 14px; color: #0C3A30;">Smarter Way to Secure Access</p>
-
+            <td style="background-color: #8bc905; padding: 30px 20px; text-align: center;">
+              <img src="https://res.cloudinary.com/dswwq3xks/image/upload/v1752508147/mymarketmindmainlogo_qonmlk.png" alt="MarketMind" style="height: 80px; width: auto; display: block; margin: 0 auto;">
             </td>
           </tr>
 
           <!-- Body -->
           <tr>
-            <td style="padding: 40px 30px; font-size: 16px; line-height: 1.7;">
-              <p style="margin-top: 0; color: #0C3A30;">
+            <td style="padding: 40px 30px; font-size: 16px; line-height: 1.6; color: #0C3A30;">
+              <p style="margin: 0 0 15px 0;">
                 Hello{{ isset($userName) ? ' ' . $userName : '' }},
               </p>
 
-              <p style="color: #0C3A30;">
+              <p style="margin: 0 0 15px 0;">
                 You recently requested to verify your email address. Please use the OTP below:
               </p>
 
@@ -37,7 +35,7 @@
                 </span>
               </div>
 
-              <p style="color: #0C3A30;">
+              <p style="margin: 0 0 15px 0;">
                 Or click the button below to verify your email:
               </p>
 
@@ -47,19 +45,19 @@
                 </a>
               </div>
 
-              <p style="font-size: 14px; color: #0C3A30;">
+              <p style="margin: 0 0 10px 0; font-size: 14px;">
                 If the button above doesn't work, copy and paste this link into your browser:
               </p>
 
-              <p style="word-break: break-all; font-size: 14px; color: #0C3A30;">
+              <p style="margin: 0 0 20px 0; word-break: break-all; font-size: 14px;">
                 {{ $verificationUrl }}
               </p>
 
-              <p style="margin-top: 20px; font-size: 14px; color: #0C3A30;">
+              <p style="margin: 0 0 20px 0; font-size: 14px;">
                 This code will expire in 30 minutes. If you didn't request this, you can safely ignore this message.
               </p>
 
-              <p style="margin-top: 40px; font-size: 14px; color: #0C3A30;">
+              <p style="margin-top: 40px; font-size: 14px;">
                 Regards,<br>
                 The MarketMind Team
               </p>

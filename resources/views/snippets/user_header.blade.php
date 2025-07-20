@@ -134,29 +134,32 @@
         <div class="flex items-center gap-3">
             {{-- Profile Dropdown --}}
             <div x-data="{ open: false }" class="relative">
-                <button @click="open = !open" class="focus:outline-none rounded-full overflow-hidden">
-                    <div class="text-center border-b border-neutral-200 dark:border-neutral-600">
-                        @php
-                            $profilePic = $user->profile->profile_pic ?? null;
-                            $hasProfilePic = $profilePic && file_exists(public_path('uploads/' . $profilePic));
-                            $initials = collect(explode(' ', $user->name))
-                                        ->map(fn($word) => strtoupper(substr($word, 0, 1)))
-                                        ->take(2)
-                                        ->join('') ?: 'U';
-                        @endphp
+               <button @click="open = !open" class="focus:outline-none rounded-full overflow-hidden">
+    <div class="text-center border-b border-neutral-200 dark:border-neutral-600">
+        @php
+            use Illuminate\Support\Facades\Storage;
 
-                        @if ($hasProfilePic)
-                            <img src="{{ asset('uploads/' . $profilePic) }}" 
-                                alt="{{ $user->name }}" 
-                                class="mx-auto rounded-full object-cover" 
-                                style="width: 2.8rem; height: 2.8rem;" />
-                        @else
-                            <div class="mx-auto w-32 h-32 rounded-full flex items-center justify-center font-semibold text-2xl select-none" style="background-color: #9EDD05; color:#0C3A30; width:2.5rem; height:2.5rem; border-radius:50%;">
-                                {{ $initials }}
-                            </div>
-                        @endif
-                    </div>
-                </button>
+            $profilePic = $user->profile->profile_pic ?? null;
+            $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
+
+            $initials = collect(explode(' ', $user->name))
+                        ->map(fn($word) => strtoupper(substr($word, 0, 1)))
+                        ->take(2)
+                        ->join('') ?: 'U';
+        @endphp
+
+        @if ($hasProfilePic)
+            <img src="{{ asset('storage/' . $profilePic) }}"
+                alt="{{ $user->name }}"
+                class="mx-auto rounded-full object-cover w-11 h-11" />
+        @else
+            <div class="mx-auto w-11 h-11 rounded-full flex items-center justify-center font-semibold text-base select-none bg-[#9EDD05] text-[#0C3A30]">
+                {{ $initials }}
+            </div>
+        @endif
+    </div>
+</button>
+
                 <div x-show="open" @click.away="open = false" x-transition
                     class="absolute right-0 mt-2 shadow-lg rounded-lg p-3 z-50 border"
                     style="width: 9rem; height: 11rem; background-color:white;">

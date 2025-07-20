@@ -3,16 +3,16 @@
 
 <div class="dashboard-main-body">
     <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
-        <h6 class="font-semibold mb-0 dark:text-white">Plan List</h6>
+        <h6 class="font-semibold mb-0">Plan List</h6>
         <ul class="flex items-center gap-[6px]">
             <li class="font-medium">
-                <a href="{{route('admin_dashboard')}}" class="flex items-center gap-2 hover:text-primary-600 dark:text-white">
+                <a href="{{route('admin_dashboard')}}" class="flex items-center gap-2 hover:text-primary-600 ">
                     <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
                     Dashboard
                 </a>
             </li>
-            <li class="dark:text-white">-</li>
-            <li class="font-medium dark:text-white">Plan List</li>
+            <li>-</li>
+            <li class="font-medium ">Plan List</li>
         </ul>
     </div>
 
@@ -20,11 +20,11 @@
         <div class="col-span-12">
             <div class="card h-full p-0 rounded-xl border-0 overflow-hidden">
                 <div
-                    class="card-header border-b border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-700 py-4 px-6 flex items-center flex-wrap gap-3 justify-between">
+                    class="card-header border-b border-neutral-200  bg-white  py-4 px-6 flex items-center flex-wrap gap-3 justify-between">
                     <div class="flex items-center flex-wrap gap-3">
                         <span class="text-base font-medium text-secondary-light mb-0">Show</span>
                         <select
-                            class="form-select form-select-sm w-auto dark:bg-neutral-600 dark:text-white border-neutral-200 dark:border-neutral-500 rounded-lg">
+                            class="form-select form-select-sm w-auto border-neutral-200 rounded-lg">
                             <option>1</option>
                             <option>2</option>
                             <option>3</option>
@@ -37,12 +37,12 @@
                             <option>10</option>
                         </select>
                         <form class="navbar-search">
-                            <input type="text" class="bg-white dark:bg-neutral-700 h-10 w-auto" name="search"
+                            <input type="text" class="bg-white  h-10 w-auto" name="search"
                                 placeholder="Search">
                             <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
                         </form>
                         <select
-                            class="form-select form-select-sm w-auto dark:bg-neutral-600 dark:text-white border-neutral-200 dark:border-neutral-500 rounded-lg">
+                            class="form-select form-select-sm w-autoborder-neutral-200rounded-lg">
                             <option>Status</option>
                             <option>Active</option>
                             <option>Inactive</option>
@@ -85,28 +85,28 @@
                                     <td class="text-center">
                                         @if($plan->status == "active" )
                                         <span
-                                            class="bg-success-100 dark:bg-success-600/25 text-success-600 dark:text-success-400 border border-success-600 px-6 py-1.5 rounded font-medium text-sm">Active</span>
+                                            class="bg-success-100  text-success-600 border border-success-600 px-6 py-1.5 rounded font-medium text-sm">Active</span>
                                         @else
                                         <span
-                                            class="bg-danger-100 dark:bg-danger-600/25 text-danger-600 dark:text-danger-400 border border-danger-600 px-6 py-1.5 rounded font-medium text-sm">Inactive</span>
+                                            class="bg-danger-100 text-danger-600  border border-danger-600 px-6 py-1.5 rounded font-medium text-sm">Inactive</span>
 
                                         @endif
                                     </td>
                                     <td class="text-center">
                                         <div class="flex items-center gap-3 justify-center">
                                             <button type="button"
-                                                class="bg-info-100 dark:bg-info-600/25 hover:bg-info-200 text-info-600 dark:text-info-400 font-medium w-10 h-10 flex justify-center items-center rounded-full">
+                                                class="bg-info-100  hover:bg-info-200 text-info-600  font-medium w-10 h-10 flex justify-center items-center rounded-full">
                                                 <iconify-icon icon="majesticons:eye-line" class="icon text-xl"></iconify-icon>
                                             </button>
                                             <a href="{{ route('plan.edit', $plan->id) }}">
                                                 <button type="button"
-                                                    class="bg-success-100 dark:bg-success-600/25 text-success-600 dark:text-success-400 bg-hover-success-200 font-medium w-10 h-10 flex justify-center items-center rounded-full">
+                                                    class="bg-success-100 text-success-600 bg-hover-success-200 font-medium w-10 h-10 flex justify-center items-center rounded-full">
                                                     <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
                                                 </button>
                                             </a>
                                             <a href="{{ route('plan.delete', $plan->id) }}">
                                                 <button type="button"
-                                                    class="remove-item-btn bg-danger-100 dark:bg-danger-600/25 hover:bg-danger-200 text-danger-600 dark:text-danger-500 font-medium w-10 h-10 flex justify-center items-center rounded-full">
+                                                    class="remove-item-btn bg-danger-100 hover:bg-danger-200 text-danger-600  font-medium w-10 h-10 flex justify-center items-center rounded-full">
                                                     <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
                                                 </button>
                                             </a>
@@ -123,7 +123,7 @@
                         <span>Showing 1 to 10 of 12 entries</span>
                         <ul class="pagination flex flex-wrap items-center gap-2 justify-center">
                             <li class="page-item">
-                                <a class="page-link bg-neutral-300 dark:bg-neutral-600 text-secondary-light font-semibold rounded-lg border-0 flex items-center justify-center h-8 w-8 text-base"
+                                <a class="page-link bg-neutral-300 text-secondary-light font-semibold rounded-lg border-0 flex items-center justify-center h-8 w-8 text-base"
                                     href="javascript:void(0)"><iconify-icon icon="ep:d-arrow-left" class=""></iconify-icon></a>
                             </li>
                             <li class="page-item">
@@ -131,23 +131,23 @@
                                     href="javascript:void(0)">1</a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link bg-neutral-300 dark:bg-neutral-600 text-secondary-light font-semibold rounded-lg border-0 flex items-center justify-center h-8 w-8"
+                                <a class="page-link bg-neutral-300text-secondary-light font-semibold rounded-lg border-0 flex items-center justify-center h-8 w-8"
                                     href="javascript:void(0)">2</a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link bg-neutral-300 dark:bg-neutral-600 text-secondary-light font-semibold rounded-lg border-0 flex items-center justify-center h-8 w-8 text-base"
+                                <a class="page-link bg-neutral-300  text-secondary-light font-semibold rounded-lg border-0 flex items-center justify-center h-8 w-8 text-base"
                                     href="javascript:void(0)">3</a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link bg-neutral-300 dark:bg-neutral-600 text-secondary-light font-semibold rounded-lg border-0 flex items-center justify-center h-8 w-8 text-base"
+                                <a class="page-link bg-neutral-300  text-secondary-light font-semibold rounded-lg border-0 flex items-center justify-center h-8 w-8 text-base"
                                     href="javascript:void(0)">4</a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link bg-neutral-300 dark:bg-neutral-600 text-secondary-light font-semibold rounded-lg border-0 flex items-center justify-center h-8 w-8 text-base"
+                                <a class="page-link bg-neutral-300  text-secondary-light font-semibold rounded-lg border-0 flex items-center justify-center h-8 w-8 text-base"
                                     href="javascript:void(0)">5</a>
                             </li>
                             <li class="page-item">
-                                <a class="page-link bg-neutral-300 dark:bg-neutral-600 text-secondary-light font-semibold rounded-lg border-0 flex items-center justify-center h-8 w-8 text-base"
+                                <a class="page-link bg-neutral-300  text-secondary-light font-semibold rounded-lg border-0 flex items-center justify-center h-8 w-8 text-base"
                                     href="javascript:void(0)"> <iconify-icon icon="ep:d-arrow-right" class=""></iconify-icon> </a>
                             </li>
                         </ul>

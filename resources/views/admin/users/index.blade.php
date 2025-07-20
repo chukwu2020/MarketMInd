@@ -4,23 +4,23 @@
 
 <div class="dashboard-main-body">
     <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
-        <h6 class="font-semibold mb-0 dark:text-white">Users List</h6>
+        <h6 class="font-semibold mb-0 ">Users List</h6>
         <ul class="flex items-center gap-[6px]">
             <li class="font-medium">
-                <a href="{{route('admin_dashboard')}}" class="flex items-center gap-2 hover:text-primary-600 dark:text-white">
+                <a href="{{route('admin_dashboard')}}" class="flex items-center gap-2 hover:text-primary-600 ">
                     <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
                     Dashboard
                 </a>
             </li>
-            <li class="dark:text-white">-</li>
-            <li class="font-medium dark:text-white">Users List</li>
+            <li >-</li>
+            <li class="font-medium ">Users List</li>
         </ul>
     </div>
 
     <div class="grid grid-cols-12">
         <div class="col-span-12">
             <div class="card h-full p-0 rounded-xl border-0 overflow-hidden">
-                <div class="card-header border-b border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-700 py-4 px-6 flex items-center flex-wrap gap-3 justify-between">
+                <div class="card-header border-b border-neutral-200 bg-white py-4 px-6 flex items-center flex-wrap gap-3 justify-between">
 
 
                 </div>
@@ -84,22 +84,22 @@
 
                                     <td class="text-center">
                                         @if ($user->active == 1)
-                                        <span class="bg-success-100 dark:bg-success-600/25 text-success-600 dark:text-success-400 border border-success-600 px-6 py-1.5 rounded font-medium text-sm">Active</span>
+                                        <span class="bg-success-100 text-success-600border border-success-600 px-6 py-1.5 rounded font-medium text-sm">Active</span>
                                         @else
-                                        <span class="bg-danger-100 dark:bg-danger-600/25 text-danger-600 dark:text-danger-400 border border-danger-600 px-6 py-1.5 rounded font-medium text-sm">Inactive</span>
+                                        <span class="bg-danger-100  text-danger-600  border border-danger-600 px-6 py-1.5 rounded font-medium text-sm">Inactive</span>
                                         @endif
                                     </td>
                                     <td class="text-center">
                                         <div class="flex items-center gap-3 justify-center">
                                             <a href="{{ route('user.edit', $user->id) }}">
-                                                <button type="button" class="bg-success-100 dark:bg-success-600/25 text-success-600 dark:text-success-400 hover:bg-success-200 font-medium w-10 h-10 flex justify-center items-center rounded-full">
+                                                <button type="button" class="bg-success-100 text-success-600 hover:bg-success-200 font-medium w-10 h-10 flex justify-center items-center rounded-full">
                                                     <iconify-icon icon="lucide:edit" class="menu-icon"></iconify-icon>
                                                 </button>
                                             </a>
                                             <form action="{{ route('user.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="remove-item-btn bg-danger-100 dark:bg-danger-600/25 hover:bg-danger-200 text-danger-600 dark:text-danger-500 font-medium w-10 h-10 flex justify-center items-center rounded-full">
+                                                <button type="submit" class="remove-item-btn bg-danger-100  hover:bg-danger-200 text-danger-600font-medium w-10 h-10 flex justify-center items-center rounded-full">
                                                     <iconify-icon icon="fluent:delete-24-regular" class="menu-icon"></iconify-icon>
                                                 </button>
                                             </form>

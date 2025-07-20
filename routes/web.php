@@ -69,16 +69,17 @@ Route::post('/set-language', function (\Illuminate\Http\Request $request) {
 
 
 // for overlay
-Route::get('/logout', function (Request $request) {
-    Auth::logout();
 
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
+Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
-    session()->flash('clearCertOverlay', true); // Tell frontend to clear sessionStorage
+// Route::fallback(function () {
+//     if (auth()->check()) {
+//         return redirect()->route('user_dashboard')->with('error', 'Page not found. You were redirected to your dashboard.');
+//     }
+//     return redirect()->route('login')->with('error', 'Page not found. Please log in.');
+// });
 
-    return redirect('/login');
-});
+
 
 Route::post('/certificate-shown', function (Request $request) {
     $count = session('overlayCountToday', 0);
@@ -92,7 +93,7 @@ Route::post('/certificate-shown', function (Request $request) {
 // Authentication Routes
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('login', [LoginController::class, 'login']);
-Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+
 
 // password reset
 // OTP Password Reset
@@ -164,7 +165,9 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Shared Routes (Dashboard investments & withdrawals)
-    Route::post('/user/investments/{investment}/withdraw', [InvestmentController::class, 'withdraw'])->name('investments.withdraw');
+    Route::post('/user/investments/{id}/withdraw', [InvestmentController::class, 'withdraw'])->name('investments.withdraw');
+   
+
     Route::post('/dashboard/withdraw', [WithdrawalController::class, 'withdrawFromBalance'])->name('user.balance.withdraw');
     Route::get('/investments', [InvestmentController::class, 'index'])->name('user.investments');
     Route::get('/withdrawn-investments', [InvestmentController::class, 'withdrawnInvestments'])->name('user.withdrawn.investments');

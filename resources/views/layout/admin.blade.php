@@ -51,7 +51,8 @@
 
 </head>
 
-<body class="dark:bg-neutral-800 bg-neutral-100 dark:text-white">
+
+     <body class="bg-neutral-100 text-neutral-900">
     @include('snippets.admin_sidebar')
 
     <main class="dashboard-main">

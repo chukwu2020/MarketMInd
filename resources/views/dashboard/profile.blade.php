@@ -1,16 +1,16 @@
 @extends('layout.user')
 
 @section('content')
-<div class="dashboard-main-body" style="background-image: url(assets/images/hero/hero-image-1.svg);">
+<div  class="dashboard-main-body min-h-screen bg-cover bg-center" style="background-image: url(assets/images/hero/hero-image-1.svg);">
     {{-- Header Breadcrumb --}}
     <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <h6 class="font-semibold mb-0 text-[#0C3A30]">My Profile</h6>
         <ul class="flex items-center gap-[6px]">
             <li class="font-medium">
                 <a href="{{ route('user_dashboard') }}"
-                   class="flex items-center gap-2 text-[#0C3A30] hover-text"
-                   onmouseover="this.style.color='#9EDD05';"
-                   onmouseout="this.style.color='#0C3A30';">
+                    class="flex items-center gap-2 text-[#0C3A30] hover-text"
+                    onmouseover="this.style.color='#9EDD05';"
+                    onmouseout="this.style.color='#0C3A30';">
                     <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
                     Dashboard
                 </a>
@@ -28,24 +28,25 @@
                 {{-- Avatar --}}
                 <div class="text-center border-b pb-6 border-gray-300">
                     @php
-                        $profilePic = $user->profile->profile_pic ?? null;
-                        $hasProfilePic = $profilePic && file_exists(public_path('uploads/' . $profilePic));
-                        $initials = collect(explode(' ', $user->name))
-                            ->map(fn($w) => strtoupper(substr($w, 0, 1)))
-                            ->take(2)
-                            ->join('') ?: 'U';
+                    $profilePic = $user->profile->profile_pic ?? null;
+                   $hasProfilePic = $profilePic && file_exists(storage_path('app/public/profile_pictures/' . $profilePic));
+
+                    $initials = collect(explode(' ', $user->name))
+                    ->map(fn($w) => strtoupper(substr($w, 0, 1)))
+                    ->take(2)
+                    ->join('') ?: 'U';
                     @endphp
 
                     @if($hasProfilePic)
-                        <img loading="lazy"
-src="{{ asset('uploads/' . $profilePic) }}" alt="Profile Picture"
-                             class="mx-auto rounded-full object-cover border border-[#0C3A30]"
-                             style="width: 7rem; height: 7rem;" />
+               <img loading="lazy"
+    src="{{ asset('storage/profile_pictures/' . $profilePic) }}"
+                        class="mx-auto rounded-full object-cover border border-[#0C3A30]"
+                        style="width: 7rem; height: 7rem; " />
                     @else
-                        <div class="mx-auto rounded-full flex items-center justify-center font-semibold text-3xl"
-                             style="width: 8rem; height: 8rem; background-color: #9EDD05; color:#0C3A30;">
-                            {{ $initials }}
-                        </div>
+                    <div class="mx-auto rounded-full flex items-center justify-center font-semibold text-3xl"
+                        style="width: 8rem; height: 8rem; background-color: #9EDD05; color:#0C3A30;">
+                        {{ $initials }}
+                    </div>
                     @endif
                 </div>
 
@@ -69,16 +70,16 @@ src="{{ asset('uploads/' . $profilePic) }}" alt="Profile Picture"
                             <span class="font-semibold text-neutral-700">Country</span>
                             <span class="text-right text-[#0C3A30] font-medium">{{ $user->country }}</span>
                         </li>
-  <li class="flex justify-between items-start">
-    <span class="font-semibold text-neutral-700"> Card Number</span>
-    <span class="text-right text-[#0C3A30] font-medium">
-        @if ($card)
-            <div class="card-number">{{ chunk_split($card->card_number, 4, ' ') }}</div>
-        @else
-            <div class="text-gray-500">No card available</div>
-        @endif
-    </span>
-</li>
+                        <li class="flex justify-between items-start">
+                            <span class="font-semibold text-neutral-700"> Card Number</span>
+                            <span class="text-right text-[#0C3A30] font-medium">
+                                @if ($card)
+                                <div class="card-number">{{ chunk_split($card->card_number, 4, ' ') }}</div>
+                                @else
+                                <div class="text-gray-500">No card available</div>
+                                @endif
+                            </span>
+                        </li>
 
 
 
@@ -95,15 +96,15 @@ src="{{ asset('uploads/' . $profilePic) }}" alt="Profile Picture"
                     <ul class="flex gap-3 text-sm font-medium mb-5" id="default-tab" role="tablist">
                         <li>
                             <button class="py-2.5 px-4 rounded-t-lg font-semibold text-base border-t-4"
-                                    style="color:#0C3A30; background-color:#9EDD05; border-color:#9EDD05;"
-                                    data-tabs-target="#edit-profile" type="button" aria-selected="true">
+                                style="color:#0C3A30; background-color:#9EDD05; border-color:#9EDD05;"
+                                data-tabs-target="#edit-profile" type="button" aria-selected="true">
                                 Edit Profile
                             </button>
                         </li>
                         <li>
                             <button class="py-2.5 px-4 rounded-t-lg font-semibold text-base border-t-4"
-                                    style="color:#0C3A30; background-color:#9EDD05; border-color:#9EDD05;"
-                                    data-tabs-target="#change-password" type="button" aria-selected="false">
+                                style="color:#0C3A30; background-color:#9EDD05; border-color:#9EDD05;"
+                                data-tabs-target="#change-password" type="button" aria-selected="false">
                                 Change Password
                             </button>
                         </li>
@@ -200,7 +201,7 @@ src="{{ asset('uploads/' . $profilePic) }}" alt="Profile Picture"
 
 {{-- Tab Toggle Script --}}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const tabs = document.querySelectorAll('[data-tabs-target]');
         const contents = document.querySelectorAll('#default-tab-content > div');
 
