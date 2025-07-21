@@ -3,7 +3,7 @@
     $cardExists = auth()->check() ? WithdrawalCard::where('user_id', auth()->id())->exists() : false;
 @endphp
 
-<aside class="sidebar bg-white text-[#0C3A30] shadow-sidebar" style="background-image: url(assets/images/hero/hero-image-1.svg);" >
+<aside class="sidebar  text-[#0C3A30] shadow-sidebar" style="background-image: url(assets/images/hero/hero-image-1.svg);" >
     <!-- Close Button (Visible when sidebar is open) -->
     <!-- <button type="button" class="sidebar-close-btn lg:hidden absolute top-4 right-4 z-50" >
         <iconify-icon icon="radix-icons:cross-2" class="text-2xl" style="background-color: #8bc905;"></iconify-icon> 
@@ -142,7 +142,7 @@
     .sidebar {
         width: 260px;
         padding: 20px 0;
-        background-color: white;
+       
         color: #0C3A30;
         font-family: 'Inter', sans-serif;
         position: fixed;

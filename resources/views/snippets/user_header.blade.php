@@ -162,7 +162,7 @@
 
                 <div x-show="open" @click.away="open = false" x-transition
                     class="absolute right-0 mt-2 shadow-lg rounded-lg p-3 z-50 border"
-                    style="width: 9rem; height: 11rem; background-color:white;">
+                    style="width: 9rem; height: 11rem; ">
                     <div style="border-bottom: 1px solid #def1ee; padding-bottom: 0.5rem; margin-bottom: 0.5rem; text-align:center;">
                         <span style="display: block; font-size: 0.875rem; font-weight: 600; color: #0c3a30;">My Account</span>
                     </div>
@@ -303,7 +303,7 @@ function googleTranslateElementInit() {
         display: flex;
         align-items: center;
         gap: 6px;
-        color: white;
+       
         padding: 5px 10px;
         border-radius: 4px;
         transition: all 0.2s;

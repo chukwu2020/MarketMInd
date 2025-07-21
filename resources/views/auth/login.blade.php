@@ -80,7 +80,7 @@
 </label>
 
                             @if(session('status') === 'Please verify your email before logging in.')
-                                <form method="POST" action="{{ route('password.request') }}">
+                                <form method="POST" action="{{ route('password.otp.request') }}">
                                     @csrf
                                     <button type="submit" class="btn btn-link">Resend verification email</button>
                                 </form>

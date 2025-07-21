@@ -68,16 +68,6 @@ Route::post('/set-language', function (\Illuminate\Http\Request $request) {
 // web.php
 
 
-// for overlay
-
-Route::post('logout', [LoginController::class, 'logout'])->name('logout');
-
-Route::fallback(function () {
-    if (auth()->check()) {
-        return redirect()->route('user_dashboard')->with('error', 'Page not found. You were redirected to your dashboard.');
-    }
-    return redirect()->route('login')->with('error', 'Page not found. Please log in.');
-});
 
 
 
@@ -98,7 +88,7 @@ Route::post('login', [LoginController::class, 'login']);
 // password reset
 // OTP Password Reset
 // Show form to request OTP
-Route::get('password/forgot', [ForgotPasswordController::class, 'showOtpRequestForm'])->name('password.request');
+Route::get('password/forgot', [ForgotPasswordController::class, 'showOtpRequestForm'])->name('password.otp.request');
 
 // Handle sending OTP
 Route::post('password/otp-send', [ForgotPasswordController::class, 'sendOtp'])->name('password.otp.send');
@@ -134,7 +124,7 @@ Route::post('/certificate-shown', function() {
 
 
 
-Route::post('/create-user', [UserController::class, 'createUser'])->name('user.create');
+// Route::post('/create-user', [UserController::class, 'createUser'])->name('user.create');
 
 
 Route::get('/verify-otp/{token}', [UserController::class, 'showVerifyOtpForm'])->name('verify.otp');

@@ -12,7 +12,7 @@
         background: linear-gradient(135deg, #1D4ED8, #A3E635, #4ADE80);
         background-size: 400% 400%;
         animation: gradientMove 10s ease infinite;
-        color: white;
+      
         font-family: 'Segoe UI', sans-serif;
         box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
         display: flex;

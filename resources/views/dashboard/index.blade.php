@@ -166,9 +166,9 @@
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Available Balance Card -->
-                <div class="bg-white rounded-2xl shadow-xl overflow-hidden min-h-[150px]"
+                <div class=" rounded-2xl shadow-xl overflow-hidden min-h-[150px]"
                     style="border-top: 4px solid #8bc905; background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
-                    <div class="p-6 bg-white/90 rounded-2xl">
+                    <div class="p-6  rounded-2xl">
                         <div class="flex justify-between items-start">
                             <div>
                                 <p class="text-sm font-medium">Available Balance</p>
@@ -186,6 +186,8 @@
                                     </h3>
                                 </template>
                             </div>
+
+                            
                             <div class="p-3 rounded-xl" style="color:#0C3A30;">
                                 <button @click="toggleBalance" class="flex items-center gap-1 text-xs mt-2 text-[#0C3A30] hover:text-[#9EDD05] transition-colors">
                                     <iconify-icon x-bind:icon="showBalance ? 'mdi:eye-off' : 'mdi:eye'" class="text-2xl"></iconify-icon>
@@ -199,9 +201,9 @@
                 </div>
 
                 <!-- Total Invested Card -->
-                <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-emerald-200 min-h-[150px]"
+                <div class=" rounded-2xl shadow-xl overflow-hidden border border-emerald-200 min-h-[150px]"
                     style="border-top: 4px solid #8bc905; background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
-                    <div class="p-6 bg-white/90 rounded-2xl">
+                    <div class="p-6  rounded-2xl">
                         <div class="flex justify-between items-start">
                             <div>
                                 <p class="text-sm font-medium">Total Invested With Us</p>
@@ -230,7 +232,7 @@
                 </div>
 
                 <!-- Quick Actions Card -->
-                <div class="bg-gradient-to-br from-primary-800 via-primary-700 to-primary-600 text-white rounded-2xl shadow-xl overflow-hidden min-h-[150px]"
+                <div class="bg-gradient-to-br from-primary-800 via-primary-700 to-primary-600  rounded-2xl shadow-xl overflow-hidden min-h-[150px]"
                     style="border-top: 4px solid #8bc905; background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
                     <div class="p-6">
                         <p class="text-sm font-medium text-gray-500">Quick Actions</p>
@@ -284,7 +286,7 @@
             <div class="flex flex-wrap gap-6 mt-6 justify-center">
 
                 <!-- Market Charts -->
-                <div class="bg-white p-4 rounded-2xl shadow-xl border border-gray-200 w-full sm:w-[48%] lg:w-1/3" style="min-height: 520px; overflow:hidden; margin-bottom: 2.5rem;">
+                <div class=" p-4 rounded-2xl shadow-xl border border-gray-200 w-full sm:w-[48%] lg:w-1/3" style="min-height: 520px; overflow:hidden; margin-bottom: 2.5rem;">
                     <h2 class="text-lg font-bold text-[#0C3A30] mb-4">
                         Live Market Charts (Crypto, Forex, Stocks, Metaverse etc...)
                     </h2>
@@ -747,7 +749,7 @@
 
 
             <!-- Recent Activity -->
-            <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 w-full sm:w-[48%] lg:w-1/3"
+            <div class=" rounded-2xl shadow-xl p-6 border border-gray-100 w-full sm:w-[48%] lg:w-1/3"
                 style="background-image: url(assets/images/hero/hero-image-1.svg); background-size: cover; background-position: center;">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-bold text-primary-800">Recent Activity</h3>
@@ -757,7 +759,10 @@
                             <span>Filter</span>
                         </button>
                         <div x-show="activityFilterOpen" @click.away="activityFilterOpen = false"
-                            class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 py-1 border border-gray-200">
+                            class="absolute right-0 mt-2 w-48 
+                            
+                            
+                            rounded-md shadow-lg z-10 py-1 border border-gray-200">
                             <a href="#" @click="filterActivities('all')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
                                 <iconify-icon icon="mdi:format-list-bulleted" class="text-lg"></iconify-icon>
                                 All Activities
@@ -857,7 +862,7 @@
                                 </span>
                                 @if($activity['action_url'] && $activity['action_text'])
                                 <a href="{{ $activity['action_url'] }}"
-                                    class="text-xs bg-{{ $baseColor }}-500 hover:bg-{{ $baseColor }}-600 text-white px-2 py-1 rounded whitespace-nowrap">
+                                    class="text-xs bg-{{ $baseColor }}-500 hover:bg-{{ $baseColor }}-600  px-2 py-1 rounded whitespace-nowrap">
                                     {{ $activity['action_text'] }}
                                 </a>
                                 @endif
@@ -879,7 +884,7 @@
 
             <!-- Motivational Quote -->
             <div x-data="quoteRotator()" x-init="startRotation()"
-                class="relative rounded-2xl overflow-hidden shadow-2xl pt-3 min-h-[240px] w-full sm:w-[48%] lg:w-1/3 flex items-center justify-center text-center text-white">
+                class="relative rounded-2xl overflow-hidden shadow-2xl pt-6 min-h-[240px] w-full sm:w-[48%] lg:w-1/3 flex items-center justify-center text-center ">
                 <div class="absolute inset-0 bg-[#0C3A30]/80 backdrop-blur-sm"
                     style="background-image: url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1350&q=80');"></div>
                 <div class="relative z-10 px-4 sm:px-8 w-full">
@@ -889,7 +894,7 @@
                         x-transition:leave="transition-opacity duration-500"
                         x-transition:leave-start="opacity-100"
                         x-transition:leave-end="opacity-0">
-                        <p class="text-white text-xl sm:text-2xl font-semibold italic leading-relaxed"
+                        <p class=" text-xl sm:text-2xl font-semibold italic leading-relaxed"
                             x-text="quotes[currentIndex].quote"></p>
                         <p class="text-primary-200 text-sm mt-4"
                             x-text="quotes[currentIndex].author"></p>

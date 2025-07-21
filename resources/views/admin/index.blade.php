@@ -63,32 +63,58 @@
             </div>
         </div>
 
-        @if(auth()->user()->unreadNotifications->count())
-            <div class="col-span-full mb-6">
-                <div class="bg-white border border-yellow-300 rounded-lg p-4 shadow">
-                    <h5 class="font-semibold text-yellow-700 mb-3">📢 New Notifications</h5>
-
-                    @foreach(auth()->user()->unreadNotifications as $notification)
-                        @php
-                            $type = $notification->data['type'] ?? 'general';
-                            $message = $notification->data['message'] ?? '';
-                            $color = $type === 'withdrawal' ? 'red' : ($type === 'deposit' ? 'green' : 'gray');
-                        @endphp
-
-                        <div class="flex items-center justify-between bg-{{ $color }}-50 border-l-4 border-{{ $color }}-500 text-{{ $color }}-700 px-4 py-3 mb-2 rounded">
-                            <p class="text-sm">{{ $message }}</p>
-                            <form action="{{ route('admin.markNotificationAsRead', $notification->id) }}" method="POST">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" class="text-xs text-{{ $color }}-700 hover:underline">Mark as read</button>
-                            </form>
-                        </div>
-                    @endforeach
+      
+    </div>
+ <!-- Deposits Quick Access -->
+<div class="card shadow-none border border-gray-200 rounded-lg h-full bg-gradient-to-r from-yellow-600/10 to-white">
+    
+    <div class="card-body p-5">
+        <div class="flex flex-wrap items-center justify-between border border-red-300 rounded-lg h-full bg-red-100  gap-3">
+            <div>
+                <p class="font-medium text-neutral-900 mb-1">Deposits</p>
+                <div class="flex flex-col gap-1">
+                    <a href="{{ route('admin.deposits.pending') }}" class="text-sm text-yellow-700 hover:underline">
+                        Pending Deposits
+                        @if(isset($pendingDepositsCount) && $pendingDepositsCount > 0)
+                            <span class="ml-2 inline-block bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                {{ $pendingDepositsCount }}
+                            </span>
+                        @endif
+                    </a>
+                 
                 </div>
             </div>
-        @endif
+            <div class="w-[50px] h-[50px] bg-yellow-600 rounded-full flex justify-center items-center">
+                <iconify-icon icon="hugeicons:bitcoin-circle" class="text-white text-2xl"></iconify-icon>
+            </div>
+        </div>
     </div>
+</div>
 
+<!-- Withdrawals Quick Access -->
+<div class="card shadow-none border border-gray-200 rounded-lg h-full bg-gradient-to-r from-blue-600/10 to-white">
+    <div class="card-body p-5">
+        <div class="flex flex-wrap border border-red-300 rounded-lg h-full bg-red-100  items-center justify-between gap-3">
+            <div>
+                <p class="font-medium text-neutral-900 mb-1">Withdrawals</p>
+                <div class="flex flex-col gap-1">
+                    <a href="{{ route('withdrawals.pending') }}" class="text-sm text-yellow-700 hover:underline">
+                        Pending Withdrawals
+                        @if(isset($pendingWithdrawalsCount) && $pendingWithdrawalsCount > 0)
+                            <span class="ml-2 inline-block bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                {{ $pendingWithdrawalsCount }}
+                            </span>
+                        @endif
+                    </a>
+                
+                </div>
+            </div>
+            <div class="w-[50px] h-[50px] bg-blue-600 rounded-full flex justify-center items-center">
+                <iconify-icon icon="hugeicons:money-send-square" class="text-white text-2xl"></iconify-icon>
+            </div>
+        </div>
+    </div>
+</div>
     <!-- Edit User Balance Card -->
     <div class="rounded-xl border border-red-200 bg-gradient-to-r from-red-600/10 to-white shadow-md transition hover:shadow-lg mt-6">
         <div class="p-5">
@@ -111,6 +137,8 @@
             </div>
         </div>
     </div>
+   
+
 
     <!-- View Messages Card -->
     <div class="rounded-xl border border-red-200 bg-gradient-to-r from-red-600/10 to-white shadow-md transition hover:shadow-lg mt-6">
@@ -126,6 +154,8 @@
                         Click here
                     </a>
                 </div>
+
+                
 
                 <!-- Icon -->
                 <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-md">

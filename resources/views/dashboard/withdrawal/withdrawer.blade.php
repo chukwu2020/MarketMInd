@@ -90,7 +90,7 @@ $usdt = $profile->usdt_address ?? null;
                 <option value="cryptocurrency">Cryptocurrency Wallet</option>
                 <option value="digital_wallet">Digital Payment System</option>
             </select>
-            <div id="dropdown-options" class="absolute z-10 mt-1 w-full bg-white border rounded-lg shadow-lg hidden" style="border-color: #8AC304;">
+            <div id="dropdown-options" class="absolute z-10 mt-1 w-full border rounded-lg shadow-lg hidden" style="border-color: #8AC304;">
                 <div class="option-item px-4 py-3 cursor-pointer" data-value="cryptocurrency">Cryptocurrency Wallet</div>
                 <div class="option-item px-4 py-3 cursor-pointer" data-value="digital_wallet">Digital Payment System</div>
             </div>
@@ -163,7 +163,7 @@ $usdt = $profile->usdt_address ?? null;
                             </svg>
                         </div>
                         <input type="hidden" name="wallet_choice" id="wallet_choice">
-                        <div id="wallet-options" class="absolute z-20 mt-1 w-full bg-white border rounded-lg shadow-lg hidden" style="border-color: #8AC304;">
+                        <div id="wallet-options" class="absolute z-20 mt-1 w-full  border rounded-lg shadow-lg hidden" style="border-color: #8AC304;">
                             @if($bitcoin)
                                 <div class="wallet-item px-4 py-3 cursor-pointer" data-wallet="bitcoin">🟢 BTC - {{ $bitcoin }}</div>
                             @endif
