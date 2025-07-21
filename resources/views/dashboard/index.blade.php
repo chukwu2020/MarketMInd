@@ -139,7 +139,7 @@
     </a>
 
     <ul class="flex items-center space-x-2">
-        <li class="text-gray-400">/</li>
+        <li class="text-gray-400">-</li>
         <li class="font-medium text-[#9EDD05]">MarketMind</li>
     </ul>
 </div>

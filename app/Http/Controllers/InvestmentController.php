@@ -21,9 +21,9 @@ public function withdraw($id)
 {
     $investment = Investment::findOrFail($id);
 
-    if ($investment->user_id !== Auth::id()) {
-        return back()->with('error', 'Unauthorized.');
-    }
+    // if ($investment->user_id !== Auth::id()) {
+    //     return back()->with('error', 'Unauthorized.');
+    // }
 
     if (!$investment->is_withdrawable || $investment->status === 'withdrawn') {
         return back()->with('error', 'Not eligible for withdrawal.');
@@ -45,7 +45,7 @@ public function withdrawnInvestments()
 {
     $user = auth()->user();
 
-        $withdrawnInvestments = Investment::with('plan') // 👈 Eager load 'plan'
+        $withdrawnInvestments = Investment::with('plan') 
         ->where('user_id', auth()->id())
         ->whereRaw("LOWER(TRIM(status)) = 'withdrawn'")
         ->latest()
