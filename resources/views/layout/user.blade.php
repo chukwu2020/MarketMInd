@@ -49,12 +49,20 @@
     <!-- Custom Style -->
     <link rel="stylesheet" href="admin_assets/css/style.css">
 
+<style>
+    html, body {
+       
+        color: #0C3A30;
+    }
+
+    
+</style>
 
 
 
 </head>
 
-<body class="text-gray-800 min-h-screen flex flex-col bg-[#f9f9f9] text-[#0C3A30]" >
+<body class="min-h-screen flex flex-col " >
 
     @include('snippets.user_sidebar')
 
@@ -172,10 +180,13 @@
         </style>
 
 
-        <footer class="bg-[#f0fdf4] border-t border-[#0C3A30] z-50" style="margin-top: 1rem;">
-
-            <div class="max-w-7xl mx-auto px-3 py-3 mt-8 text-center text-sm text-[#0C3A30]">
-                <p>
+       
+        
+            <footer class="d-footer mt-4">
+  
+            <div class="flex items-center justify-between gap-3">
+               
+                   <p class="mb-0">
                     © {{ date('Y') }} <span class="font-semibold text-[#8bc905]"> MarketMind </span>. All rights reserved.
                     <span class="mx-2 text-gray-400">|</span>
                     <a href="{{ route('user_dashboard') }}" class="hover:text-[#9EDD05] transition-colors duration-200">Privacy Policy</a>

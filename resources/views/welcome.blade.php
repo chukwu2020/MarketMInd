@@ -190,7 +190,7 @@
                                 </li>
                                 <li>
                                     <i class="ri-check-line"></i>
-                                    Minimum Deposit: &#8358;{{ number_format($plan->minimum_amount) }}
+                                    Minimum Deposit:  ${{ number_format($plan->minimum_amount) }}
                                 </li>
                                 <li>
                                     <i class="ri-check-line"></i>
