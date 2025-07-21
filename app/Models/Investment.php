@@ -61,10 +61,6 @@ class Investment extends Model
     {
         return $this->status === self::STATUS_WITHDRAWN || $this->status === self::STATUS_COMPLETED;
     }
-public function getCanWithdrawNowAttribute()
-{
-    return $this->status === 'completed' && is_null($this->withdrawn_at);
-}
 
     
 }
