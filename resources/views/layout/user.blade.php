@@ -52,7 +52,7 @@
 <style>
     html, body {
        
-        color: #0C3A30;
+        color: #0C3A30 !important;
     }
 
     
