@@ -28,7 +28,7 @@
         <ul class="space-y-2">
             <!-- Home -->
             <li>
-                <a href="{{ route('user.dashboard') }}" class="block px-4 py-2 rounded hover:bg-[#9EDD05] transition">
+                <a href="" class="block px-4 py-2 rounded hover:bg-[#9EDD05] transition">
                     Home
                 </a>
             </li>
