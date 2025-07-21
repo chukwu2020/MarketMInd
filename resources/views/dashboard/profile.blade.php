@@ -4,14 +4,14 @@
 <div  class="dashboard-main-body min-h-screen bg-cover bg-center" style="background-image: url(assets/images/hero/hero-image-1.svg); color:#0C3A30 !important; ">
     {{-- Header Breadcrumb --}}
     <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
-        <h6 class="font-semibold mb-0 text-[#0C3A30]">My Profile</h6>
+        <h6 class="font-semibold mb-0 "  style="color: #0c3a30;">My Profile</h6>
         <ul class="flex items-center gap-[6px]">
             <li class="font-medium">
                 <a href="{{ route('user_dashboard') }}"
                     class="flex items-center gap-2 text-[#0C3A30] hover-text"
                     onmouseover="this.style.color='#9EDD05';"
                     onmouseout="this.style.color='#0C3A30';">
-                    <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                    <iconify-icon icon="solar:home-smile-angle-outline"  style="color: #0c3a30;" class="icon text-lg"></iconify-icon>
                     Dashboard
                 </a>
             </li>
@@ -51,7 +51,7 @@
                 </div>
 
                 {{-- Personal Info --}}
-                <div>
+                <div  style="color: #0c3a30;">
                     <h6 class="text-xl font-bold mb-4 text-[#0C3A30]">Personal Info</h6>
                     <ul class="space-y-5 text-sm">
                         <li class="flex justify-between items-start">
