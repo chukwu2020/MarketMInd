@@ -49,18 +49,6 @@
     <!-- Custom Style -->
     <link rel="stylesheet" href="admin_assets/css/style.css">
 
-<style>
-    html, body {
-        background-color: white !important;
-        color: black ;
-    }
-
-    .dark, .dark * {
-        background-color: white !important;
-        color: black ;
-        border-color: #ccc ;
-    }
-</style>
 
 
 
