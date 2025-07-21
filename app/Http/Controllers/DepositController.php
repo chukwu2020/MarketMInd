@@ -69,11 +69,12 @@ public function submitDeposit(Request $request)
 {
     try {
         if (!Session::has('deposit_details')) {
-            return redirect()->route('user.deposit-history')->with('success', 'Deposit successful!');
+            return redirect()->route('user.deposit-history')->with('success', 'Deposit not successful!');
         }
 
         $request->validate([
-            'proof' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'proof' => 'required|image|mimes:jpeg,png,jpg|max:5120',
+
         ]);
 
         $depositDetails = Session::get('deposit_details');

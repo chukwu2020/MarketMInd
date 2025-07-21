@@ -85,7 +85,7 @@
                    
                 </a>
                 <ul class="sidebar-submenu hidden">
-                    <li><a href="{{ route('user.withdrawals.list') }}" class="{{ request()->routeIs('user.withdrawals.list') ? 'active-sub-link' : '' }}">💸 Pending/Approved</a></li>
+                    <li><a href="{{ route('user.withdrawals.list') }}" class="{{ request()->routeIs('user.withdrawals.list') ? 'active-sub-link' : '' }}">Withdrawal lists</a></li>
                 </ul>
             </li>
 

@@ -129,10 +129,10 @@
             </div>
         </div>
 
-
+    
         <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
     <a href="{{ route('user_dashboard') }}">
-        <h6 class="font-semibold mb-0 flex items-center space-x-2 text-[#0C3A30]" style="color: #0C3A30;">
+        <h6 class="font-semibold mb-0 flex items-center space-x-2 " style="color: #0C3A30;">
             <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
             <span>Dashboard</span>
         </h6>
@@ -168,7 +168,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Available Balance Card -->
                 <div class=" rounded-2xl shadow-xl overflow-hidden min-h-[150px]"
-                    style="border-top: 4px solid #8bc905;">
+                    style="border-top: 4px solid #8bc905; background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
                     <div class="p-6  rounded-2xl">
                         <div class="flex justify-between items-start">
                             <div>
@@ -203,7 +203,7 @@
 
                 <!-- Total Invested Card -->
                 <div class=" rounded-2xl shadow-xl overflow-hidden border border-emerald-200 min-h-[150px]"
-                    style="border-top: 4px solid #8bc905;">
+                    style="border-top: 4px solid #8bc905; background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
                     <div class="p-6  rounded-2xl">
                         <div class="flex justify-between items-start">
                             <div>
@@ -234,7 +234,7 @@
 
                 <!-- Quick Actions Card -->
                 <div class="bg-gradient-to-br from-primary-800 via-primary-700 to-primary-600  rounded-2xl shadow-xl overflow-hidden min-h-[150px]"
-                    style="border-top: 4px solid #8bc905; ">
+                    style="border-top: 4px solid #8bc905; background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
                     <div class="p-6">
                         <p class="text-sm font-medium text-gray-500">Quick Actions</p>
                         <div class="flex quick-actions-buttons gap-3 mt-4">

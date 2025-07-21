@@ -2,7 +2,11 @@
 
 @section('content')
 
-<div class="dashboard-main-body" style="background-image: url('assets/images/hero/hero-image-1.svg'); min-height: 100vh; background-repeat: no-repeat; background-size: cover;">
+<div class="dashboard-main-body"
+     style="background-image: url('assets/images/hero/hero-image-1.svg');
+            min-height: 100vh;
+            background-repeat: no-repeat;
+            background-size: cover;">
 
     <!-- Header -->
     <div class="flex flex-wrap items-center justify-between gap-2 mb-6 mt-7">
@@ -15,7 +19,7 @@
                 </a>
             </li>
             <li>-</li>
-            <li class="font-medium">Deposit list</li>
+            <li class="font-medium">Deposit List</li>
         </ul>
     </div>
 
@@ -23,62 +27,96 @@
     <div class="grid grid-cols-1 3xl:grid-cols-12 gap-6 mt-6">
         <div class="2xl:col-span-12 3xl:col-span-8">
             <div class="w-full">
-                <div class="card-body p-6 bg-white shadow rounded-lg">
+                <div class="card-body p-6 bg-white shadow rounded-lg"  style="background-image: url('assets/images/hero/hero-image-1.svg');
+            min-height: 100vh;
+            background-repeat: no-repeat;
+            background-size: cover;">
                     <div class="flex items-center justify-between mb-5">
                         <h6 class="font-bold text-lg text-gray-800">Recent Deposits</h6>
                     </div>
 
-                    <!-- Mobile scroll notice -->
-                    <div class="flex items-center justify-end text-sm text-gray-500 px-2 pt-2 md:hidden">
-                        <span class="flex items-center gap-1 animate-pulse">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                            Scroll right
-                        </span>
-                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mt-6">
+                        @forelse ($deposits as $key => $deposit)
+                            @php
+                                $status = $deposit->status ? 'approved' : 'pending';
+                                $badgeClass = match($status) {
+                                    'approved' => 'badge-approved',
+                                    'pending' => 'badge-pending',
+                                    default => 'badge-default'
+                                };
+                            @endphp
 
-                    <!-- Table -->
-                    <div class="overflow-x-auto bg-white rounded-md mt-4">
-                        <table class="min-w-full text-sm text-left table-auto">
-                            <thead class="bg-gray-100 text-gray-600 font-semibold">
-                                <tr>
-                                    <th class="py-3 px-4">#</th>
-                                    <th class="py-3 px-4">Plan</th>
-                                    <th class="py-3 px-4">Wallet</th>
-                                    <th class="py-3 px-4">Amount</th>
-                                    <th class="py-3 px-4 text-center">Status</th>
-                                    <th class="py-3 px-4">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-gray-700">
-                                @forelse ($deposits as $key => $deposit)
-                                    <tr class="border-b hover:bg-gray-50 transition">
-                                        <td class="py-3 px-4">{{ $key + 1 }}</td>
-                                        <td class="py-3 px-4">{{ $deposit->plan->name }}</td>
-                                        <td class="py-3 px-4">{{ $deposit->wallet->crypto_name }}</td>
-                                        <td class="py-3 px-4">${{ number_format($deposit->amount_deposited, 2) }}</td>
-                                        <td class="py-3 px-4 text-center">
-                                            @if($deposit->status)
-                                                <span style="background-color: #d1fae5; color: #065f46;" class="px-3 py-1 rounded text-sm font-medium">Approved</span>
-                                            @else
-                                                <span style="background-color: #fef3c7; color: #92400e;" class="px-3 py-1 rounded text-sm font-medium">Pending</span>
-                                            @endif
-                                        </td>
-                                        <td class="py-3 px-4 text-sm text-gray-500">{{ $deposit->created_at->format('d M Y') }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center py-6 text-gray-500">No deposit history found.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                            <div class="bg-white border border-gray-100 rounded-2xl shadow-xl p-5 w-full">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="text-base font-semibold text-gray-800">#{{ $key + 1 }}</h4>
+                                    <span class="text-xs font-medium px-2 py-1 rounded-full {{ $badgeClass }}">
+                                        {{ ucfirst($status) }}
+                                    </span>
+                                </div>
+
+                                <div class="space-y-2 text-sm text-gray-700">
+                                    <div class="flex justify-between">
+                                        <span class="font-medium">Plan:</span>
+                                        <span>{{ $deposit->plan->name }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="font-medium">Wallet:</span>
+                                        <span>{{ $deposit->wallet->crypto_name }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="font-medium">Amount:</span>
+                                        <span class="text-emerald-600 font-semibold">${{ number_format($deposit->amount_deposited, 2) }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="font-medium">Date:</span>
+                                        <span>{{ $deposit->created_at->format('d M Y') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="col-span-full text-center py-10 text-gray-500">
+                                <iconify-icon icon="mdi:inbox-remove-outline" class="text-4xl text-gray-300 mb-3"></iconify-icon>
+                                <p>No deposit history found.</p>
+                                <a href="{{ route('user.deposit') }}" class="mt-3 inline-block text-sm text-[#8AC304] hover:underline">
+                                    Make your first deposit
+                                </a>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Status Badge Styles -->
+<style>
+    .badge-approved {
+        background-color: #d1fae5; /* Tailwind's bg-green-100 */
+        color: #065f46;           /* Tailwind's text-green-800 */
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+
+    .badge-pending {
+        background-color: #fef3c7; /* Tailwind's bg-yellow-100 */
+        color: #92400e;            /* Tailwind's text-yellow-800 */
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+
+    .badge-default {
+        background-color: #f3f4f6;
+        color: #374151;
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+</style>
 
 @endsection
