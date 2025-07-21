@@ -2,7 +2,7 @@
 
 @section('content')
 <!-- Certificate Overlay -->
-<div class="main-content" style="background-image: url(assets/images/hero/hero-image-1.svg); min-height: 100vh; background-size: cover; color:#0C3A30 !important;">
+<div class="main-content" style="background-image: url(assets/images/hero/hero-image-1.svg); min-height: 120vh; background-size: cover; color:#0C3A30 !important;">
 
     @php
     $shouldResetOverlay = session()->pull('clearCertOverlay', false);
@@ -129,20 +129,21 @@
             </div>
         </div>
 
-        <!-- Dashboard Navigation -->
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
-            <h6 class="font-semibold mb-0" style="color: #0C3A30;">Dashboard</h6>
-            <ul class="flex items-center gap-[6px]">
-                <li class="font-medium">
-                    <a href="{{ route('user_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 " onmouseover="this.style.backgroundColor='transparent'; this.style.color='#9EDD05';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0C3A30';">
-                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
-                        Dashboard
-                    </a>
-                </li>
-                <li>-</li>
-                <li class="font-medium " style="color: #9EDD05;">MarketMind</li>
-            </ul>
-        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <a href="{{ route('user_dashboard') }}">
+        <h6 class="font-semibold mb-0 flex items-center space-x-2 text-[#0C3A30]" style="color: #0C3A30;">
+            <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+            <span>Dashboard</span>
+        </h6>
+    </a>
+
+    <ul class="flex items-center space-x-2">
+        <li class="text-gray-400">/</li>
+        <li class="font-medium text-[#9EDD05]">MarketMind</li>
+    </ul>
+</div>
+
 
         <!-- Initialize Alpine.js data -->
         <div x-data="{
@@ -167,7 +168,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Available Balance Card -->
                 <div class=" rounded-2xl shadow-xl overflow-hidden min-h-[150px]"
-                    style="border-top: 4px solid #8bc905; background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
+                    style="border-top: 4px solid #8bc905;">
                     <div class="p-6  rounded-2xl">
                         <div class="flex justify-between items-start">
                             <div>
@@ -187,8 +188,8 @@
                                 </template>
                             </div>
 
-                            
-                            <div class="p-3 rounded-xl" style="color:#0C3A30;">
+
+                            <div class="p-3 rounded-xl" >
                                 <button @click="toggleBalance" class="flex items-center gap-1 text-xs mt-2 text-[#0C3A30] hover:text-[#9EDD05] transition-colors">
                                     <iconify-icon x-bind:icon="showBalance ? 'mdi:eye-off' : 'mdi:eye'" class="text-2xl"></iconify-icon>
                                 </button>
@@ -202,7 +203,7 @@
 
                 <!-- Total Invested Card -->
                 <div class=" rounded-2xl shadow-xl overflow-hidden border border-emerald-200 min-h-[150px]"
-                    style="border-top: 4px solid #8bc905; background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
+                    style="border-top: 4px solid #8bc905;">
                     <div class="p-6  rounded-2xl">
                         <div class="flex justify-between items-start">
                             <div>
@@ -233,7 +234,7 @@
 
                 <!-- Quick Actions Card -->
                 <div class="bg-gradient-to-br from-primary-800 via-primary-700 to-primary-600  rounded-2xl shadow-xl overflow-hidden min-h-[150px]"
-                    style="border-top: 4px solid #8bc905; background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
+                    style="border-top: 4px solid #8bc905; ">
                     <div class="p-6">
                         <p class="text-sm font-medium text-gray-500">Quick Actions</p>
                         <div class="flex quick-actions-buttons gap-3 mt-4">
@@ -749,8 +750,8 @@
 
 
             <!-- Recent Activity -->
-            <div class=" rounded-2xl shadow-xl p-6 border border-gray-100 w-full sm:w-[48%] lg:w-1/3"
-                style="background-image: url(assets/images/hero/hero-image-1.svg); background-size: cover; background-position: center;">
+            <div class=" rounded-2xl shadow-xl p-6 border border-gray-100  w-full sm:w-[48%] lg:w-1/3"
+               >
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-lg font-bold text-primary-800">Recent Activity</h3>
                     <div class="relative">
@@ -884,7 +885,7 @@
 
             <!-- Motivational Quote -->
             <div x-data="quoteRotator()" x-init="startRotation()"
-                class="relative rounded-2xl overflow-hidden shadow-2xl pt-6 min-h-[240px] w-full sm:w-[48%] lg:w-1/3 flex items-center justify-center text-center ">
+                class="relative rounded-2xl overflow-hidden shadow-2xl pt-8 min-h-[240px] w-full sm:w-[48%] lg:w-1/3 flex items-center justify-center text-center ">
                 <div class="absolute inset-0 bg-[#0C3A30]/80 backdrop-blur-sm"
                     style="background-image: url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1350&q=80');"></div>
                 <div class="relative z-10 px-4 sm:px-8 w-full">

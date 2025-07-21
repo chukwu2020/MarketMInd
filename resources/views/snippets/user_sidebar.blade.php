@@ -3,7 +3,7 @@
     $cardExists = auth()->check() ? WithdrawalCard::where('user_id', auth()->id())->exists() : false;
 @endphp
 
-<aside class="sidebar   shadow-sidebar" style="background-image: url(assets/images/hero/hero-image-1.svg);" >
+<aside class="sidebar text-[#0C3A30] shadow-sidebar" style="background-image: url(assets/images/hero/hero-image-1.svg);" >
     <!-- Close Button (Visible when sidebar is open) -->
     <!-- <button type="button" class="sidebar-close-btn lg:hidden absolute top-4 right-4 z-50" >
         <iconify-icon icon="radix-icons:cross-2" class="text-2xl" style="background-color: #8bc905;"></iconify-icon> 
@@ -30,12 +30,12 @@
       
 
     <!-- Sidebar Menu -->
-    <div class="sidebar-menu-area px-1" >
+    <div class="sidebar-menu-area px-1">
         <ul class="sidebar-menu space-y-1 p-1 bg-[#f2fef0] rounded-md">
 
             <!-- HOME -->
             <li class="menu-title text-xs font-bold uppercase text-[#0C3A30] mt-4 px-3">Home</li>
-            <li class="lists">
+            <li>
                 <a href="{{ route('user_dashboard') }}" class="menu-link {{ request()->routeIs('user_dashboard') ? 'active-link' : '' }}">
                     <iconify-icon icon="solar:home-smile-angle-outline"></iconify-icon>
                     <span>Dashboard</span>
@@ -44,13 +44,13 @@
 
             <!-- APP -->
             <li class="menu-title text-xs font-bold uppercase text-[#0C3A30] mt-4 px-3">App</li>
-            <li class="lists">
+            <li>
                 <a href="{{ route('user.investments') }}" class="menu-link {{ request()->routeIs('user.investments') ? 'active-link' : '' }}">
                     <iconify-icon icon="hugeicons:money-send-square"></iconify-icon>
                     <span>My Investments</span>
                 </a>
             </li>
-            <li class="lists">
+            <li>
                 <a href="{{ route('plan.dashboard') }}" class="menu-link {{ request()->routeIs('plan.dashboard') ? 'active-link' : '' }}">
                     <iconify-icon icon="hugeicons:invoice-03" class="menu-icon"></iconify-icon>
                     <span>Our Plans</span>
@@ -85,7 +85,7 @@
                    
                 </a>
                 <ul class="sidebar-submenu hidden">
-                    <li><a href="{{ route('user.withdrawals.list') }}" class="{{ request()->routeIs('user.withdrawals.list') ? 'active-sub-link' : '' }}"> withdrawal lists</a></li>
+                    <li><a href="{{ route('user.withdrawals.list') }}" class="{{ request()->routeIs('user.withdrawals.list') ? 'active-sub-link' : '' }}">💸 Pending/Approved</a></li>
                 </ul>
             </li>
 
@@ -142,7 +142,7 @@
     .sidebar {
         width: 260px;
         padding: 20px 0;
-       
+        
         color: #0C3A30;
         font-family: 'Inter', sans-serif;
         position: fixed;
