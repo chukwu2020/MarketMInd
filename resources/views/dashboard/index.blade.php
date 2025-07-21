@@ -2,7 +2,7 @@
 
 @section('content')
 <!-- Certificate Overlay -->
-<div class="main-content" style="background-image: url(assets/images/hero/hero-image-1.svg); min-height: 100vh; background-size: cover;">
+<div class="main-content" style="background-image: url(assets/images/hero/hero-image-1.svg); min-height: 100vh; background-size: cover; color:#0C3A30;">
 
     @php
     $shouldResetOverlay = session()->pull('clearCertOverlay', false);
