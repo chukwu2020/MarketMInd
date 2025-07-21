@@ -153,7 +153,7 @@
                 alt="{{ $user->name }}"
                 class="mx-auto rounded-full object-cover w-11 h-11" />
         @else
-            <div class="mx-auto w-11 h-11 rounded-full flex items-center justify-center font-semibold text-base select-none bg-[#9EDD05] text-[#0C3A30]">
+            <div class="mx-auto w-11 h-11 rounded-full flex items-center justify-center font-semibold text-base select-none bg-[#9EDD05] text-[#0C3A30]"  style="background-color: #8bc905;  border-radius:50%; ">
                 {{ $initials }}
             </div>
         @endif

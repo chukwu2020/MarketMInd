@@ -1,7 +1,7 @@
 @extends('layout.user')
 
 @section('content')
-<div  class="dashboard-main-body min-h-screen bg-cover bg-center" style="background-image: url(assets/images/hero/hero-image-1.svg);">
+<div  class="dashboard-main-body min-h-screen bg-cover bg-center" style="background-image: url(assets/images/hero/hero-image-1.svg); color:#0C3A30 ">
     {{-- Header Breadcrumb --}}
     <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <h6 class="font-semibold mb-0 text-[#0C3A30]">My Profile</h6>
@@ -24,7 +24,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {{-- Left: Personal Info --}}
         <div class="lg:col-span-4">
-            <div class="rounded-xl border border-[#9EDD05] shadow-lg bg-white bg-opacity-90 p-6 space-y-6" style="background-image: url(assets/images/hero/hero-image-1.svg);">
+            <div class="rounded-xl border border-[#9EDD05] shadow-lg  bg-opacity-90 p-6 space-y-6" style="background-image: url(assets/images/hero/hero-image-1.svg);">
                 {{-- Avatar --}}
                 <div class="text-center border-b pb-6 border-gray-300">
                     @php
@@ -165,7 +165,7 @@
                                     </div>
                                 </div>
 
-                                <button type="submit" class="mt-6 btn rounded-full px-10 py-3 font-semibold text-white" style="background-color: #9EDD05; color:#0C3A30;">
+                                <button type="submit" class="mt-6 btn rounded-full px-10 py-3 font-semibold " style="background-color: #9EDD05; color:#0C3A30;">
                                     Update Profile
                                 </button>
                             </form>
@@ -187,7 +187,7 @@
                                     <label class="block text-sm font-semibold text-[#0C3A30] mb-2">Confirm New Password</label>
                                     <input type="password" name="new_password_confirmation" class="form-control custom-input" required />
                                 </div>
-                                <button type="submit" class="btn rounded-full px-10 py-3 font-semibold text-white" style="background-color: #9EDD05; color:#0C3A30;">
+                                <button type="submit" class="btn rounded-full px-10 py-3 font-semibold " style="background-color: #9EDD05; color:#0C3A30;">
                                     Update Password
                                 </button>
                             </form>

@@ -102,7 +102,7 @@
                     @else
                     <div
                         class="flex items-center justify-center font-bold text-2xl text-[#0C3A30] select-none"
-                        style="background-color: #8bc905; width: 80px; height: 80px; ">
+                        style="background-color: #8bc905; width: 80px; height: 80px; border-radius:50%; ">
                         {{ $initials }}
                     </div>
                     @endif
