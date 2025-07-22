@@ -5,10 +5,6 @@ namespace App\Http\Controllers\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
-use App\Models\User;
-use Illuminate\Foundation\Auth\VerifiesEmails;
-use Illuminate\Auth\Events\Registered;
 
 class LoginController extends Controller
 {
@@ -17,53 +13,63 @@ class LoginController extends Controller
     /**
      * Show the login form.
      *
-     * @return \Illuminate\View\View
+     * Redirect logged-in users to their dashboard immediately.
      */
-  public function showLoginForm()
-{
-    if (auth()->check()) {
-        // Redirect already logged-in users
-        return redirect()->route('user_dashboard'); // or any dashboard/home route
+    public function showLoginForm()
+    {
+        if (auth()->check()) {
+            // Redirect already logged-in users
+            return redirect()->route('user_dashboard');
+        }
+
+        return view('auth.login');
     }
-
-    return view('auth.login'); // Continue if not logged in
-}
-
 
     /**
-     * Handle the authenticated user.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\User $user
-     * @return \Illuminate\Http\Response
-     * 
+     * Override the login method to safely logout old session if already logged in.
      */
+    public function login(Request $request)
+    {
+        $this->validateLogin($request);
 
-    // protected $redirectTo = '/home';
+        // If user is already logged in, logout old session & invalidate
+        if (Auth::check()) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
+        // Attempt login using trait method
+        if ($this->attemptLogin($request)) {
+            // Regenerate session after successful login to prevent fixation
+            $request->session()->regenerate();
 
+            return $this->sendLoginResponse($request);
+        }
 
+        // Failed login response
+        return $this->sendFailedLoginResponse($request);
+    }
+
+    /**
+     * Handle what happens after successful authentication.
+     */
     protected function authenticated(Request $request, $user)
     {
+        session()->forget('clearCertOverlay');
+        session()->put('clearCertOverlay', true);
 
- 
+        $today = now()->toDateString();
+        $shownToday = session("certShownDate") === $today;
+        $count = session("certShownCount", 0);
 
-     session()->forget('clearCertOverlay'); // remove it after one use
-session()->put('clearCertOverlay', true); // to trigger Alpine reset
-
-    $today = now()->toDateString();
-    $shownToday = session("certShownDate") === $today;
-    $count = session("certShownCount", 0);
-
-    // Only set to show if under daily limit
-    if (!$shownToday || $count < 2) {
-        // Set a timestamp for when it should appear (1 minute from now)
-        session([
-            'certShowAt' => now()->addMinute()->timestamp,
-            'certShownDate' => $today,
-            'certShownCount' => $shownToday ? $count + 1 : 1
-        ]);
-    }
+        if (!$shownToday || $count < 2) {
+            session([
+                'certShowAt' => now()->addMinute()->timestamp,
+                'certShownDate' => $today,
+                'certShownCount' => $shownToday ? $count + 1 : 1,
+            ]);
+        }
 
         if (is_null($user->email_verified_at)) {
             Auth::logout();
@@ -73,9 +79,9 @@ session()->put('clearCertOverlay', true); // to trigger Alpine reset
             ]);
         }
 
-        if ($user->role_as == 1) { // Admin role
+        if ($user->role_as == 1) { // Admin
             return redirect()->route('admin_dashboard')->with('message', 'Welcome to your admin dashboard');
-        } elseif ($user->role_as == 0) { // User role
+        } elseif ($user->role_as == 0) { // User
             return redirect()->route('user_dashboard')->with('message', 'Welcome to your user dashboard');
         } else {
             Auth::logout();
@@ -85,26 +91,12 @@ session()->put('clearCertOverlay', true); // to trigger Alpine reset
         }
     }
 
-
-
-
-    /**
-     * Send the verification email to the user.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-
-
-
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
-        $this->middleware('guest')->except('logout'); // Ensure only guests can access login
-        $this->middleware('auth')->only('logout');  // Only logged-in users can logout
+        $this->middleware('guest')->except('logout');
+        $this->middleware('auth')->only('logout');
     }
 }
