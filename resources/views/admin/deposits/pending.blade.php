@@ -54,23 +54,17 @@
                             <td><span class="text-neutral-600">{{ $deposit->user->name }}</span></td>
                             <td><span class="text-neutral-600">{{ $deposit->user->email }}</span></td>
                             <td><span class="text-neutral-600">{{ $deposit->plan->name }}</span></td>
- <td>
-                                        @if ($deposit->proof)
-                                        @php
-                                        $proofUrl = file_exists(public_path('storage/' . $deposit->proof))
-                                        ? asset('storage/' . $deposit->proof)
-                                        : asset('uploads/' . $deposit->proof);
-                                        @endphp
+<td>
+    @if ($deposit->proof)
+        <img src="{{ Storage::url($deposit->proof) }}"
+             alt="Proof"
+             class="w-[60px] h-[60px] cursor-pointer object-cover rounded"
+             onclick="openModal('{{ Storage::url($deposit->proof) }}')">
+    @else
+        <span class="text-gray-400">No proof</span>
+    @endif
+</td>
 
-                                        <img
-                                            src="{{ $proofUrl }}"
-                                            alt="Proof"
-                                            style="width: 60px; height: 60px; cursor: pointer;"
-                                            onclick="openModal('{{ $proofUrl }}')">
-                                        @else
-                                        <span class="text-gray-400">No proof</span>
-                                        @endif
-                                    </td>
 
 
 

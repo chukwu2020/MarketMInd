@@ -8,6 +8,7 @@
         max-width: 420px;
         height: 250px;
         border-radius: 1.5rem;
+     color: #fff !important; 
         overflow: hidden;
         background: linear-gradient(135deg, #1D4ED8, #A3E635, #4ADE80);
         background-size: 400% 400%;
@@ -63,7 +64,7 @@
     }
 
     .card-number {
-        font-size: 1.4rem;
+        font-size: 1.7rem;
         font-weight: 500;
         text-align: center;
         letter-spacing: 2px;
@@ -178,7 +179,14 @@
     }
 </style>
 
-<div style="background-image: url('/assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center; height:auto; width:100%;">
+<div class=" min-h-screen" style="background-image: url('assets/images/hero/hero-image-1.svg');
+            min-height: 100vh;
+            background-repeat: no-repeat;
+            background-size: cover;">
+     <!-- <div 
+    class="min-h-screen container mx-auto px-4 py-10" 
+    style="background-image: url('/assets/images/hero/hero-image-1.svg'); background-repeat: no-repeat; background-size: cover; background-position: center;"> -->
+
     
         <div class="container mx-auto px-4 py-10 text-center" style="padding-bottom: 100px;">
 

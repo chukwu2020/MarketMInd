@@ -47,7 +47,7 @@ Auth::routes();
 
 Route::prefix('auth')->group(function () {
     Route::get('/signup', [UserController::class, 'signup'])->name('signup');
-    Route::post('/create', [UserController::class, 'create_user'])->name('user.create');
+    // Route::post('/create', [UserController::class, 'create_user'])->name('user.create');
     Route::get('/planlists', [UserController::class, 'plans_header'])->name('plans.header');
     Route::get('/about-us', [UserController::class, 'About_Us'])->name('about.us');
     Route::get('/OurServices', [UserController::class, 'services'])->name('our.services');
@@ -124,7 +124,7 @@ Route::post('/certificate-shown', function() {
 
 
 
-// Route::post('/create-user', [UserController::class, 'createUser'])->name('user.create');
+Route::post('/create-user', [UserController::class, 'createUser'])->name('user.create');
 
 
 Route::get('/verify-otp/{token}', [UserController::class, 'showVerifyOtpForm'])->name('verify.otp');

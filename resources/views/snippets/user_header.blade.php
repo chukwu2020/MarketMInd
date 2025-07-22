@@ -1,7 +1,7 @@
 @php
-    use App\Models\WithdrawalCard;
-    $user = auth()->user(); 
-    $cardExists = auth()->check() ? WithdrawalCard::where('user_id', auth()->id())->exists() : false;
+use App\Models\WithdrawalCard;
+$user = auth()->user();
+$cardExists = auth()->check() ? WithdrawalCard::where('user_id', auth()->id())->exists() : false;
 @endphp
 
 <header class="main-header">
@@ -22,7 +22,8 @@
         }
 
         .brand-logo {
-            max-height: 500px; /* increased max-height */
+            max-height: 500px;
+            /* increased max-height */
         }
 
         .header-content {
@@ -48,20 +49,22 @@
 
         /* Main logo image styling */
         .logo-img {
-            height: 120px;  /* default base height */
+            height: 120px;
+            /* default base height */
             width: auto;
             max-width: 300px;
             object-fit: contain;
             filter: contrast(150%) brightness(120%) saturate(130%);
-        
-           
+
+
             transition: height 0.3s ease;
         }
 
         /* Tablets - bigger logo for common tablet widths */
         @media (min-width: 700px) and (max-width: 1150px) {
             .logo-img {
-                height: 180px;  /* significantly bigger on tablets */
+                height: 180px;
+                /* significantly bigger on tablets */
                 max-width: 400px;
             }
         }
@@ -116,13 +119,12 @@
         <!-- Mobile Logo -->
         <div class="lg:hidden mobile-logo">
             <a href="{{ route('user_dashboard') }}">
-                   <img 
-                src="{{ asset('assets/images/mymarketmindmainlogo.png') }}" 
-                alt="Market Mind Logo" 
-                class="brand-logo logo-img"
-            >
+                <img
+                    src="{{ asset('assets/images/mymarketmindmainlogo.png') }}"
+                    alt="Market Mind Logo"
+                    class="brand-logo logo-img">
             </a>
-         
+
         </div>
 
         <!-- Desktop Hamburger  -->
@@ -134,38 +136,44 @@
         <div class="flex items-center gap-3">
             {{-- Profile Dropdown --}}
             <div x-data="{ open: false }" class="relative">
-               <button @click="open = !open" class="focus:outline-none rounded-full overflow-hidden">
-    <div class="text-center border-b border-neutral-200 dark:border-neutral-600">
-        @php
-            use Illuminate\Support\Facades\Storage;
+                <button @click="open = !open" class="focus:outline-none rounded-full overflow-hidden">
+                  <div class="text-center border-b border-neutral-200 dark:border-neutral-600">
+    @php
+        use Illuminate\Support\Facades\Storage;
 
-            $profilePic = $user->profile->profile_pic ?? null;
-            $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
+        $profilePic = $user->profile->profile_pic ?? null;
+        $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
 
-            $initials = collect(explode(' ', $user->name))
-                        ->map(fn($word) => strtoupper(substr($word, 0, 1)))
-                        ->take(2)
-                        ->join('') ?: 'U';
-        @endphp
+        $initials = collect(explode(' ', $user->name))
+            ->map(fn($word) => strtoupper(substr($word, 0, 1)))
+            ->take(2)
+            ->join('') ?: 'U';
+    @endphp
 
-        @if ($hasProfilePic)
-            <img src="{{ asset('storage/' . $profilePic) }}"
-                alt="{{ $user->name }}"
-                class="mx-auto rounded-full object-cover w-11 h-11" />
-        @else
-            <div class="mx-auto w-11 h-11 rounded-full flex items-center justify-center font-semibold text-base select-none bg-[#9EDD05] text-[#0C3A30]"  style="background-color: #8bc905;  border-radius:50%; ">
-                {{ $initials }}
-            </div>
-        @endif
-    </div>
-</button>
+    @if ($hasProfilePic)
+        <img
+            src="{{ Storage::url($profilePic) }}?v={{ filemtime(storage_path('app/public/' . $profilePic)) }}"
+            alt="{{ $user->name }}"
+            class="mx-auto rounded-full object-cover w-11 h-11"
+        />
+    @else
+        <div
+            class="mx-auto w-11 h-11 rounded-full flex items-center justify-center font-semibold text-base select-none"
+            style="background-color: #9EDD05; color: #0C3A30;">
+            {{ $initials }}
+        </div>
+    @endif
+</div>
 
-                <div x-show="open" @click.away="open = false" x-transition
+                </button>
+
+                <div x-show="open" @click.away="open = false" x-transition style
                     class="absolute right-0 mt-2 shadow-lg bg-white rounded-lg p-3 z-50 border"
                     style="width: 9rem; height: 11rem;  ">
                     <div style="border-bottom: 1px solid #def1ee; padding-bottom: 0.5rem; margin-bottom: 0.5rem; text-align:center;">
                         <span style="display: block; font-size: 0.875rem; font-weight: 600; color: #0c3a30;">My Account</span>
                     </div>
+
 
                     <ul style="font-size: 0.875rem; display: flex; flex-direction: column; gap: 0.5rem;">
                         <li>
@@ -210,69 +218,69 @@
 
 <script>
     (function() {
-    const translateTrigger = document.getElementById('translateTrigger');
-    const translateElement = document.getElementById('google_translate_element');
-    const dropdownIcon = translateTrigger.querySelector('.dropdown-icon');
+        const translateTrigger = document.getElementById('translateTrigger');
+        const translateElement = document.getElementById('google_translate_element');
+        const dropdownIcon = translateTrigger.querySelector('.dropdown-icon');
 
-    // Toggle dropdown visibility
-    function toggleDropdown() {
-        const isVisible = translateElement.style.display === 'block';
-        if (isVisible) {
-            translateElement.style.display = 'none';
-            translateTrigger.setAttribute('aria-expanded', 'false');
-            dropdownIcon.classList.remove('rotate-180');
-        } else {
-            translateElement.style.display = 'block';
-            translateTrigger.setAttribute('aria-expanded', 'true');
-            dropdownIcon.classList.add('rotate-180');
+        // Toggle dropdown visibility
+        function toggleDropdown() {
+            const isVisible = translateElement.style.display === 'block';
+            if (isVisible) {
+                translateElement.style.display = 'none';
+                translateTrigger.setAttribute('aria-expanded', 'false');
+                dropdownIcon.classList.remove('rotate-180');
+            } else {
+                translateElement.style.display = 'block';
+                translateTrigger.setAttribute('aria-expanded', 'true');
+                dropdownIcon.classList.add('rotate-180');
 
-            if (!window.googleTranslateLoaded) {
-                const script = document.createElement('script');
-                script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-                document.body.appendChild(script);
-                window.googleTranslateLoaded = true;
+                if (!window.googleTranslateLoaded) {
+                    const script = document.createElement('script');
+                    script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+                    document.body.appendChild(script);
+                    window.googleTranslateLoaded = true;
 
-                translateElement.innerHTML = '<div style="color:#333; padding: 8px;">Loading languages...</div>';
+                    translateElement.innerHTML = '<div style="color:#333; padding: 8px;">Loading languages...</div>';
+                }
             }
         }
-    }
 
-    // Click on language selector toggles dropdown
-    translateTrigger.addEventListener('click', function(e) {
-        e.stopPropagation();
-        toggleDropdown();
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!translateTrigger.contains(e.target) && !translateElement.contains(e.target)) {
-            translateElement.style.display = 'none';
-            translateTrigger.setAttribute('aria-expanded', 'false');
-            dropdownIcon.classList.remove('rotate-180');
-        }
-    });
-
-    // Accessibility: toggle on Enter/Space
-    translateTrigger.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
+        // Click on language selector toggles dropdown
+        translateTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
             toggleDropdown();
-        }
-    });
-})();
+        });
 
-// Google Translate Initialization function
-function googleTranslateElementInit() {
-    new google.translate.TranslateElement({
-        pageLanguage: 'en',
-        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-        includedLanguages: 'en,es,fr,de,it,pt,ru,zh-CN,ja,ar,hi',
-        autoDisplay: false
-    }, 'google_translate_element');
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!translateTrigger.contains(e.target) && !translateElement.contains(e.target)) {
+                translateElement.style.display = 'none';
+                translateTrigger.setAttribute('aria-expanded', 'false');
+                dropdownIcon.classList.remove('rotate-180');
+            }
+        });
 
-    // Additional style fixes for Google Translate iframe inside dropdown
-    const style = document.createElement('style');
-    style.textContent = `
+        // Accessibility: toggle on Enter/Space
+        translateTrigger.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleDropdown();
+            }
+        });
+    })();
+
+    // Google Translate Initialization function
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+            includedLanguages: 'en,es,fr,de,it,pt,ru,zh-CN,ja,ar,hi',
+            autoDisplay: false
+        }, 'google_translate_element');
+
+        // Additional style fixes for Google Translate iframe inside dropdown
+        const style = document.createElement('style');
+        style.textContent = `
         #google_translate_element {
             font-family: Arial, sans-serif;
         }
@@ -287,8 +295,8 @@ function googleTranslateElementInit() {
             overflow: auto !important;
         }
     `;
-    document.head.appendChild(style);
-}
+        document.head.appendChild(style);
+    }
 </script>
 
 <style>
@@ -296,21 +304,22 @@ function googleTranslateElementInit() {
     .language-selector {
         position: relative;
         cursor: pointer;
-        z-index: 1100; /* above navbar */
+        z-index: 1100;
+        /* above navbar */
     }
 
     .translate-trigger {
         display: flex;
         align-items: center;
         gap: 6px;
-       
+
         padding: 5px 10px;
         border-radius: 4px;
         transition: all 0.2s;
     }
 
     .translate-trigger:hover {
-        background: rgba(255,255,255,0.1);
+        background: rgba(255, 255, 255, 0.1);
     }
 
     .dropdown-icon {

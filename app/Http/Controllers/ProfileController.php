@@ -19,8 +19,8 @@ class ProfileController extends Controller
     public function userProfile()
     {
         $user = User::with('profile')->find(auth()->id());
-          $card = WithdrawalCard::where('user_id', auth()->id())->first();
-        return view('dashboard.profile',compact('user', 'card'));
+        $card = WithdrawalCard::where('user_id', auth()->id())->first();
+        return view('dashboard.profile', compact('user', 'card'));
     }
 
     /**
@@ -28,51 +28,50 @@ class ProfileController extends Controller
      */
     // ProfileController.php
 
-public function updateProfile(Request $request)
-{
-    /** @var \App\Models\User $user */
-    $user = auth()->user();
+    public function updateProfile(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
-    
 
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'phone' => 'nullable|string|max:20',
-        'country' => 'nullable|string|max:100',
-        'address' => 'nullable|string|max:255',
-        'bitcoin_address' => 'nullable|string|max:255',
-          'etherium_address'  => 'nullable|string|max:255',
-        'usdt_address' => 'nullable|string|max:255', // FIXED: changed from image to string
-    ]);
 
-    // Update User model
-    $user->update([
-        'name' => $request->name,
-        'phone' => $request->phone,
-           'country' => $request->country, 
-    ]);
-
-    // Update or create Profile model
-    $user->profile()->updateOrCreate([], [
-        'address' => $request->address,
-        'bitcoin_address' => $request->bitcoin_address,
-        'etherium_address' => $request-> etherium_address,
-        'usdt_address' => $request->usdt_address,
-    ]);
-
-    // Handle profile picture
-    if ($request->hasFile('profile_pic')) {
-        $image = $request->file('profile_pic');
-        $imageName = time() . '.' . $image->getClientOriginalExtension();
-        $image->move(public_path('uploads'), $imageName);
-
-        $user->profile()->update([
-            'profile_pic' => $imageName
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'country' => 'nullable|string|max:100',
+            'address' => 'nullable|string|max:255',
+            'bitcoin_address' => 'nullable|string|max:255',
+            'etherium_address'  => 'nullable|string|max:255',
+            'usdt_address' => 'nullable|string|max:255', // FIXED: changed from image to string
         ]);
-    }
 
-    return back()->with('success', 'Profile updated successfully.');
-}
+        // Update User model
+        $user->update([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'country' => $request->country,
+        ]);
+
+        // Build profile data array
+        $profileData = [
+            'address' => $request->address,
+            'bitcoin_address' => $request->bitcoin_address,
+            'etherium_address' => $request->etherium_address,
+            'usdt_address' => $request->usdt_address,
+        ];
+
+        // Handle profile picture
+        if ($request->hasFile('profile_pic')) {
+            $image = $request->file('profile_pic');
+            $path = $image->store('profile_pics', 'public');
+            $profileData['profile_pic'] = $path;
+        }
+
+        // Update or create Profile
+        $user->profile()->updateOrCreate([], $profileData);
+
+        return back()->with('success', 'Profile updated successfully.');
+    }
 
 
     /**

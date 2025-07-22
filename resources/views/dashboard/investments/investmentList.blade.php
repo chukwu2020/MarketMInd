@@ -3,40 +3,43 @@
 @section('content')
 
 
-<div class=" container mx-auto px-4 py-10" style="background-image: url(assets/images/hero/hero-image-1.svg); margin-bottom:2rem " >
+
+    <div
+        class="min-h-screen container mx-auto px-4 py-10"
+        style="background-image: url('/assets/images/hero/hero-image-1.svg'); background-repeat: no-repeat; background-size: cover; background-position: center;">
 
 
 
-     <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
-        <h5 class="font-semibold mb-0  " style="color: #0C3A30; padding-right:0.8rem;">Withdrawn </h5>
-        <ul class="flex items-center gap-[6px]">
-            <li class="font-medium">
-                <a href="{{ route('user_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 " onmouseover="this.style.backgroundColor='transparent'; this.style.color='#9EDD05';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0C3A30';">
-                    <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
-                    Dashboard
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+            <h5 class="font-semibold mb-0  " style="color: #0C3A30; padding-right:0.8rem;">Withdrawn </h5>
+            <ul class="flex items-center gap-[6px]">
+                <li class="font-medium">
+                    <a href="{{ route('user_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 " onmouseover="this.style.backgroundColor='transparent'; this.style.color='#9EDD05';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0C3A30';">
+                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        Dashboard
+                    </a>
+                </li>
+                <li>-</li>
+                <li class="font-medium ">Investments</li>
+            </ul>
+        </div>
+
+        <div class="mb-6">
+            {{-- Return Link --}}
+            <div class="flex justify-end">
+                <a href="{{ route('user.investments') }}" class="inline-flex items-center gap-1 text-sm hover:underline" style="color: #0C3A30;">
+                    <iconify-icon icon="solar:arrow-left-linear" class="text-lg"></iconify-icon>
+                    Return Back
                 </a>
-            </li>
-            <li >-</li>
-            <li class="font-medium ">Investments</li>
-        </ul>
-    </div>
-   
-<div class="mb-6"  >
-    {{-- Return Link --}}
-    <div class="flex justify-end">
-        <a href="{{ route('user.investments') }}" class="inline-flex items-center gap-1 text-sm hover:underline" style="color: #0C3A30;">
-            <iconify-icon icon="solar:arrow-left-linear" class="text-lg"></iconify-icon>
-            Return Back 
-        </a>
-    </div>
-</div>
+            </div>
+        </div>
 
-@if($withdrawnInvestments->isEmpty())
-    <p class="text-center" style="color: #0C3A30;">No withdrawn investments yet.</p>
-@else
-    <div class="space-y-6" style="background-image: url(assets/images/hero/hero-image-1.svg); "  >
-        @foreach($withdrawnInvestments as $investment)
-            <div class="border border-gray-200 rounded-2xl shadow p-6" style="border-top: 4px solid #9EDD05;"style="background-image: url(assets/images/hero/hero-image-1.svg); " >
+        @if($withdrawnInvestments->isEmpty())
+        <p class="text-center" style="color: #0C3A30;">No withdrawn investments yet.</p>
+        @else
+        <div class="space-y-6" style="background-image: url(assets/images/hero/hero-image-1.svg); ">
+            @foreach($withdrawnInvestments as $investment)
+            <div class="border border-gray-200 rounded-2xl shadow p-6" style="border-top: 4px solid #9EDD05;" style="background-image: url(assets/images/hero/hero-image-1.svg); ">
                 <h3 class="text-xl font-semibold mb-2 text-center" style="color: #0C3A30;">
                     {{ $investment->plan->name ?? 'N/A' }}
                 </h3>
@@ -68,10 +71,10 @@
                     </table>
                 </div>
             </div>
-        @endforeach
+            @endforeach
+        </div>
+
+
+        @endif
     </div>
-
-
-@endif
-</div>
-@endsection
+    @endsection

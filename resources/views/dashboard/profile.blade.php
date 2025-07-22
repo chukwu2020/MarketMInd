@@ -26,29 +26,35 @@
         <div class="lg:col-span-4">
             <div class="rounded-xl border border-[#9EDD05] shadow-lg  bg-opacity-90 p-6 space-y-6" style="background-image: url(assets/images/hero/hero-image-1.svg);">
                 {{-- Avatar --}}
-                <div class="text-center border-b pb-6 border-gray-300">
-                    @php
-                    $profilePic = $user->profile->profile_pic ?? null;
-                   $hasProfilePic = $profilePic && file_exists(storage_path('app/public/profile_pictures/' . $profilePic));
+              <div class="text-center border-b pb-6 border-gray-300">
+    @php
+        $profilePic = $user->profile->profile_pic ?? null;
 
-                    $initials = collect(explode(' ', $user->name))
-                    ->map(fn($w) => strtoupper(substr($w, 0, 1)))
-                    ->take(2)
-                    ->join('') ?: 'U';
-                    @endphp
+        use Illuminate\Support\Facades\Storage;
 
-                    @if($hasProfilePic)
-               <img loading="lazy"
-    src="{{ asset('storage/profile_pictures/' . $profilePic) }}"
-                        class="mx-auto rounded-full object-cover border border-[#0C3A30]"
-                        style="width: 7rem; height: 7rem; " />
-                    @else
-                    <div class="mx-auto rounded-full flex items-center justify-center font-semibold text-3xl"
-                        style="width: 8rem; height: 8rem; background-color: #9EDD05; color:#0C3A30;">
-                        {{ $initials }}
-                    </div>
-                    @endif
-                </div>
+        $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
+
+        $initials = collect(explode(' ', $user->name))
+            ->map(fn($w) => strtoupper(substr($w, 0, 1)))
+            ->take(2)
+            ->join('') ?: 'U';
+    @endphp
+
+    @if ($hasProfilePic)
+        <img
+            loading="lazy"
+            src="{{ Storage::url($profilePic) }}?v={{ filemtime(storage_path('app/public/' . $profilePic)) }}"
+            class="mx-auto rounded-full object-cover border border-[#0C3A30]"
+            style="width: 7rem; height: 7rem;" />
+    @else
+        <div
+            class="mx-auto rounded-full flex items-center justify-center font-semibold text-3xl select-none"
+            style="width: 8rem; height: 8rem; background-color: #9EDD05; color: #0C3A30;">
+            {{ $initials }}
+        </div>
+    @endif
+</div>
+
 
                 {{-- Personal Info --}}
                 <div  style="color: #0c3a30;">

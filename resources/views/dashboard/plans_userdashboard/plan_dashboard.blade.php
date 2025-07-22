@@ -82,13 +82,15 @@
 
                 <!-- Icon -->
                 <div class="flex justify-center mb-5">
-                    <img src="{{ asset('assets/images/about/about-image-2.png') }}" alt="Plan Icon" class="w-16 h-16">
+                   
+
+                    <img src="{{'asset(assets/images/depositimage.jpg') }}" alt="Plan Icon"  class="w-16 h-16">
                 </div>
 
                 <!-- Plan Name & Interest -->
                 <div class="text-center mb-6">
                     <h3 class="text-2xl font-semibold capitalize plan-heading">
-                        {{ $plan->name }} Plan
+                        {{ $plan->name }} 
                     </h3>
                     <p class="text-lg mt-1 text-gray-700 ">
                         <span class="font-bold">{{ $plan->interest_rate }}%</span>

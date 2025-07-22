@@ -81,33 +81,35 @@
         <!-- Header with Breadcrumb -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
             <div class="flex items-center gap-4 bg-[#f0fdf4] px-2 py-3 rounded-lg shadow-sm w-full sm:w-auto">
-                <div class="relative">
-                    @php
-                    $profilePic = $user->profile->profile_pic ?? null;
-                    $storagePath = storage_path('app/public/profile_pictures/' . $profilePic);
-                    $hasProfilePic = $profilePic && file_exists($storagePath);
+               <div class="relative">
+    @php
+        $profilePic = $user->profile->profile_pic ?? null;
 
-                    $initials = collect(explode(' ', $user->name))
-                    ->map(fn($w) => strtoupper(substr($w, 0, 1)))
-                    ->take(2)
-                    ->join('') ?: 'U';
-                    @endphp
+        use Illuminate\Support\Facades\Storage;
 
-                    @if ($hasProfilePic)
-                    <img
-                        src="{{ asset('storage/profile_pictures/' . $profilePic) }}?v={{ filemtime($storagePath) }}"
-                        alt="{{ $user->name }}"
-                        class="rounded-full object-cover"
-                        style="width: 80px; height: 80px; border: 2px solid #8bc905; border-radius:50%; " />
-                    @else
-                    <div
-                        class="flex items-center justify-center font-bold text-2xl text-[#0C3A30] select-none"
-                        style="background-color: #8bc905; width: 80px; height: 80px; border-radius:50%; ">
-                        {{ $initials }}
-                    </div>
-                    @endif
+        $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
 
-                </div>
+        $initials = collect(explode(' ', $user->name))
+            ->map(fn($w) => strtoupper(substr($w, 0, 1)))
+            ->take(2)
+            ->join('') ?: 'U';
+    @endphp
+
+    @if ($hasProfilePic)
+        <img
+            src="{{ Storage::url($profilePic) }}?v={{ filemtime(storage_path('app/public/' . $profilePic)) }}"
+            alt="{{ $user->name }}"
+            class="rounded-full object-cover"
+            style="width: 80px; height: 80px; border: 2px solid #8bc905;" />
+    @else
+        <div
+            class="flex items-center justify-center font-bold text-2xl text-[#0C3A30] select-none"
+            style="background-color: #8bc905; width: 80px; height: 80px; border-radius: 50%;">
+            {{ $initials }}
+        </div>
+    @endif
+</div>
+
 
                 <div>
                     <div class="flex items-center gap-2 flex-wrap">

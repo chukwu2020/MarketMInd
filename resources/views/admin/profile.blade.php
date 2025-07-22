@@ -21,37 +21,34 @@
         <div class="col-span-12 lg:col-span-4 bg-[url('assets/images/hero/hero-image-1.svg')] bg-cover bg-center h-full">
             <div class="user-grid-card relative rounded-2xl overflow-hidden bg-whiteh-full bg-opacity-80">
                 <div class="pb-6 px-6 pt-[20px]">
-                    <div class="text-center border-b border-neutral-200 py-6">
+                 <div class="text-center border-b pb-6 border-gray-300">
+    @php
+        $profilePic = $user->profile->profile_pic ?? null;
 
-                        @php
-                        $profilePic = $user->profile->profile_pic ?? null;
+        use Illuminate\Support\Facades\Storage;
 
-                        $hasProfilePic = $profilePic && file_exists(storage_path('app/public/profile_pictures/' . $profilePic));
+        $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
 
+        $initials = collect(explode(' ', $user->name))
+            ->map(fn($w) => strtoupper(substr($w, 0, 1)))
+            ->take(2)
+            ->join('') ?: 'U';
+    @endphp
 
-                        // Get initials from user name, fallback "U"
-                        $initials = collect(explode(' ', $user->name))
-                        ->map(fn($word) => strtoupper(substr($word, 0, 1)))
-                        ->take(2)
-                        ->join('') ?: 'U';
-                        @endphp
-
-                        @if ($hasProfilePic)
-                        <img loading="lazy"
-                            src="{{ asset('storage/profile_pictures/' . $profilePic) }}"
-                            alt="{{ $user->name }}"
-                            class="mx-auto rounded-full object-cover"
-                            style="width: 7rem; height: 7rem;" />
-                        @else
-                        <div class="mx-auto  rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-3xl select-none" style="background-color: #9EDD05; color:#0C3A30; width:8rem; height: 8rem;
-border-radius:50%">
-                            {{ $initials }}
-                        </div>
-                        @endif
-
-                        <h6 class="mb-0 mt-4 text-[#0C3A30]">{{ $user->name }}</h6>
-                        <span class="text-secondary-light mb-4">{{ $user->email }}</span>
-                    </div>
+    @if ($hasProfilePic)
+        <img
+            loading="lazy"
+            src="{{ Storage::url($profilePic) }}?v={{ filemtime(storage_path('app/public/' . $profilePic)) }}"
+            class="mx-auto rounded-full object-cover border border-[#0C3A30]"
+            style="width: 7rem; height: 7rem;" />
+    @else
+        <div
+            class="mx-auto rounded-full flex items-center justify-center font-semibold text-3xl select-none"
+            style="width: 8rem; height: 8rem; background-color: #9EDD05; color: #0C3A30;">
+            {{ $initials }}
+        </div>
+    @endif
+</div>
 
 
                     <div class="mt-6">

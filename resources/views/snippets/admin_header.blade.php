@@ -33,6 +33,7 @@ $user = auth()->user();
 
 
         <button data-dropdown-toggle="dropdownProfile" class="rounded-full overflow-hidden w-10 h-10 focus:outline-none border-2 border-transparent hover:border-primary-500 transition">
+   <div class="text-center border-b border-neutral-200 dark:border-neutral-600">
     @php
         use Illuminate\Support\Facades\Storage;
 
@@ -40,20 +41,26 @@ $user = auth()->user();
         $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
 
         $initials = collect(explode(' ', $user->name))
-                    ->map(fn($word) => strtoupper(substr($word, 0, 1)))
-                    ->take(2)
-                    ->join('') ?: 'U';
+            ->map(fn($word) => strtoupper(substr($word, 0, 1)))
+            ->take(2)
+            ->join('') ?: 'U';
     @endphp
 
     @if ($hasProfilePic)
-        <img src="{{ asset('storage/' . $profilePic) }}"
+        <img
+            src="{{ Storage::url($profilePic) }}?v={{ filemtime(storage_path('app/public/' . $profilePic)) }}"
             alt="{{ $user->name }}"
-            class="mx-auto rounded-full object-cover w-10 h-10" />
+            class="mx-auto rounded-full object-cover w-11 h-11"
+        />
     @else
-        <div class="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm select-none bg-[#9EDD05] text-[#0C3A30]">
+        <div
+            class="mx-auto w-11 h-11 rounded-full flex items-center justify-center font-semibold text-base select-none"
+            style="background-color: #9EDD05; color: #0C3A30;">
             {{ $initials }}
         </div>
     @endif
+</div>
+
 </button>
 
                 <div id="dropdownProfile" class="z-10 hidden bg-white dark:bg-neutral-700 rounded-lg shadow-lg dropdown-menu-sm p-3">
