@@ -137,25 +137,50 @@ $cardExists = auth()->check() ? WithdrawalCard::where('user_id', auth()->id())->
             {{-- Profile Dropdown --}}
             <div x-data="{ open: false }" class="relative">
                 <button @click="open = !open" class="focus:outline-none rounded-full overflow-hidden">
-                  <div class="text-center border-b border-neutral-200 dark:border-neutral-600">
+                    <!-- <div class="text-center border-b border-neutral-200 dark:border-neutral-600">
+                        @php
+                        use Illuminate\Support\Facades\Storage;
+
+                        $profilePic = $user->profile->profile_pic ?? null;
+                        $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
+
+                        $initials = collect(explode(' ', $user->name))
+                        ->map(fn($word) => strtoupper(substr($word, 0, 1)))
+                        ->take(2)
+                        ->join('') ?: 'U';
+                        @endphp
+
+                        @if ($hasProfilePic)
+                        <img
+                            src="{{ Storage::url($profilePic) }}?v={{ filemtime(storage_path('app/public/' . $profilePic)) }}"
+                            alt="{{ $user->name }}"
+                            class="mx-auto rounded-full object-cover w-11 h-11" />
+                        @else
+                        <div
+                            class="mx-auto w-11 h-11 rounded-full flex items-center justify-center font-semibold text-base select-none"
+                            style="background-color: #9EDD05; color: #0C3A30;">
+                            {{ $initials }}
+                        </div>
+                        @endif
+                    </div> -->
+<div class="text-center border-b border-neutral-200 dark:border-neutral-600">
     @php
-        use Illuminate\Support\Facades\Storage;
-
-        $profilePic = $user->profile->profile_pic ?? null;
-        $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
-
-        $initials = collect(explode(' ', $user->name))
-            ->map(fn($word) => strtoupper(substr($word, 0, 1)))
-            ->take(2)
-            ->join('') ?: 'U';
+    use Illuminate\Support\Facades\Storage;
+    
+    $profilePic = $user->profile->profile_pic ?? null;
+    $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
+    
+    $initials = collect(explode(' ', $user->name))
+        ->map(fn($word) => strtoupper(substr($word, 0, 1)))
+        ->take(2)
+        ->join('') ?: 'U';
     @endphp
-
+    
     @if ($hasProfilePic)
         <img
-            src="{{ Storage::url($profilePic) }}?v={{ filemtime(storage_path('app/public/' . $profilePic)) }}"
+            src="{{ asset('storage/'.$profilePic) }}?v={{ time() }}"
             alt="{{ $user->name }}"
-            class="mx-auto rounded-full object-cover w-11 h-11"
-        />
+            class="mx-auto rounded-full object-cover w-11 h-11" />
     @else
         <div
             class="mx-auto w-11 h-11 rounded-full flex items-center justify-center font-semibold text-base select-none"
@@ -164,12 +189,12 @@ $cardExists = auth()->check() ? WithdrawalCard::where('user_id', auth()->id())->
         </div>
     @endif
 </div>
-
                 </button>
 
-                <div x-show="open" @click.away="open = false" x-transition style
-                    class="absolute right-0 mt-2 shadow-lg bg-white rounded-lg p-3 z-50 border"
-                    style="width: 9rem; height: 11rem;  ">
+                <div x-show="open" @click.away="open = false" x-transition
+                    class="absolute right-0 mt-2 shadow-lg bg-white rounded-lg p-4 z-50 border"
+                    style="width: 9rem !important; height: 11rem;">
+
                     <div style="border-bottom: 1px solid #def1ee; padding-bottom: 0.5rem; margin-bottom: 0.5rem; text-align:center;">
                         <span style="display: block; font-size: 0.875rem; font-weight: 600; color: #0c3a30;">My Account</span>
                     </div>

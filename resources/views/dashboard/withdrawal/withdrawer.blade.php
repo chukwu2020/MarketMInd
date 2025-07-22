@@ -50,7 +50,7 @@ $usdt = $profile->usdt_address ?? null;
 @endif
 
 
-<div class="max-w-xl mx-auto mt-10 p-6 rounded-2xl shadow-xl border" style="background-image: url('/images/your-background.jpg'); background-size: cover; background-position: center; border-color: #8AC304;">
+<div class="max-w-xl mx-auto mt-10 p-6 rounded-2xl shadow-xl border" >
 
 
     {{-- Header --}}

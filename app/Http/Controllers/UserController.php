@@ -266,7 +266,7 @@ $activeInvestments = Investment::with('plan')
             ->merge($activeInvestments)
             ->merge($maturedInvestments)
             ->sortByDesc('date')
-            ->take(5);
+            ->take(3);
 
         if (session('certShowAt') && session('certShowAt') < now()->timestamp) {
             session()->forget('certShowAt');

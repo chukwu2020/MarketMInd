@@ -80,9 +80,11 @@ class LoginController extends Controller
         }
 
         if ($user->role_as == 1) { // Admin
-            return redirect()->route('admin_dashboard')->with('message', 'Welcome to your admin dashboard');
+            return redirect()->route('admin_dashboard');
         } elseif ($user->role_as == 0) { // User
-            return redirect()->route('user_dashboard')->with('message', 'Welcome to your user dashboard');
+            return redirect()->route('user_dashboard');
+            
+
         } else {
             Auth::logout();
             return redirect()->route('login')->withErrors([

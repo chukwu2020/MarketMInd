@@ -26,7 +26,7 @@
         padding: 0.25rem 0.75rem;
         border-radius: 9999px;
         font-size: 0.75rem;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
     }
 
     .check-icon {
@@ -49,19 +49,19 @@
     <div class="container mx-auto   px-4 py-10">
         <!-- Section Header -->
 
-         <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
-        <h5 class="font-semibold mb-0  " style="color: #0C3A30; padding-right:0.8rem;">Plans </h5>
-        <ul class="flex items-center gap-[6px]">
-            <li class="font-medium">
-                <a href="{{ route('user_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 " onmouseover="this.style.backgroundColor='transparent'; this.style.color='#9EDD05';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0C3A30';">
-                    <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
-                    Dashboard
-                </a>
-            </li>
-            <li >-</li>
-            <li class="font-medium ">Plans</li>
-        </ul>
-    </div>
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+            <h5 class="font-semibold mb-0  " style="color: #0C3A30; padding-right:0.8rem;">Plans </h5>
+            <ul class="flex items-center gap-[6px]">
+                <li class="font-medium">
+                    <a href="{{ route('user_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 " onmouseover="this.style.backgroundColor='transparent'; this.style.color='#9EDD05';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#0C3A30';">
+                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        Dashboard
+                    </a>
+                </li>
+                <li>-</li>
+                <li class="font-medium ">Plans</li>
+            </ul>
+        </div>
         <div class="text-center mb-16">
             <h4 class="text-3xl md:text-5xl font-extrabold mt-3 leading-tight plan-heading">
                 OUR PRICING PLANS
@@ -69,10 +69,10 @@
         </div>
 
         <!-- Plan Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10" >
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
             @foreach($plans as $plan)
             <div class="bg-white  border border-gray-200 rounded-lg shadow-lg hover:shadow-2xl transition duration-300 p-6 flex flex-col justify-between relative group" style="background-image: url(assets/images/hero/hero-image-1.svg);">
-                
+
                 <!-- Popular Badge -->
                 @if($loop->first)
                 <span class="absolute top-4 right-4 custom-badge">
@@ -82,15 +82,15 @@
 
                 <!-- Icon -->
                 <div class="flex justify-center mb-5">
-                   
 
-                    <img src="{{'asset(assets/images/depositimage.jpg') }}" alt="Plan Icon"  class="w-16 h-16">
+                    <img src="{{ asset('assets/images/depositimage.jpg') }}" alt="Plan Icon" style="width: 104px; height:84px; border-radius:6px;">
+
                 </div>
 
                 <!-- Plan Name & Interest -->
                 <div class="text-center mb-6">
                     <h3 class="text-2xl font-semibold capitalize plan-heading">
-                        {{ $plan->name }} 
+                        {{ $plan->name }}
                     </h3>
                     <p class="text-lg mt-1 text-gray-700 ">
                         <span class="font-bold">{{ $plan->interest_rate }}%</span>

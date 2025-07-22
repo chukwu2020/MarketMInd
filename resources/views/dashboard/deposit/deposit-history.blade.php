@@ -3,10 +3,7 @@
 @section('content')
 
 <div class="dashboard-main-body"
-     style="background-image: url('assets/images/hero/hero-image-1.svg');
-            min-height: 100vh;
-            background-repeat: no-repeat;
-            background-size: cover;">
+    >
 
     <!-- Header -->
     <div class="flex flex-wrap items-center justify-between gap-2 mb-6 mt-7">
@@ -77,8 +74,9 @@
                             <div class="col-span-full text-center py-10 text-gray-500">
                                 <iconify-icon icon="mdi:inbox-remove-outline" class="text-4xl text-gray-300 mb-3"></iconify-icon>
                                 <p>No deposit history found.</p>
-                                <a href="{{ route('user.deposit') }}" class="mt-3 inline-block text-sm text-[#8AC304] hover:underline">
-                                    Make your first deposit
+                              
+                                  <a href="{{ route('user.deposit') }}" class="mt-3 inline-block text-sm text-primary-600 hover:text-primary-800 font-medium">
+                                      Make your first deposit
                                 </a>
                             </div>
                         @endforelse

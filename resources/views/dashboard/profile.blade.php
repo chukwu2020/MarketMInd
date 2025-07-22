@@ -1,7 +1,7 @@
 @extends('layout.user')
 
 @section('content')
-<div  class="dashboard-main-body min-h-screen bg-cover bg-center" style="background-image: url(assets/images/hero/hero-image-1.svg); color:#0C3A30 !important; ">
+<div  class="dashboard-main-body min-h-screen bg-cover bg-center" >
     {{-- Header Breadcrumb --}}
     <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <h6 class="font-semibold mb-0 "  style="color: #0c3a30;">My Profile</h6>

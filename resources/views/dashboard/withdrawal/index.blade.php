@@ -3,10 +3,7 @@
 @section('content')
 
 <div class="dashboard-main-body"
-     style="background-image: url('assets/images/hero/hero-image-1.svg');
-            min-height: 100vh;
-            background-repeat: no-repeat;
-            background-size: cover;">
+    >
 
     <!-- Header -->
     <div class="flex flex-wrap items-center justify-between gap-2 mb-6 mt-7">

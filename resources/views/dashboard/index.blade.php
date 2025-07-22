@@ -2,7 +2,7 @@
 
 @section('content')
 <!-- Certificate Overlay -->
-<div class="main-content" style="background-image: url(assets/images/hero/hero-image-1.svg); min-height: 120vh; background-size: cover; color:#0C3A30 !important;">
+<div class="main-content" >
 
     @php
     $shouldResetOverlay = session()->pull('clearCertOverlay', false);
@@ -76,39 +76,39 @@
     </style>
 
     <!-- Main Dashboard Content -->
-    <div class="dashboard-main-body space-y-6" style="min-height: 100vh; background-image: url(assets/images/hero/hero-image-1.svg); background-size: cover;">
+    <div class="dashboard-main-body space-y-6" >
 
         <!-- Header with Breadcrumb -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
             <div class="flex items-center gap-4 bg-[#f0fdf4] px-2 py-3 rounded-lg shadow-sm w-full sm:w-auto">
-               <div class="relative">
-    @php
-        $profilePic = $user->profile->profile_pic ?? null;
+                <div class="relative">
+                    @php
+                    $profilePic = $user->profile->profile_pic ?? null;
 
-        use Illuminate\Support\Facades\Storage;
+                    use Illuminate\Support\Facades\Storage;
 
-        $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
+                    $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
 
-        $initials = collect(explode(' ', $user->name))
-            ->map(fn($w) => strtoupper(substr($w, 0, 1)))
-            ->take(2)
-            ->join('') ?: 'U';
-    @endphp
+                    $initials = collect(explode(' ', $user->name))
+                    ->map(fn($w) => strtoupper(substr($w, 0, 1)))
+                    ->take(2)
+                    ->join('') ?: 'U';
+                    @endphp
 
-    @if ($hasProfilePic)
-        <img
-            src="{{ Storage::url($profilePic) }}?v={{ filemtime(storage_path('app/public/' . $profilePic)) }}"
-            alt="{{ $user->name }}"
-            class="rounded-full object-cover"
-            style="width: 80px; height: 80px; border: 2px solid #8bc905;" />
-    @else
-        <div
-            class="flex items-center justify-center font-bold text-2xl text-[#0C3A30] select-none"
-            style="background-color: #8bc905; width: 80px; height: 80px; border-radius: 50%;">
-            {{ $initials }}
-        </div>
-    @endif
-</div>
+                    @if ($hasProfilePic)
+                    <img
+                        src="{{ Storage::url($profilePic) }}?v={{ filemtime(storage_path('app/public/' . $profilePic)) }}"
+                        alt="{{ $user->name }}"
+                        class="rounded-full object-cover"
+                        style="width: 80px; height: 80px; border: 2px solid #8bc905;" />
+                    @else
+                    <div
+                        class="flex items-center justify-center font-bold text-2xl text-[#0C3A30] select-none"
+                        style="background-color: #8bc905; width: 80px; height: 80px; border-radius: 50%;">
+                        {{ $initials }}
+                    </div>
+                    @endif
+                </div>
 
 
                 <div>
@@ -131,20 +131,20 @@
             </div>
         </div>
 
-    
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-    <a href="{{ route('user_dashboard') }}">
-        <h6 class="font-semibold mb-0 flex items-center space-x-2 " style="color: #0C3A30;">
-            <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
-            <span>Dashboard</span>
-        </h6>
-    </a>
 
-    <ul class="flex items-center space-x-2">
-        <li class="text-gray-400">-</li>
-        <li class="font-medium text-[#9EDD05]">MarketMind</li>
-    </ul>
-</div>
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <a href="{{ route('user_dashboard') }}">
+                <h6 class="font-semibold mb-0 flex items-center space-x-2 " style="color: #0C3A30;">
+                    <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                    <span>Dashboard</span>
+                </h6>
+            </a>
+
+            <ul class="flex items-center space-x-2">
+                <li class="text-gray-400">-</li>
+                <li class="font-medium text-[#9EDD05]">MarketMind</li>
+            </ul>
+        </div>
 
 
         <!-- Initialize Alpine.js data -->
@@ -191,7 +191,7 @@
                             </div>
 
 
-                            <div class="p-3 rounded-xl" >
+                            <div class="p-3 rounded-xl">
                                 <button @click="toggleBalance" class="flex items-center gap-1 text-xs mt-2 text-[#0C3A30] hover:text-[#9EDD05] transition-colors">
                                     <iconify-icon x-bind:icon="showBalance ? 'mdi:eye-off' : 'mdi:eye'" class="text-2xl"></iconify-icon>
                                 </button>
@@ -752,158 +752,211 @@
 
 
             <!-- Recent Activity -->
-            <div class=" rounded-2xl shadow-xl p-6 border border-gray-100  w-full sm:w-[48%] lg:w-1/3"
-               >
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-bold text-primary-800">Recent Activity</h3>
-                    <div class="relative">
-                        <button @click="activityFilterOpen = !activityFilterOpen" class="flex items-center gap-1 text-sm text-gray-500 hover:text-primary-800">
-                            <iconify-icon icon="mdi:filter-outline" class="text-lg"></iconify-icon>
-                            <span>Filter</span>
-                        </button>
-                        <div x-show="activityFilterOpen" @click.away="activityFilterOpen = false"
-                            class="absolute right-0 mt-2 w-48 
-                            
-                            
-                            rounded-md shadow-lg z-10 py-1 border border-gray-200">
-                            <a href="#" @click="filterActivities('all')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
-                                <iconify-icon icon="mdi:format-list-bulleted" class="text-lg"></iconify-icon>
-                                All Activities
-                            </a>
-                            <a href="#" @click="filterActivities('deposit')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
-                                <iconify-icon icon="mdi:cash-plus" class="text-lg text-emerald-500"></iconify-icon>
-                                Deposits
-                            </a>
-                            <a href="#" @click="filterActivities('withdrawal')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
-                                <iconify-icon icon="mdi:cash-minus" class="text-lg text-red-500"></iconify-icon>
-                                Withdrawals
-                            </a>
-                            <a href="#" @click="filterActivities('investment')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
-                                <iconify-icon icon="mdi:chart-line" class="text-lg text-blue-500"></iconify-icon>
-                                Investments
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="space-y-4 h-[65vh] min-h-[400px] max-h-[700px] overflow-y-auto w-full pr-2" x-data="{
-        activityFilter: 'all',
-        filterActivities(type) {
-            this.activityFilter = type;
-        }
-    }">
-                    @forelse ($recentActivities as $activity)
-                    @php
-                    // Determine styling based on activity type
-                    $baseColor = match($activity['type']) {
-                    'Deposit' => 'emerald',
-                    'Withdrawal' => 'red',
-                    'Investment Matured' => 'amber',
-                    'Investment Active' => 'blue',
-                    default => 'gray'
-                    };
-
-                    // Status styling
-                    $statusBg = match($activity['status']) {
-                    'Pending' => 'bg-yellow-100',
-                    'Ready to Withdraw' => 'bg-amber-100',
-                    'Active' => 'bg-blue-100',
-                    'Completed' => 'bg-green-100',
-                    default => 'bg-gray-100'
-                    };
-
-                    $statusTextColor = match($activity['status']) {
-                    'Pending' => 'text-yellow-800',
-                    'Ready to Withdraw' => 'text-amber-800',
-                    'Active' => 'text-blue-800',
-                    'Completed' => 'text-green-800',
-                    default => 'text-gray-800'
-                    };
-                    @endphp
-
-                    <div class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors max-w-full activity-item"
-
-                        x-show="activityFilter === 'all' || activityFilter === '{{ strtolower(explode(' ', $activity['type'])[0]) }}'"
-
-                        :class="{
-                    'border-l-4 border-emerald-500': '{{ $activity['type'] }}' === 'Deposit',
-                    'border-l-4 border-red-500': '{{ $activity['type'] }}' === 'Withdrawal',
-                    'border-l-4 border-blue-500': '{{ $activity['type'] }}' === 'Investment Active',
-                    'border-l-4 border-amber-500': '{{ $activity['type'] }}' === 'Investment Matured'
-                 }">
-                        <div class="flex items-center gap-4">
-                            <div class="bg-{{ $baseColor }}-100 p-3 rounded-lg">
-                                <iconify-icon icon="mdi:{{ $activity['icon'] }}" class="text-{{ $baseColor }}-600 text-xl"></iconify-icon>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="font-medium text-gray-900 truncate">{{ $activity['type'] }}</p>
-                                <p class="text-sm text-gray-500">{{ $activity['date']->format('M d, h:i A') }}</p>
-                                @if(in_array($activity['type'], ['Investment Active', 'Investment Matured']))
-                                <p class="text-xs text-gray-600 mt-1 truncate">Plan: {{ $activity['plan_name'] }}</p>
-                                @else
-                                <p class="text-xs text-gray-400 truncate">{{ $activity['reference'] }}</p>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="text-right space-y-1 ml-2">
-                            @if(in_array($activity['type'], ['Deposit', 'Withdrawal', 'Investment Matured']))
-                            <template x-if="showBalance">
-                                <p class="font-medium text-{{ $baseColor }}-600 whitespace-nowrap">
-                                    {{ $activity['type'] === 'Deposit' ? '+' : '-' }}${{ number_format($activity['amount'], 2) }}
-                                </p>
-                            </template>
-                            <template x-if="!showBalance">
-                                <p class="font-medium text-{{ $baseColor }}-600 whitespace-nowrap">
-                                    ••••••••
-                                </p>
-                            </template>
-                            @endif
-
-                            <div class="flex flex-col items-end">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $statusBg }} {{ $statusTextColor }} mb-1">
-                                    {{ $activity['status'] }}
-                                </span>
-                                @if($activity['action_url'] && $activity['action_text'])
-                                <a href="{{ $activity['action_url'] }}"
-                                    class="text-xs bg-{{ $baseColor }}-500 hover:bg-{{ $baseColor }}-600  px-2 py-1 rounded whitespace-nowrap">
-                                    {{ $activity['action_text'] }}
-                                </a>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    @empty
-                    <div class="text-center py-8">
-                        <iconify-icon icon="mdi:inbox-remove-outline" class="text-4xl text-gray-300"></iconify-icon>
-                        <p class="text-gray-400 text-sm mt-2">No recent activity available</p>
-                        <a href="{{ route('user.deposit') }}" class="mt-3 inline-block text-sm text-primary-600 hover:text-primary-800 font-medium">
-                            Make your first deposit
-                        </a>
-                    </div>
-                    @endforelse
-                </div>
+        
+        <div class="rounded-2xl shadow-xl p-6 border border-gray-600 w-full sm:w-[48%] lg:w-1/3" style=" background-image: url('assets/images/hero/hero-image-1.svg');">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-lg font-bold text-primary-800">Recent Activity</h3>
+        <div class="relative" x-data="{ activityFilterOpen: false }">
+            <button @click="activityFilterOpen = !activityFilterOpen" class="flex items-center gap-1 text-sm text-gray-500 hover:text-primary-800">
+                <iconify-icon icon="mdi:filter-outline" class="text-lg"></iconify-icon>
+                <span>Filter</span>
+            </button>
+            <div x-show="activityFilterOpen" @click.away="activityFilterOpen = false"
+                class="absolute right-0 mt-2 w-48 rounded-md shadow-lg z-10 py-1 border border-gray-200">
+                <a href="#" @click.prevent="$dispatch('filter-activities', 'all')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                    <iconify-icon icon="mdi:format-list-bulleted" class="text-lg"></iconify-icon>
+                    All Activities
+                </a>
+                <a href="#" @click.prevent="$dispatch('filter-activities', 'deposit')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                    <iconify-icon icon="mdi:cash-plus" class="text-lg text-emerald-500"></iconify-icon>
+                    Deposits
+                </a>
+                <a href="#" @click.prevent="$dispatch('filter-activities', 'withdrawal')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                    <iconify-icon icon="mdi:cash-minus" class="text-lg text-red-500"></iconify-icon>
+                    Withdrawals
+                </a>
+                <a href="#" @click.prevent="$dispatch('filter-activities', 'investment')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                    <iconify-icon icon="mdi:chart-line" class="text-lg text-blue-500"></iconify-icon>
+                    Investments
+                </a>
             </div>
+        </div>
+    </div>
+
+    <div class="space-y-4 h-[65vh] min-h-[400px] max-h-[700px] overflow-y-auto w-full pr-2"
+         x-data="{
+            activityFilter: 'all',
+            init() {
+                window.addEventListener('filter-activities', event => {
+                    this.activityFilter = event.detail;
+                });
+            },
+            filterType(type) {
+                if (this.activityFilter === 'all') return true;
+                return type.toLowerCase() === this.activityFilter;
+            }
+         }">
+        @forelse ($recentActivities as $activity)
+            @php
+                $typeKey = strtolower(explode(' ', $activity['type'])[0]);
+
+                $status = strtolower($activity['status']);
+                $badgeClass = match($status) {
+                    'pending' => 'badge-pending',
+                    'ready to withdraw' => 'badge-warning',
+                    'active' => 'badge-active',
+                    'completed' => 'badge-approved',
+                    default => 'badge-default'
+                };
+
+                $amountClass = match($activity['type']) {
+                    'Deposit' => 'text-emerald-600',
+                    'Withdrawal' => 'text-red-600',
+                    'Investment Matured' => 'text-amber-600',
+                    'Investment Active' => 'text-blue-600',
+                    default => 'text-gray-600'
+                };
+
+                $borderClass = match($activity['type']) {
+                    'Deposit' => 'border-emerald-500',
+                    'Withdrawal' => 'border-red-500',
+                    'Investment Matured' => 'border-amber-500',
+                    'Investment Active' => 'border-blue-500',
+                    default => 'border-gray-300'
+                };
+            @endphp
+
+            <template x-if="filterType('{{ $typeKey }}')">
+                <div class="bg-white border {{ $borderClass }} border-l-4 rounded-2xl shadow-xl p-5 w-full hover:bg-gray-50 transition-colors max-w-full flex justify-between items-center gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 rounded-lg 
+                            @if($typeKey === 'deposit') bg-emerald-100
+                            @elseif($typeKey === 'withdrawal') bg-red-100
+                            @elseif($typeKey === 'investment') bg-blue-100
+                            @elseif($typeKey === 'investment') bg-amber-100
+                            @else bg-gray-100 @endif
+                        ">
+                            <iconify-icon icon="mdi:{{ $activity['icon'] }}" 
+                                class="@if($typeKey === 'deposit') text-emerald-600
+                                @elseif($typeKey === 'withdrawal') text-red-600
+                                @elseif($typeKey === 'investment') text-blue-600
+                                @elseif($typeKey === 'investment') text-amber-600
+                                @else text-gray-600 @endif
+                            text-xl"></iconify-icon>
+                        </div>
+
+                        <div class="flex flex-col min-w-0">
+                            <p class="font-medium text-gray-900 truncate">{{ $activity['type'] }}</p>
+                            <p class="text-sm text-gray-500">{{ $activity['date']->format('M d, h:i A') }}</p>
+
+                            @if(in_array($activity['type'], ['Investment Active', 'Investment Matured']))
+                                <p class="text-xs text-gray-600 mt-1 truncate">Plan: {{ $activity['plan_name'] }}</p>
+                            @else
+                                <p class="text-xs text-gray-400 truncate">{{ $activity['reference'] }}</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="text-right space-y-1 ml-2 min-w-[100px]">
+                        @if(in_array($activity['type'], ['Deposit', 'Withdrawal', 'Investment Matured']))
+                            <p class="{{ $amountClass }} font-semibold whitespace-nowrap">
+                                {{ $activity['type'] === 'Deposit' ? '+' : '-' }}${{ number_format($activity['amount'], 2) }}
+                            </p>
+                        @endif
+
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $badgeClass }} mb-1">
+                            {{ ucfirst($activity['status']) }}
+                        </span>
+
+                        @if($activity['action_url'] && $activity['action_text'])
+                            <a href="{{ $activity['action_url'] }}" class="inline-block text-xs bg-gray-800 hover:bg-gray-900 text-white px-3 py-1 rounded whitespace-nowrap">
+                                {{ $activity['action_text'] }}
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            </template>
+        @empty
+            <div class="text-center py-8">
+                <iconify-icon icon="mdi:inbox-remove-outline" class="text-4xl text-gray-300"></iconify-icon>
+                <p class="text-gray-400 text-sm mt-2">No recent activity available</p>
+                <a href="{{ route('user.deposit') }}" class="mt-3 inline-block text-sm text-primary-600 hover:text-primary-800 font-medium">
+                    Make your first deposit
+                </a>
+            </div>
+        @endforelse
+    </div>
+</div>
+
+<style>
+    .badge-approved {
+        background-color: #d1fae5; /* Tailwind's bg-green-100 */
+        color: #065f46;           /* Tailwind's text-green-800 */
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+
+    .badge-pending {
+        background-color: #fef3c7; /* Tailwind's bg-yellow-100 */
+        color: #92400e;            /* Tailwind's text-yellow-800 */
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+
+    .badge-warning {
+        background-color: #fde68a; /* Tailwind's bg-yellow-300 */
+        color: #92400e;
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+
+    .badge-active {
+        background-color: #dbeafe; /* Tailwind's bg-blue-100 */
+        color: #1d4ed8;            /* Tailwind's text-blue-700 */
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+
+    .badge-default {
+        background-color: #f3f4f6;
+        color: #374151;
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+</style>
 
 
             <!-- Motivational Quote -->
-            <div x-data="quoteRotator()" x-init="startRotation()"
-                class="relative rounded-2xl overflow-hidden shadow-2xl pt-8 min-h-[240px] w-full sm:w-[48%] lg:w-1/3 flex items-center justify-center text-center ">
-                <div class="absolute inset-0 bg-[#0C3A30]/80 backdrop-blur-sm"
-                    style="background-image: url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1350&q=80');"></div>
-                <div class="relative z-10 px-4 sm:px-8 w-full">
-                    <div x-transition:enter="transition-opacity duration-700"
-                        x-transition:enter-start="opacity-0"
-                        x-transition:enter-end="opacity-100"
-                        x-transition:leave="transition-opacity duration-500"
-                        x-transition:leave-start="opacity-100"
-                        x-transition:leave-end="opacity-0">
-                        <p class=" text-xl sm:text-2xl font-semibold italic leading-relaxed"
-                            x-text="quotes[currentIndex].quote"></p>
-                        <p class="text-primary-200 text-sm mt-4"
-                            x-text="quotes[currentIndex].author"></p>
-                    </div>
-                </div>
-            </div>
+            <!-- Motivational Quote -->
+<div x-data="quoteRotator()" x-init="startRotation()"
+    class="relative rounded-2xl overflow-hidden shadow-2xl pt-8 min-h-[240px] w-full sm:w-[48%] lg:w-1/3 flex items-center justify-center text-center ">
+    <div class="absolute inset-0 bg-[#0C3A30]/80 backdrop-blur-sm"
+        style="background-image: url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1350&q=80');"></div>
+    <div class="relative z-10 px-4 sm:px-8 w-full">
+        <div x-transition:enter="transition-opacity duration-700"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity duration-500"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0">
+            <p class="text-white text-xl sm:text-2xl font-semibold italic leading-relaxed"
+                x-text="quotes[currentIndex].quote"></p>
+            <p class="text-white text-sm mt-4"
+                x-text="quotes[currentIndex].author"></p>
+        </div>
+    </div>
+</div>
+
         </div>
     </div>
 

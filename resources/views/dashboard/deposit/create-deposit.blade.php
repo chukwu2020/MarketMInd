@@ -67,7 +67,7 @@
     }
 </style>
 
-<div class="dashboard-main-body" style="background-image: url(assets/images/hero/hero-image-1.svg);">
+<div class="dashboard-main-body" >
     <!-- Breadcrumb -->
     <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <h5 class="font-semibold mb-0" style="color: #0C3A30;">Deposit</h5>

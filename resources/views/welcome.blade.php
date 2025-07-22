@@ -30,7 +30,7 @@
                       
                    
 
-                        <a href="{{route('signup')}}" class="default-btn mt-4 px-5 py-2 mb-2 rounded-pill shadow">
+                        <a href="{{route('signup')}}" class="default-btn mt-4 px-5 py-2 mb-2 rounded-pill shadow" style="color:#0C3A30;">
                             Open an account
                         </a>
                     </div>
