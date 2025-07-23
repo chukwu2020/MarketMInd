@@ -28,26 +28,27 @@
     <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="admin_assets/css/remixicon.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     <!-- Vendor CSS -->
-    <link rel="stylesheet" href="admin_assets/css/lib/apexcharts.css">
-    <link rel="stylesheet" href="admin_assets/css/lib/dataTables.min.css">
-    <link rel="stylesheet" href="admin_assets/css/lib/editor-katex.min.css">
-    <link rel="stylesheet" href="admin_assets/css/lib/editor.atom-one-dark.min.css">
-    <link rel="stylesheet" href="admin_assets/css/lib/editor.quill.snow.css">
-    <link rel="stylesheet" href="admin_assets/css/lib/flatpickr.min.css">
-    <link rel="stylesheet" href="admin_assets/css/lib/full-calendar.css">
-    <link rel="stylesheet" href="admin_assets/css/lib/jquery-jvectormap-2.0.5.css">
-    <link rel="stylesheet" href="admin_assets/css/lib/magnific-popup.css">
-    <link rel="stylesheet" href="admin_assets/css/lib/slick.css">
-    <link rel="stylesheet" href="admin_assets/css/lib/prism.css">
-    <link rel="stylesheet" href="admin_assets/css/lib/file-upload.css">
-    <link rel="stylesheet" href="admin_assets/css/lib/audioplayer.css">
+    <link rel="stylesheet" href="{{ asset('admin_assets/css/lib/apexcharts.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin_assets/css/lib/dataTables.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin_assets/css/lib/editor-katex.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin_assets/css/lib/editor.atom-one-dark.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin_assets/css/lib/editor.quill.snow.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin_assets/css/lib/flatpickr.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin_assets/css/lib/full-calendar.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin_assets/css/lib/jquery-jvectormap-2.0.5.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin_assets/css/lib/magnific-popup.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin_assets/css/lib/slick.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin_assets/css/lib/prism.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin_assets/css/lib/file-upload.css') }}">
+    <link rel="stylesheet" href="{{ asset('admin_assets/css/lib/audioplayer.css') }}">
     <script src="//unpkg.com/alpinejs" defer></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
     <!-- Custom Style -->
-    <link rel="stylesheet" href="admin_assets/css/style.css">
+    <link rel="stylesheet" href="{{ asset('admin_assets/css/style.css') }}">
 
 <style>
     html, body {
@@ -201,21 +202,21 @@
     </div>
 
     <!-- Scripts -->
-    <script src="admin_assets/js/lib/jquery-3.7.1.min.js"></script>
-    <script src="admin_assets/js/lib/apexcharts.min.js"></script>
-    <script src="admin_assets/js/lib/simple-datatables.min.js"></script>
-    <script src="admin_assets/js/lib/iconify-icon.min.js"></script>
-    <script src="admin_assets/js/lib/jquery-ui.min.js"></script>
-    <script src="admin_assets/js/lib/jquery-jvectormap-2.0.5.min.js"></script>
-    <script src="admin_assets/js/lib/jquery-jvectormap-world-mill-en.js"></script>
-    <script src="admin_assets/js/lib/magnifc-popup.min.js"></script>
-    <script src="admin_assets/js/lib/slick.min.js"></script>
-    <script src="admin_assets/js/lib/prism.js"></script>
-    <script src="admin_assets/js/lib/file-upload.js"></script>
-    <script src="admin_assets/js/lib/audioplayer.js"></script>
-    <script src="admin_assets/js/flowbite.min.js"></script>
-    <script src="admin_assets/js/app.js"></script>
-    <script src="admin_assets/js/homeOneChart.js"></script>
+    <script src="{{ asset('admin_assets/js/lib/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('admin_assets/js/lib/apexcharts.min.js') }}"></script>
+    <script src="{{ asset('admin_assets/js/lib/simple-datatables.min.js') }}"></script>
+    <script src="{{ asset('admin_assets/js/lib/iconify-icon.min.js') }}"></script>
+    <script src="{{ asset('admin_assets/js/lib/jquery-ui.min.js') }}"></script>
+    <script src="{{ asset('admin_assets/js/lib/jquery-jvectormap-2.0.5.min.js') }}"></script>
+    <script src="{{ asset('admin_assets/js/lib/jquery-jvectormap-world-mill-en.js') }}"></script>
+    <script src="{{ asset('admin_assets/js/lib/magnifc-popup.min.js') }}"></script>
+    <script src="{{ asset('admin_assets/js/lib/slick.min.js') }}"></script>
+    <script src="{{ asset('admin_assets/js/lib/prism.js') }}"></script>
+    <script src="{{ asset('admin_assets/js/lib/file-upload.js') }}"></script>
+    <script src="{{ asset('admin_assets/js/lib/audioplayer.js') }}"></script>
+    <script src="{{ asset('admin_assets/js/flowbite.min.js') }}"></script>
+    <script src="{{ asset('admin_assets/js/app.js') }}"></script>
+    <script src="{{ asset('admin_assets/js/homeOneChart.js') }}"></script>
 
     <!-- SweetAlert -->
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>

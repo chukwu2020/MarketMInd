@@ -19,7 +19,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- Profile Card -->
         <div class="col-span-12 lg:col-span-4 bg-[url('assets/images/hero/hero-image-1.svg')] bg-cover bg-center h-full">
-             <div class="text-center border-b pb-6 border-gray-300">
+             <div class="relative">
                     @php
                     $profilePic = $user->profile->profile_pic ?? null;
 
@@ -30,14 +30,15 @@
                     @endphp
 
                     @if ($profilePic && file_exists(public_path('storage/profile_pics/' . $profilePic)))
-                    <img src="{{ asset('storage/profile_pics/' . $profilePic) }}"
+                      <img src="{{ asset('storage/profile_pics/' . $profilePic) }}"
                         alt="{{ $user->name }}"
                         class="rounded-full object-cover"
-                        style="width: 7rem; height: 7rem; border: 2px solid #8bc905;" />
+                        style="width: 80px; height: 80px; border: 2px solid #8bc905;" />
                     @else
+
                     <div
-                        class="mx-auto rounded-full flex items-center justify-center font-semibold text-3xl select-none"
-                        style="width: 8rem; height: 8rem; background-color: #9EDD05; color: #0C3A30;">
+                        class="flex items-center justify-center font-bold text-2xl text-[#0C3A30] select-none"
+                        style="background-color: #8bc905; width: 80px; height: 80px; border-radius: 50%;">
                         {{ $initials }}
                     </div>
                     @endif
