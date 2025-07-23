@@ -11,7 +11,7 @@
                     Dashboard
                 </a>
             </li>
-            <li >-</li>
+            <li>-</li>
             <li class="font-medium ">View Profile</li>
         </ul>
     </div>
@@ -19,57 +19,29 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <!-- Profile Card -->
         <div class="col-span-12 lg:col-span-4 bg-[url('assets/images/hero/hero-image-1.svg')] bg-cover bg-center h-full">
-            <div class="user-grid-card relative rounded-2xl overflow-hidden bg-whiteh-full bg-opacity-80">
-                <div class="pb-6 px-6 pt-[20px]">
-                 <div class="text-center border-b pb-6 border-gray-300">
-    @php
-        $profilePic = $user->profile->profile_pic ?? null;
+             <div class="text-center border-b pb-6 border-gray-300">
+                    @php
+                    $profilePic = $user->profile->profile_pic ?? null;
 
-        use Illuminate\Support\Facades\Storage;
+                    $initials = collect(explode(' ', $user->name))
+                    ->map(fn($w) => strtoupper(substr($w, 0, 1)))
+                    ->take(2)
+                    ->join('') ?: 'U';
+                    @endphp
 
-        $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
-
-        $initials = collect(explode(' ', $user->name))
-            ->map(fn($w) => strtoupper(substr($w, 0, 1)))
-            ->take(2)
-            ->join('') ?: 'U';
-    @endphp
-
-    @if ($hasProfilePic)
-        <img
-            loading="lazy"
-            src="{{ Storage::url($profilePic) }}?v={{ filemtime(storage_path('app/public/' . $profilePic)) }}"
-            class="mx-auto rounded-full object-cover border border-[#0C3A30]"
-            style="width: 7rem; height: 7rem;" />
-    @else
-        <div
-            class="mx-auto rounded-full flex items-center justify-center font-semibold text-3xl select-none"
-            style="width: 8rem; height: 8rem; background-color: #9EDD05; color: #0C3A30;">
-            {{ $initials }}
-        </div>
-    @endif
-</div>
-
-
-                    <div class="mt-6">
-                        <h6 class="text-xl mb-4 text-[#0C3A30]">Personal Info</h6>
-                        <ul>
-                            <li class="flex items-center gap-1 mb-3">
-                                <span class="w-[30%] font-semibold text-neutral-600">Full Name</span>
-                                <span class="w-[70%] text-secondary-light font-medium">: {{ $user->name }}</span>
-                            </li>
-                            <li class="flex items-center gap-1 mb-3">
-                                <span class="w-[30%] font-semibold text-neutral-600 ">Email</span>
-                                <span class="w-[70%] text-secondary-light font-medium">: {{ $user->email }}</span>
-                            </li>
-                            <li class="flex items-center gap-1 mb-3">
-                                <span class="w-[30%] font-semibold text-neutral-600 ">Phone</span>
-                                <span class="w-[70%] text-secondary-light font-medium">: {{ $user->phone }}</span>
-                            </li>
-                        </ul>
+                    @if ($profilePic && file_exists(public_path('storage/profile_pics/' . $profilePic)))
+                    <img src="{{ asset('storage/profile_pics/' . $profilePic) }}"
+                        alt="{{ $user->name }}"
+                        class="rounded-full object-cover"
+                        style="width: 7rem; height: 7rem; border: 2px solid #8bc905;" />
+                    @else
+                    <div
+                        class="mx-auto rounded-full flex items-center justify-center font-semibold text-3xl select-none"
+                        style="width: 8rem; height: 8rem; background-color: #9EDD05; color: #0C3A30;">
+                        {{ $initials }}
                     </div>
+                    @endif
                 </div>
-            </div>
         </div>
 
         <!-- Edit Profile Form -->

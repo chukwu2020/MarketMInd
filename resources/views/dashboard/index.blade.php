@@ -85,23 +85,19 @@
                     @php
                     $profilePic = $user->profile->profile_pic ?? null;
 
-                    use Illuminate\Support\Facades\Storage;
-
-                    $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
-
                     $initials = collect(explode(' ', $user->name))
                     ->map(fn($w) => strtoupper(substr($w, 0, 1)))
                     ->take(2)
                     ->join('') ?: 'U';
                     @endphp
 
-                    @if ($hasProfilePic)
-                    <img
-                        src="{{ Storage::url($profilePic) }}?v={{ filemtime(storage_path('app/public/' . $profilePic)) }}"
+                    @if ($profilePic && file_exists(public_path('storage/profile_pics/' . $profilePic)))
+                      <img src="{{ asset('storage/profile_pics/' . $profilePic) }}"
                         alt="{{ $user->name }}"
                         class="rounded-full object-cover"
                         style="width: 80px; height: 80px; border: 2px solid #8bc905;" />
                     @else
+
                     <div
                         class="flex items-center justify-center font-bold text-2xl text-[#0C3A30] select-none"
                         style="background-color: #8bc905; width: 80px; height: 80px; border-radius: 50%;">

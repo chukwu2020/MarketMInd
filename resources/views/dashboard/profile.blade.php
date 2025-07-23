@@ -1,17 +1,17 @@
 @extends('layout.user')
 
 @section('content')
-<div  class="dashboard-main-body min-h-screen bg-cover bg-center" >
+<div class="dashboard-main-body min-h-screen bg-cover bg-center">
     {{-- Header Breadcrumb --}}
     <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
-        <h6 class="font-semibold mb-0 "  style="color: #0c3a30;">My Profile</h6>
+        <h6 class="font-semibold mb-0 " style="color: #0c3a30;">My Profile</h6>
         <ul class="flex items-center gap-[6px]">
             <li class="font-medium">
                 <a href="{{ route('user_dashboard') }}"
                     class="flex items-center gap-2 text-[#0C3A30] hover-text"
                     onmouseover="this.style.color='#9EDD05';"
                     onmouseout="this.style.color='#0C3A30';">
-                    <iconify-icon icon="solar:home-smile-angle-outline"  style="color: #0c3a30;" class="icon text-lg"></iconify-icon>
+                    <iconify-icon icon="solar:home-smile-angle-outline" style="color: #0c3a30;" class="icon text-lg"></iconify-icon>
                     Dashboard
                 </a>
             </li>
@@ -26,38 +26,33 @@
         <div class="lg:col-span-4">
             <div class="rounded-xl border border-[#9EDD05] shadow-lg  bg-opacity-90 p-6 space-y-6" style="background-image: url(assets/images/hero/hero-image-1.svg);">
                 {{-- Avatar --}}
-              <div class="text-center border-b pb-6 border-gray-300">
-    @php
-        $profilePic = $user->profile->profile_pic ?? null;
+                <div class="text-center border-b pb-6 border-gray-300">
+                    @php
+                    $profilePic = $user->profile->profile_pic ?? null;
 
-        use Illuminate\Support\Facades\Storage;
+                    $initials = collect(explode(' ', $user->name))
+                    ->map(fn($w) => strtoupper(substr($w, 0, 1)))
+                    ->take(2)
+                    ->join('') ?: 'U';
+                    @endphp
 
-        $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
-
-        $initials = collect(explode(' ', $user->name))
-            ->map(fn($w) => strtoupper(substr($w, 0, 1)))
-            ->take(2)
-            ->join('') ?: 'U';
-    @endphp
-
-    @if ($hasProfilePic)
-        <img
-            loading="lazy"
-            src="{{ Storage::url($profilePic) }}?v={{ filemtime(storage_path('app/public/' . $profilePic)) }}"
-            class="mx-auto rounded-full object-cover border border-[#0C3A30]"
-            style="width: 7rem; height: 7rem;" />
-    @else
-        <div
-            class="mx-auto rounded-full flex items-center justify-center font-semibold text-3xl select-none"
-            style="width: 8rem; height: 8rem; background-color: #9EDD05; color: #0C3A30;">
-            {{ $initials }}
-        </div>
-    @endif
-</div>
+                    @if ($profilePic && file_exists(public_path('storage/profile_pics/' . $profilePic)))
+                    <img src="{{ asset('storage/profile_pics/' . $profilePic) }}"
+                        alt="{{ $user->name }}"
+                        class="rounded-full object-cover"
+                        style="width: 7rem; height: 7rem; border: 2px solid #8bc905;" />
+                    @else
+                    <div
+                        class="mx-auto rounded-full flex items-center justify-center font-semibold text-3xl select-none"
+                        style="width: 8rem; height: 8rem; background-color: #9EDD05; color: #0C3A30;">
+                        {{ $initials }}
+                    </div>
+                    @endif
+                </div>
 
 
                 {{-- Personal Info --}}
-                <div  style="color: #0c3a30;">
+                <div style="color: #0c3a30;">
                     <h6 class="text-xl font-bold mb-4 text-[#0C3A30]">Personal Info</h6>
                     <ul class="space-y-5 text-sm">
                         <li class="flex justify-between items-start">

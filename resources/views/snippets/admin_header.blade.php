@@ -34,25 +34,19 @@ $user = auth()->user();
 
         <button data-dropdown-toggle="dropdownProfile" class="rounded-full overflow-hidden w-10 h-10 focus:outline-none border-2 border-transparent hover:border-primary-500 transition">
    <div class="text-center border-b border-neutral-200 dark:border-neutral-600">
-    @php
-        use Illuminate\Support\Facades\Storage;
+         @php
 
-        $profilePic = $user->profile->profile_pic ?? null;
-        $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
+                        $profilePic = $user->profile->profile_pic ?? null;
 
-        $initials = collect(explode(' ', $user->name))
-            ->map(fn($word) => strtoupper(substr($word, 0, 1)))
-            ->take(2)
-            ->join('') ?: 'U';
-    @endphp
+                        $initials = collect(explode(' ', $user->name))
+                        ->map(fn($word) => strtoupper(substr($word, 0, 1)))
+                        ->take(2)
+                        ->join('') ?: 'U';
+                        @endphp
 
-    @if ($hasProfilePic)
-        <img
-            src="{{ Storage::url($profilePic) }}?v={{ filemtime(storage_path('app/public/' . $profilePic)) }}"
-            alt="{{ $user->name }}"
-            class="mx-auto rounded-full object-cover w-11 h-11"
-        />
-    @else
+                        @if ($profilePic && file_exists(public_path('storage/profile_pics/' . $profilePic)))
+                        <img src="{{ asset('storage/profile_pics/' . $profilePic) }}" alt="{{ $user->name }}" class="mx-auto rounded-full object-cover w-11 h-11" />
+                        @else
         <div
             class="mx-auto w-11 h-11 rounded-full flex items-center justify-center font-semibold text-base select-none"
             style="background-color: #9EDD05; color: #0C3A30;">
