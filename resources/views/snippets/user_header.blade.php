@@ -139,10 +139,8 @@ $cardExists = auth()->check() ? WithdrawalCard::where('user_id', auth()->id())->
                 <button @click="open = !open" class="focus:outline-none rounded-full overflow-hidden">
                     <div class="text-center border-b border-neutral-200 dark:border-neutral-600">
                         @php
-                        use Illuminate\Support\Facades\Storage;
-
+                       
                         $profilePic = $user->profile->profile_pic ?? null;
-                        $hasProfilePic = $profilePic && Storage::disk('public')->exists($profilePic);
 
                         $initials = collect(explode(' ', $user->name))
                         ->map(fn($word) => strtoupper(substr($word, 0, 1)))
@@ -150,11 +148,8 @@ $cardExists = auth()->check() ? WithdrawalCard::where('user_id', auth()->id())->
                         ->join('') ?: 'U';
                         @endphp
 
-                        @if ($hasProfilePic)
-                        <img
-                            src="{{ Storage::url($profilePic) }}?v={{ filemtime(storage_path('app/public/' . $profilePic)) }}"
-                            alt="{{ $user->name }}"
-                            class="mx-auto rounded-full object-cover w-11 h-11" />
+                        @if ($profilePic)
+                        <img src="{{ asset('storage/' . $profilePic) }}" alt="{{ $user->name }}" class="mx-auto rounded-full object-cover w-11 h-11" />
                         @else
                         <div
                             class="mx-auto w-11 h-11 rounded-full flex items-center justify-center font-semibold text-base select-none"
