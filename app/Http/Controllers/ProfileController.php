@@ -64,7 +64,7 @@ class ProfileController extends Controller
         if ($request->hasFile('profile_pic')) {
             $image = $request->file('profile_pic');
             $path = $image->store('profile_pics', 'public');
-            $profileData['profile_pic'] = $path;
+            $profileData['profile_pic'] = basename($path);
         }
 
         // Update or create Profile

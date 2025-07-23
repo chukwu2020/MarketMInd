@@ -139,7 +139,7 @@ $cardExists = auth()->check() ? WithdrawalCard::where('user_id', auth()->id())->
                 <button @click="open = !open" class="focus:outline-none rounded-full overflow-hidden">
                     <div class="text-center border-b border-neutral-200 dark:border-neutral-600">
                         @php
-                       
+
                         $profilePic = $user->profile->profile_pic ?? null;
 
                         $initials = collect(explode(' ', $user->name))
@@ -148,8 +148,8 @@ $cardExists = auth()->check() ? WithdrawalCard::where('user_id', auth()->id())->
                         ->join('') ?: 'U';
                         @endphp
 
-                        @if ($profilePic)
-                        <img src="{{ asset('storage/' . $profilePic) }}" alt="{{ $user->name }}" class="mx-auto rounded-full object-cover w-11 h-11" />
+                        @if ($profilePic && file_exists(public_path('storage/profile_pics/' . $profilePic)))
+                        <img src="{{ asset('storage/profile_pics/' . $profilePic) }}" alt="{{ $user->name }}" class="mx-auto rounded-full object-cover w-11 h-11" />
                         @else
                         <div
                             class="mx-auto w-11 h-11 rounded-full flex items-center justify-center font-semibold text-base select-none"
