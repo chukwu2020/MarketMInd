@@ -5,7 +5,7 @@
 <!-- Main Container with fixed background -->
 <div class="w-full min-h-screen bg-cover bg-center bg-no-repeat" style="background-image: url(assets/images/hero/hero-image-1.svg);   min-height: 100vh;
             background-repeat: no-repeat;
-            background-size: cover;">
+            background-size: cover; background-position:center;">
     <!-- Optional:  overlay (enable if needed for contrast) -->
     {{-- <div class="absolute inset-0 bg-black opacity-30 z-0"></div> --}}
 

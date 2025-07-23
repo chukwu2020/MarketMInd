@@ -182,7 +182,7 @@
 
        
         
-            <footer class="d-footer mt-4">
+            <footer class="d-footer mt-4"  style="background-image: url('/assets/images/hero/hero-image-1.svg'); background-position:center; background-size:cover;">
   
             <div class="flex items-center justify-between gap-3">
                

@@ -2,7 +2,9 @@
 
 @section('content')
 <div class="min-h-screen bg-cover bg-center bg-no-repeat px-4 py-10" 
-    style="background-image: url('/assets/images/hero/hero-image-1.svg');">
+    style="background-image: url(assets/images/hero/hero-image-1.svg);   min-height: 100vh;
+            background-repeat: no-repeat;
+            background-size: cover; background-position:center;">
     
     <div class="container mx-auto">
         <div class="flex flex-wrap items-center justify-between gap-2 mb-6">

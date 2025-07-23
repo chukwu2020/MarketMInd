@@ -91,7 +91,7 @@
             <div class="card rounded-xl p-6 overflow-x-auto">
                 <div class="w-full min-w-[600px] sm:min-w-0">
                     <table class="table w-full whitespace-nowrap text-sm">
-                        <thead style="background-image: url(assets/images/hero/hero-image-1.svg);">
+                        <thead >
                             <tr class="text-left">
                                 <th>#</th>
                                 <th>Plan Name</th>
@@ -107,7 +107,8 @@
                                 <td>{{ ucfirst($plan->name) }}</td>
                                 <td>{{ number_format($plan->minimum_amount, 2) }}</td>
                                 <td>{{ number_format($plan->maximum_amount, 2) }}</td>
-                                <td>{{ $plan->interest_rate }}%</td>
+                              <td>{{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}%</td>
+
                             </tr>
                             @endforeach
                         </tbody>

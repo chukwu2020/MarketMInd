@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="admin_assets/css/lib/dataTables.min.css">
     <!-- Text Editor css -->
     <link rel="stylesheet" href="admin_assets/css/lib/editor-katex.min.css">
-    <link rel="stylesheet" href="admin_assets/css/lib/editor.atom-one-dark.min.css">
+    <!-- <link rel="stylesheet" href="admin_assets/css/lib/editor.atom-one-dark.min.css"> -->
     <link rel="stylesheet" href="admin_assets/css/lib/editor.quill.snow.css">
     <!-- Date picker css -->
     <link rel="stylesheet" href="admin_assets/css/lib/flatpickr.min.css">

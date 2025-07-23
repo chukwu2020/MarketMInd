@@ -45,7 +45,7 @@
     }
 </style>
 
-<div class="bg-white  py-20 min-h-screen" style="background-image: url(assets/images/hero/hero-image-1.svg);">
+<div class="bg-white  py-20 min-h-screen">
     <div class="container mx-auto   px-4 py-10">
         <!-- Section Header -->
 
@@ -83,7 +83,8 @@
                 <!-- Icon -->
                 <div class="flex justify-center mb-5">
 
-                    <img src="{{ asset('assets/images/depositimage.jpg') }}" alt="Plan Icon" style="width: 104px; height:84px; border-radius:6px;">
+                    <img src=" assets/images/depositimage.jpg' " alt="Plan Icon" style="width: 104px; height:84px; border-radius:6px;">
+             
 
                 </div>
 
