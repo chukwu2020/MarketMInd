@@ -50,19 +50,17 @@
     <!-- Custom Style -->
     <link rel="stylesheet" href="{{ asset('admin_assets/css/style.css') }}">
 
-    <style>
-        html,
-        body {
+      <style>
+                html,
+                body {
+                    color: #0C3A30 !important;
+                }
 
-            color: #0C3A30 !important;
-        }
-    </style>
-
-    <style>
-        .textColor {
-            color: #0C3A30 !important;
-        }
-    </style>
+                div,
+                * {
+                    color: #0C3A30 !important;
+                }
+            </style>
 
 
 </head>

@@ -163,18 +163,7 @@
             }
         }">
 
-            <style>
-                html,
-                body {
-                    color: #0C3A30 !important;
-                }
-
-                div,
-                * {
-                    color: #0C3A30 !important;
-                }
-            </style>
-
+         
 
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
