@@ -84,6 +84,8 @@
                 <div class="flex justify-center mb-5">
 
                     <img src=" assets/images/depositimage.jpg " alt="Plan Icon" style="width: 104px; height:84px; border-radius:6px;">
+                    <img src="{{ asset('assets/images/depositimage.jpg') }}" alt="Plan Icon" style="width: 104px; height: 84px; border-radius: 6px;">
+
              
 
                 </div>
@@ -94,7 +96,7 @@
                         {{ $plan->name }}
                     </h3>
                     <p class="text-lg mt-1 text-gray-700 ">
-                        <span class="font-bold">{{ $plan->interest_rate }}%</span>
+                        <span class="font-bold">{{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}% </span>
                         <span class="text-sm font-normal">/ Per Term</span>
                     </p>
                 </div>
@@ -112,7 +114,7 @@
                             <span class="check-icon">
                                 <i class="ri-check-line"></i>
                             </span>
-                            <span><strong>Percentage:</strong> {{ $plan->interest_rate }}%</span>
+                            <span><strong>Percentage:</strong> {{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}% </span>
                         </li>
                         <li class="flex items-start gap-3">
                             <span class="check-icon">

@@ -757,10 +757,11 @@
     <div class="flex justify-between items-center mb-6">
         <h3 class="text-lg font-bold text-primary-800">Recent Activity</h3>
         <div class="relative" x-data="{ activityFilterOpen: false }">
-            <button @click="activityFilterOpen = !activityFilterOpen" class="flex items-center gap-1 text-sm text-gray-500 hover:text-primary-800">
-                <iconify-icon icon="mdi:filter-outline" class="text-lg"></iconify-icon>
-                <span>Filter</span>
-            </button>
+      <button @click="activityFilterOpen = !activityFilterOpen" 
+        class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-200 shadow-xs hover:bg-primary-50 hover:border-primary-300 hover:text-primary-800 transition-all duration-200">
+    <iconify-icon icon="mdi:filter-outline" class="text-lg text-primary-600"></iconify-icon>
+    <span class="text-sm font-medium">Filter</span>
+</button>
             <div x-show="activityFilterOpen" @click.away="activityFilterOpen = false"
                 class="absolute right-0 mt-2 w-48 rounded-md shadow-lg z-10 py-1 border border-gray-200">
                 <a href="#" @click.prevent="$dispatch('filter-activities', 'all')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">

@@ -186,7 +186,7 @@
                                 </li>
                                 <li>
                                     <i class="ri-check-line"></i>
-                                    Percentage: {{ $plan->interest_rate }}%
+                                    Percentage: {{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}% 
                                 </li>
                                 <li>
                                     <i class="ri-check-line"></i>
