@@ -3,7 +3,7 @@
 
 <head>
 
-<!-- <script>
+    <!-- <script>
     document.documentElement.classList.remove('dark');
     document.body.classList.remove('dark');
 </script> -->
@@ -50,20 +50,24 @@
     <!-- Custom Style -->
     <link rel="stylesheet" href="{{ asset('admin_assets/css/style.css') }}">
 
-<style>
-    html, body {
-       
-        color: #0C3A30 !important;
-    }
+    <style>
+        html,
+        body {
 
-    
-</style>
+            color: #0C3A30 !important;
+        }
+    </style>
 
+    <style>
+        .textColor {
+            color: #0C3A30 !important;
+        }
+    </style>
 
 
 </head>
 
-<body class="min-h-screen flex flex-col " >
+<body class="min-h-screen flex flex-col ">
 
     @include('snippets.user_sidebar')
 
@@ -181,13 +185,13 @@
         </style>
 
 
-       
-        
-            <footer class="d-footer mt-4"  style="background-image: url('/assets/images/hero/hero-image-1.svg'); background-position:center; background-size:cover;">
-  
+
+
+        <footer class="d-footer mt-4" style="background-image: url('/assets/images/hero/hero-image-1.svg'); background-position:center; background-size:cover;">
+
             <div class="flex items-center justify-between gap-3">
-               
-                   <p class="mb-0">
+
+                <p class="mb-0">
                     © {{ date('Y') }} <span class="font-semibold text-[#8bc905]"> MarketMind </span>. All rights reserved.
                     <span class="mx-2 text-gray-400">|</span>
                     <a href="{{ route('user_dashboard') }}" class="hover:text-[#9EDD05] transition-colors duration-200">Privacy Policy</a>

@@ -163,11 +163,7 @@
             }
         }">
 
-        <style>
-            #textColor{
-                color: #0C3A30 !important;
-            }
-        </style>
+      
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Available Balance Card -->
@@ -176,7 +172,7 @@
                     <div class="p-6  rounded-2xl">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-sm font-medium text-[#0C3A30]" id="textColor">Available Balance</p>
+                                <p class="mainColor text-sm font-medium text-[#0C3A30]" >Available Balance</p>
                                 <template x-if="!initBalances.loaded">
                                     <div class="h-8 w-40 mt-2 bg-gray-200 rounded animate-pulse"></div>
                                 </template>
