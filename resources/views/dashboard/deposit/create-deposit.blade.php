@@ -88,7 +88,7 @@
     <!-- Plans Table -->
     <div class="grid grid-cols-12 mb-8">
         <div class="col-span-12">
-            <div class="card rounded-xl p-6 overflow-x-auto">
+            <div class="card rounded-xl p-6 overflow-x-auto" style="background: #fff !important;">
                 <div class="w-full min-w-[600px] sm:min-w-0">
                     <table class="table w-full whitespace-nowrap text-sm">
                         <thead>
