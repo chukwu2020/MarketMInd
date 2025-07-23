@@ -83,7 +83,7 @@
                 <!-- Icon -->
                 <div class="flex justify-center mb-5">
 
-                    <img src=" assets/images/depositimage.jpg " alt="Plan Icon" style="width: 104px; height:84px; border-radius:6px;">
+                 
                     <img src="{{ asset('assets/images/depositimage.jpg') }}" alt="Plan Icon" style="width: 104px; height: 84px; border-radius: 6px;">
 
              

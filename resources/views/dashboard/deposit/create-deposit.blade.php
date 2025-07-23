@@ -88,10 +88,10 @@
     <!-- Plans Table -->
     <div class="grid grid-cols-12 mb-8">
         <div class="col-span-12">
-            <div class="card rounded-xl p-6 overflow-x-auto" style="background: #fff !important;">
+            <div class="card rounded-xl p-6 overflow-x-auto" style="background: #fff !important; background-image: url(assets/images/hero/hero-image-1.svg);">
                 <div class="w-full min-w-[600px] sm:min-w-0">
                     <table class="table w-full whitespace-nowrap text-sm">
-                        <thead>
+                        <thead style="background: #fff !important;">
                             <tr class="text-left">
                                 <th>#</th>
                                 <th>Plan Name</th>
@@ -131,26 +131,16 @@
                     <label for="plan_id" class="block mb-2 font-bold text-neutral-900">
                         Select Package <span class="text-red-600">*</span>
                     </label>
-                    <!-- <select name="plan_id" id="plan_id" class="form-control">
-                        <option selected disabled>Choose Package</option>
-                        @foreach($plans as $plan)
-                            @php
-                                $label = ucfirst($plan->name) . " | " . $plan->duration . " " . Str::plural('Day', $plan->duration) . " | " . $plan->interest_rate . "% ROI";
-                            @endphp
-                            <option value="{{ $plan->id }}" {{ old('plan_id') == $plan->id ? 'selected' : '' }}>
-                                {{ $label }}
-                            </option>
-                        @endforeach
-                    </select> -->
+
                     <select name="plan_id" id="plan_id" class="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all shadow-inner">
                         <option value="" disabled selected class="text-gray-500 font-medium">📦 Choose Investment Package</option>
 
                         @foreach($plans->groupBy('duration') as $duration => $durationPlans)
                         <optgroup label="⏳ {{ $duration }} Day Plan • {{ $durationPlans->count() }} Options"
-              class="text-xl font-bold text-white" style="background-color: #9EDD05; padding: 25px 20px; letter-spacing: 0.5px">
+                            class="text-xl font-bold text-white" style="background-color: #9EDD05; padding: 25px 20px; letter-spacing: 0.5px">
                             @foreach($durationPlans as $plan)
                             @php
-                            $label = "{$plan->name} → {$plan->interest_rate}% ";
+                            $label = "{$plan->name} → {{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}% ";
                             @endphp
                             <option value="{{ $plan->id }}"
                                 {{ old('plan_id') == $plan->id ? 'selected' : '' }}
@@ -164,6 +154,26 @@
                     </select>
                     <span class="text-red-600 text-sm mt-1 block">@error('plan_id'){{ $message }}@enderror</span>
                 </div>
+<style>
+    select optgroup {
+        padding: 12px 10px ;
+        margin-top: 20px !important;
+        background-color: #eefdea;
+        font-weight: bold;
+        font-size: 1rem;
+        color: #0C3A30;
+        border-radius: 8px solid #0C3A30 !important;
+    }
+
+    select optgroup + optgroup {
+        margin-top: 35px !important; /* Adds space between groups */
+    }
+
+    select option {
+        padding: 8px 10px;
+        margin: 4px 0;
+    }
+</style>
 
                 <!-- Wallet Select -->
                 <div>
@@ -174,7 +184,7 @@
                         <option selected disabled>Choose Payment Method</option>
                         @foreach($wallets as $wallet)
                         <option value="{{ $wallet->id }}" {{ old('wallet_id') == $wallet->id ? 'selected' : '' }}>
-                             🔗{{ ucfirst($wallet->crypto_name) }}
+                            🔗{{ ucfirst($wallet->crypto_name) }}
                         </option>
                         @endforeach
                     </select>

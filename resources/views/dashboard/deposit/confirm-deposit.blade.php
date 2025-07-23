@@ -27,11 +27,11 @@
 
                 <div class="col-span-12">
                     <div
-                        class="nft-promo-card card border-0 rounded-xl overflow-hidden relative z-1 py-6 3xl:px-[76px] 2xl:px-[56px] xl:px-[40px] lg:px-[28px] px-4">
+                        class="nft-promo-card card border-0 rounded-xl overflow-hidden relative z-1 py-6 3xl:px-[76px] 2xl:px-[56px] xl:px-[40px] lg:px-[28px] px-4"  style="background-color:#fff !important;">
                         <img src="{{ asset('admin_assets/images/nft/nft-gradient-bg.png') }}" class="absolute start-0 top-0 w-full h-full z-[1]"
                             alt="NFT gradient background">
                         <div
-                            class="nft-promo-card__inner flex 3xl:gap-[80px] 2xl:gap-[48px] xl:gap-[32px] lg:gap-6 gap-4 items-center relative z-[1]">
+                            class="nft-promo-card__inner flex 3xl:gap-[80px] 2xl:gap-[48px] xl:gap-[32px] lg:gap-6 gap-4 items-center relative z-[1]"  style="background-color:#fff !important;">
                             <div class="nft-promo-card__thumb w-full">
                                 <img src="{{ asset('admin_assets/images/nft/nf-card-img.png') }}" alt="NFT card image" class="h-full object-fit-cover">
                             </div>
@@ -55,7 +55,7 @@
                         <div class="relative overflow-x-auto">
                             <!-- Wallet Address Table -->
                             <table class="table bordered-table sm-table mb-0 border border-[#9EDD05]">
-                                <thead class="border border-[#9EDD05]">
+                                <thead class="border border-[#9EDD05]"  style="background-color:#fff !important;">
                                     <tr>
                                         <th class="border border-[#9EDD05]" scope="col">Name</th>
                                         <th class="border border-[#9EDD05] text-center" scope="col">Wallet Address</th>
@@ -94,8 +94,8 @@
                 </div>
 
                 <div class="col-span-12 lg:col-span-10 xl:col-span-12 2xl:col-span-6 2xl:col-start-4">
-                    <div class="card border border-neutral-200">
-                        <div class="card-body">
+                    <div class="card border border-neutral-200" style="background-color:#fff !important;">
+                        <div class="card-body"  style="background-color:#fff !important;">
                             <h6 class="text-base text-neutral-600  mb-4">Proof of payment</h6>
 
                           <form id="depositForm" action="{{ route('deposit.submit') }}" method="POST" enctype="multipart/form-data">
@@ -154,10 +154,7 @@
         transition: background-color 0.3s, color 0.3s;
     }
 
-    .copy-btn:hover {
-        background-color: #0C3A30;
-        color: #9EDD05;
-    }
+    
 </style>
 
 

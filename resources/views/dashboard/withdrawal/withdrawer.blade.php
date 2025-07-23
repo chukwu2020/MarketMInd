@@ -85,12 +85,12 @@ $usdt = $profile->usdt_address ?? null;
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
             </div>
-            <select id="payment_method" name="payment_method" class="hidden" required>
+            <select id="payment_method" name="payment_method" class="hidden  z-100" required  style="background-color: white !important;">
                 <option value="">Select</option>
                 <option value="cryptocurrency">Cryptocurrency Wallet</option>
                 <option value="digital_wallet">Digital Payment System</option>
             </select>
-            <div id="dropdown-options" class="absolute z-10 mt-1 w-full border rounded-lg shadow-lg hidden" style="border-color: #8AC304;">
+            <div id="dropdown-options" class="absolute z-100 mt-1 w-full border rounded-lg shadow-lg hidden"  style=" border-color: #8AC304; background-color: white !important;" >
                 <div class="option-item px-4 py-3 cursor-pointer" data-value="cryptocurrency">Cryptocurrency Wallet</div>
                 <div class="option-item px-4 py-3 cursor-pointer" data-value="digital_wallet">Digital Payment System</div>
             </div>

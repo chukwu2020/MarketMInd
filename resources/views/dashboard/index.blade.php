@@ -65,7 +65,7 @@
             <button
                 @click="closeOverlay"
                 class="hover:text-red-500 text-[140px] font-bold rounded-full p-1 z-50 transition-all"
-                style="width: 2.5rem; height: 2.5rem; color: #8bc905; background-color: #0C3A30; box-shadow: 0 0 15px rgba(139, 201, 5, 0.64);">&times;</button>
+                style="width: 2.5rem; height: 2.5rem; color: #8bc905 !important; background-color: #0C3A30; box-shadow: 0 0 15px rgba(139, 201, 5, 0.64);">&times;</button>
         </div>
     </div>
 
@@ -763,7 +763,7 @@
                             <span class="text-sm font-medium">Filter</span>
                         </button>
                         <div x-show="activityFilterOpen" @click.away="activityFilterOpen = false"
-                            class="absolute right-0 mt-2 w-48 rounded-md shadow-lg z-10 py-1 border border-gray-200">
+                            class="absolute right-0 mt-2 w-48 rounded-md  shadow-lg z-50 py-1 border border-gray-200" style="background-color: white !important;">
                             <a href="#" @click.prevent="$dispatch('filter-activities', 'all')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
                                 <iconify-icon icon="mdi:format-list-bulleted" class="text-lg"></iconify-icon>
                                 All Activities
@@ -946,24 +946,35 @@
 
             <!-- Motivational Quote -->
             <!-- Motivational Quote -->
-            <div x-data="quoteRotator()" x-init="startRotation()"
-                class="relative rounded-2xl overflow-hidden shadow-2xl pt-8 min-h-[240px] w-full sm:w-[48%] lg:w-1/3 flex items-center justify-center text-center ">
-                <div class="absolute inset-0 bg-[#0C3A30]/80 backdrop-blur-sm"
-                    style="background-image: url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1350&q=80');"></div>
-                <div class="relative z-10 px-4 sm:px-8 w-full">
-                    <div x-transition:enter="transition-opacity duration-700"
-                        x-transition:enter-start="opacity-0"
-                        x-transition:enter-end="opacity-100"
-                        x-transition:leave="transition-opacity duration-500"
-                        x-transition:leave-start="opacity-100"
-                        x-transition:leave-end="opacity-0">
-                        <p class="text-white text-xl sm:text-2xl font-semibold italic leading-relaxed"
-                            x-text="quotes[currentIndex].quote"></p>
-                        <p class="text-white text-sm mt-4"
-                            x-text="quotes[currentIndex].author"></p>
-                    </div>
-                </div>
-            </div>
+          <div x-data="quoteRotator()" x-init="startRotation()"
+    class="relative rounded-2xl overflow-hidden shadow-2xl pt-8 min-h-[240px] w-full sm:w-[48%] lg:w-1/3 flex items-center justify-center text-center">
+    
+    <div class="absolute inset-0 bg-[#0C3A30]/80 backdrop-blur-sm"
+        style="background-image: url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1350&q=80');">
+    </div>
+    
+    <div class="relative z-10 px-4 sm:px-8 w-full text-white" style="color: white !important;">
+        <div x-transition:enter="transition-opacity duration-700"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity duration-500"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0">
+
+            <p class="text-xl sm:text-2xl font-semibold italic leading-relaxed"
+                style="color: white !important;"
+                x-text="quotes[currentIndex].quote">
+            </p>
+            
+            <p class="text-sm mt-4"
+                style="color: white !important;"
+                x-text="quotes[currentIndex].author">
+            </p>
+
+        </div>
+    </div>
+</div>
+
 
         </div>
     </div>

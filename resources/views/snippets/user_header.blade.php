@@ -113,7 +113,7 @@ $cardExists = auth()->check() ? WithdrawalCard::where('user_id', auth()->id())->
     <div class="header-content">
         <!-- Mobile Hamburger -->
         <button class="lg:hidden sidebar-mobile-toggle" style="padding-right:1rem; border: none;">
-            <iconify-icon icon="heroicons:bars-3-solid" style="font-size: 40px; color: #8bc905;"></iconify-icon>
+            <iconify-icon icon="heroicons:bars-3-solid" style="font-size: 40px; color: #8bc905 !important;"></iconify-icon>
         </button>
 
         <!-- Mobile Logo -->

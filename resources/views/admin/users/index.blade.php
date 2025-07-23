@@ -19,7 +19,7 @@
 
     <div class="grid grid-cols-12">
         <div class="col-span-12">
-            <div class="card h-full p-0 rounded-xl border-0 overflow-hidden">
+            <div class="card h-full p-0 rounded-xl border-0 overflow-hidden" style="background: #fff !important;">
                 <div class="card-header border-b border-neutral-200 bg-white py-4 px-6 flex items-center flex-wrap gap-3 justify-between">
 
 
@@ -28,7 +28,7 @@
                 <div class="card-body p-6">
                     <div class="table-responsive scroll-sm">
                         <table class="table bordered-table sm-table mb-0">
-                            <thead>
+                            <thead style="background: #fff !important;">
                                 <tr>
                                     <th scope="col">Profile</th>
                                     <th scope="col">Name</th>
