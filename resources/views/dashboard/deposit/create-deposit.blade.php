@@ -92,7 +92,7 @@
                 <div class="w-full min-w-[600px] sm:min-w-0">
                     <table class="table w-full whitespace-nowrap text-sm">
                         <thead style="background: #fff !important;">
-                            <tr class="text-left">
+                            <tr class="text-left"  style="background: #fff !important; ">
                                 <th>#</th>
                                 <th>Plan Name</th>
                                 <th>Min Deposit ($)</th>
@@ -139,9 +139,10 @@
                         <optgroup label="⏳ {{ $duration }} Day Plan • {{ $durationPlans->count() }} Options"
                             class="text-xl font-bold text-white" style="background-color: #9EDD05; padding: 25px 20px; letter-spacing: 0.5px">
                             @foreach($durationPlans as $plan)
-                            @php
-                            $label = "{$plan->name} → {{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}% ";
-                            @endphp
+                        @php
+    $label = $plan->name . ' → ' . rtrim(rtrim($plan->interest_rate, '0'), '.') . '%';
+@endphp
+
                             <option value="{{ $plan->id }}"
                                 {{ old('plan_id') == $plan->id ? 'selected' : '' }}
                                 class="py-2 my-1 border-t border-gray-600">

@@ -31,17 +31,17 @@
                         <img src="{{ asset('admin_assets/images/nft/nft-gradient-bg.png') }}" class="absolute start-0 top-0 w-full h-full z-[1]"
                             alt="NFT gradient background">
                         <div
-                            class="nft-promo-card__inner flex 3xl:gap-[80px] 2xl:gap-[48px] xl:gap-[32px] lg:gap-6 gap-4 items-center relative z-[1]"  style="background-color:#fff !important;">
+                            class="nft-promo-card__inner flex 3xl:gap-[80px] 2xl:gap-[48px] xl:gap-[32px] lg:gap-6 gap-4 items-center relative z-[1]"  >
                             <div class="nft-promo-card__thumb w-full">
                                 <img src="{{ asset('admin_assets/images/nft/nf-card-img.png') }}" alt="NFT card image" class="h-full object-fit-cover">
                             </div>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-4 text-white">Please Confirm Your Deposit</h6>
-                                <p class="text-white text-base">Steps to make a deposit:</p>
+                            <div class="flex-grow-1" >
+                                <h6 class="mb-4 text-white" style="color:#fff !important;">Please Confirm Your Deposit</h6>
+                                <p class="text-white text-base" style="color:#fff !important;">Steps to make a deposit:</p>
                                 <ol type="1" class="text-white">
-                                    <li>1. Copy any of company's wallet address</li>
-                                    <li>2. Pay the exact amount generated into the provided wallet address.</li>
-                                    <li>3. After successful payment, screenshot the proof of your payment and attach
+                                    <li style="color:#fff !important;">1. Copy any of company's wallet address</li>
+                                    <li style="color:#fff !important;">2. Pay the exact amount generated into the provided wallet address.</li>
+                                    <li style="color:#fff !important;">3. After successful payment, screenshot the proof of your payment and attach
                                         it in the space provided for confirmation.</li>
                                 </ol>
                             </div>
@@ -54,9 +54,9 @@
                     <div>
                         <div class="relative overflow-x-auto">
                             <!-- Wallet Address Table -->
-                            <table class="table bordered-table sm-table mb-0 border border-[#9EDD05]">
+                            <table class="table bordered-table sm-table mb-0 border border-[#9EDD05]"  style="background-color:#fff !important;">
                                 <thead class="border border-[#9EDD05]"  style="background-color:#fff !important;">
-                                    <tr>
+                                    <tr  style="background-color:#fff !important;">
                                         <th class="border border-[#9EDD05]" scope="col">Name</th>
                                         <th class="border border-[#9EDD05] text-center" scope="col">Wallet Address</th>
                                     </tr>
@@ -75,11 +75,12 @@
                                                 </span>
 
                                                 <!-- Copy Button with data-text instead of target -->
-                                                <button class="copy-btn text-sm px-3 py-1 rounded flex items-center gap-1"
-                                                    data-clipboard-text="{{ $wallet->wallet_address }}"
-                                                    type="button">
-                                                    <i class="ri-file-copy-line"></i> Copy
-                                                </button>
+                                              <button class="copy-btn text-sm px-3 py-1 rounded flex items-center gap-1"
+    data-clipboard-text="{{ $wallet->wallet_address }}"
+    type="button">
+    <i class="ri-file-copy-line"></i> <span class="copy-text">Copy</span>
+</button>
+
 
                                                 <!-- Inline feedback -->
                                                 <span class="copy-feedback text-xs text-green-600"></span>
@@ -147,14 +148,13 @@
 
 </div>
 
+
 <style>
     .copy-btn {
         background-color: #9EDD05;
         color: #0C3A30;
         transition: background-color 0.3s, color 0.3s;
     }
-
-    
 </style>
 
 
@@ -163,21 +163,29 @@
     const clipboard = new ClipboardJS('.copy-btn');
 
     clipboard.on('success', function(e) {
-        const feedback = e.trigger.nextElementSibling; // .copy-feedback
-        feedback.textContent = 'Copied!';
+        const button = e.trigger;
+        const textSpan = button.querySelector('.copy-text');
+        const originalText = textSpan.textContent;
+
+        textSpan.textContent = 'Copied!';
         setTimeout(() => {
-            feedback.textContent = '';
+            textSpan.textContent = originalText;
         }, 2000);
     });
 
     clipboard.on('error', function(e) {
-        const feedback = e.trigger.nextElementSibling;
-        feedback.textContent = 'Failed to copy';
+        const button = e.trigger;
+        const textSpan = button.querySelector('.copy-text');
+        const originalText = textSpan.textContent;
+
+        textSpan.textContent = 'Failed';
         setTimeout(() => {
-            feedback.textContent = '';
+            textSpan.textContent = originalText;
         }, 2000);
     });
 </script>
+
+
 
 
 @endsection

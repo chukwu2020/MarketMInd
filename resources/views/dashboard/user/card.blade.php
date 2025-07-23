@@ -259,11 +259,11 @@
         {{-- Signature Strip + CVV and Expiry --}}
         <div class="card-footer" style="margin-bottom:3rem ;">
             <div class="card-footer-item">
-                <span class="card-label" style=" color:#fff;">Expires</span>
+                <span class="card-label" style=" color:#fff !important;">Expires</span>
                 <span class="card-value"  style="background:#fff; color:#111; padding:5px 10px; border-radius:4px;">{{ $expiry }}</span>
             </div>
             <div class="card-footer-item">
-                <span class="card-label" style=" color:#fff;">CVV</span>
+                <span class="card-label" style=" color:#fff !important;">CVV</span>
                 <span class="card-value" style="background:#fff; color:#111; padding:5px 10px; border-radius:4px;">
                     {{ $cvv }}
                 </span>

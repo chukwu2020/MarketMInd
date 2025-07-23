@@ -50,7 +50,7 @@ $usdt = $profile->usdt_address ?? null;
 @endif
 
 
-<div class="max-w-xl mx-auto mt-10 p-6 rounded-2xl shadow-xl border" >
+<div class="max-w-xl mx-auto mt-10 p-6 rounded-2xl shadow-xl border">
 
 
     {{-- Header --}}
@@ -69,8 +69,8 @@ $usdt = $profile->usdt_address ?? null;
                 <span class="absolute left-3 top-3 text-gray-500">$</span>
                 <input type="number" name="amount" min="1" max="{{ auth()->user()->available_balance }}" value="{{ old('amount') }}"
                     class="w-full pl-8 pr-4 py-3 rounded-lg border focus:outline-none" style="border-color: #8AC304;" required>
-           
-               
+
+
 
             </div>
             <p class="mt-1 text-xs text-gray-500">Available: <strong>${{ number_format(auth()->user()->total_income, 2) }}</strong></p>
@@ -85,12 +85,17 @@ $usdt = $profile->usdt_address ?? null;
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
             </div>
-            <select id="payment_method" name="payment_method" class="hidden  z-100" required  style="background-color: white !important;">
+
+            <select id="payment_method" name="payment_method" class="hidden  z-200" required style="background-color: white !important;">
+
                 <option value="">Select</option>
                 <option value="cryptocurrency">Cryptocurrency Wallet</option>
                 <option value="digital_wallet">Digital Payment System</option>
             </select>
-            <div id="dropdown-options" class="absolute z-100 mt-1 w-full border rounded-lg shadow-lg hidden"  style=" border-color: #8AC304; background-color: white !important;" >
+
+            <div id="dropdown-options" class="absolute mt-1 w-full border rounded-lg shadow-lg hidden"
+                style="border-color: #8AC304; background-color: white !important;">
+
                 <div class="option-item px-4 py-3 cursor-pointer" data-value="cryptocurrency">Cryptocurrency Wallet</div>
                 <div class="option-item px-4 py-3 cursor-pointer" data-value="digital_wallet">Digital Payment System</div>
             </div>
@@ -124,29 +129,38 @@ $usdt = $profile->usdt_address ?? null;
 
 {{-- SCRIPT --}}
 <script>
-    // prevent multiple clicking 
-    document.getElementById('withdraw-form').addEventListener('submit', function(e) {
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = 'Processing...';
-        submitBtn.style.backgroundColor = '#B2B2B2';
-        submitBtn.style.color = '#333';
-    });
-
     document.addEventListener('DOMContentLoaded', () => {
+        // Disable submit button on form submit
+        document.getElementById('withdraw-form').addEventListener('submit', function(e) {
+            const method = document.getElementById('payment_method').value;
+
+            if (method === 'digital_wallet') {
+                e.preventDefault();
+                alert("Please select Cryptocurrency Wallet or contact support.");
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Processing...';
+            submitBtn.style.backgroundColor = '#B2B2B2';
+            submitBtn.style.color = '#333';
+        });
+
+        // Handle custom dropdown for payment method
         const dropdown = document.getElementById('custom-dropdown');
         const options = document.getElementById('dropdown-options');
         const selectedText = document.getElementById('selected-option-text');
         const select = document.getElementById('payment_method');
         const walletInfo = document.getElementById('wallet-info');
 
-        dropdown.addEventListener('click', () => {
+        dropdown.addEventListener('click', (e) => {
             options.classList.toggle('hidden');
+            e.stopPropagation(); // prevent document click from closing it immediately
         });
 
-        // Handle option selection
         document.querySelectorAll('.option-item').forEach(option => {
-            option.addEventListener('click', function() {
+            option.addEventListener('click', function () {
                 const value = this.dataset.value;
                 selectedText.textContent = this.textContent;
                 select.value = value;
@@ -156,43 +170,45 @@ $usdt = $profile->usdt_address ?? null;
                     walletInfo.classList.remove('hidden');
                     walletInfo.innerHTML = `
                         <label class="block mb-1 text-sm font-medium text-gray-700">Select Wallet</label>
-                        <div id="wallet-dropdown" tabindex="0" class="w-full px-4 py-3 rounded-lg border cursor-pointer flex justify-between items-center" style="border-color: #8AC304;">
+                        <div id="wallet-dropdown" tabindex="0"
+                            class="w-full px-4 py-3 rounded-lg border cursor-pointer flex justify-between items-center"
+                            style="border-color: #8AC304; background-color: white;">
                             <span id="wallet-text">Choose wallet address</span>
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </div>
+
                         <input type="hidden" name="wallet_choice" id="wallet_choice">
-                        <div id="wallet-options" class="absolute z-20 mt-1 w-full  border rounded-lg shadow-lg hidden" style="border-color: #8AC304;">
+
+                        <div id="wallet-options" class="absolute z-20 mt-1 w-full border rounded-lg shadow-lg hidden bg-white text-gray-800" style="border-color: #8AC304;">
                             @if($bitcoin)
-                                <div class="wallet-item px-4 py-3 cursor-pointer" data-wallet="bitcoin">🟢 BTC - {{ $bitcoin }}</div>
+                                <div class="wallet-item px-4 py-3 cursor-pointer hover:bg-gray-100" data-wallet="bitcoin">🟢 BTC - {{ $bitcoin }}</div>
                             @endif
                             @if($etherium)
-                                <div class="wallet-item px-4 py-3 cursor-pointer" data-wallet="etherium">🟢 ETH - {{ $etherium }}</div>
+                                <div class="wallet-item px-4 py-3 cursor-pointer hover:bg-gray-100" data-wallet="etherium">🟢 ETH - {{ $etherium }}</div>
                             @endif
                             @if($usdt)
-                                <div class="wallet-item px-4 py-3 cursor-pointer" data-wallet="usdt">🟢 USDT - {{ $usdt }}</div>
+                                <div class="wallet-item px-4 py-3 cursor-pointer hover:bg-gray-100" data-wallet="usdt">🟢 USDT - {{ $usdt }}</div>
                             @endif
                             @if(!$bitcoin && !$etherium && !$usdt)
                                 <div class="text-red-600 px-4 py-3">
-                                    No wallets found. <a href="{{ route('profile.show') }}" class="underline text-blue-600">Update Profile</a>
+                                    No wallets found. 
+                                    <a href="{{ route('profile.show') }}" class="underline text-blue-600" style="color: blue !important;">Go to Profile</a>
                                 </div>
                             @endif
                         </div>
                     `;
+
+                    setupWalletDropdownEvents(); // rebind dropdown events
+
                 } else if (value === 'digital_wallet') {
                     walletInfo.classList.remove('hidden');
                     walletInfo.innerHTML = `
-    <div class="text-sm text-gray-800 bg-[#f9f9f9] border border-[#8AC304] p-4 rounded-lg shadow-sm">
-    For digital wallet withdrawals, please 
-    <a href="#" onclick="smartsupp('chat:open'); return false;" 
-      class="underline text-blue-600">
-        contact support
-    </a>.
-</div>
-
-
-
+                        <div class="text-sm text-gray-800 bg-[#f9f9f9] border border-[#8AC304] p-4 rounded-lg shadow-sm">
+                            For digital wallet withdrawals, please 
+                            <a href="#" onclick="smartsupp('chat:open'); return false;" class="underline text-blue-600">contact support</a>.
+                        </div>
                     `;
                 } else {
                     walletInfo.classList.add('hidden');
@@ -201,29 +217,38 @@ $usdt = $profile->usdt_address ?? null;
             });
         });
 
-        // Wallet dropdown toggle & selection
-        document.addEventListener('click', function(e) {
+        // Reusable wallet dropdown logic
+        function setupWalletDropdownEvents() {
             const walletDropdown = document.getElementById('wallet-dropdown');
             const walletOptions = document.getElementById('wallet-options');
-            if (walletDropdown && walletDropdown.contains(e.target)) {
-                walletOptions.classList.toggle('hidden');
-            } else if (walletOptions && !walletOptions.contains(e.target)) {
-                walletOptions.classList.add('hidden');
-            }
+            const walletText = document.getElementById('wallet-text');
+            const walletInput = document.getElementById('wallet_choice');
 
-            const walletItems = document.querySelectorAll('.wallet-item');
-            walletItems.forEach(item => {
-                item.addEventListener('click', function() {
+            if (!walletDropdown || !walletOptions) return;
+
+            walletDropdown.addEventListener('click', function (e) {
+                walletOptions.classList.toggle('hidden');
+                e.stopPropagation();
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!walletDropdown.contains(event.target) && !walletOptions.contains(event.target)) {
+                    walletOptions.classList.add('hidden');
+                }
+            });
+
+            document.querySelectorAll('.wallet-item').forEach(item => {
+                item.addEventListener('click', function () {
                     const text = this.textContent;
                     const val = this.dataset.wallet;
-                    document.getElementById('wallet-text').textContent = text;
-                    document.getElementById('wallet_choice').value = val;
+                    walletText.textContent = text;
+                    walletInput.value = val;
                     walletOptions.classList.add('hidden');
                 });
             });
-        });
+        }
 
-        // PIN auto-focus jump
+        // PIN auto-jump logic
         const pinInputs = document.querySelectorAll('.pin-input');
         pinInputs.forEach((input, idx) => {
             input.addEventListener('input', () => {
@@ -237,17 +262,10 @@ $usdt = $profile->usdt_address ?? null;
                 }
             });
         });
-
-        // Prevent submission if digital wallet selected
-        document.getElementById('withdraw-form').addEventListener('submit', function(e) {
-            const method = document.getElementById('payment_method').value;
-            if (method === 'digital_wallet') {
-                e.preventDefault();
-                alert(" Please select Cryptocurrency Wallet or contact support.");
-            }
-        });
     });
 </script>
+
+
 
 <style>
     .option-item:hover,
