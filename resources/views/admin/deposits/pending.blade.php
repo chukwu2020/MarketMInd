@@ -13,7 +13,7 @@
                     Dashboard
                 </a>
             </li>
-            <li >-</li>
+            <li>-</li>
             <li class="font-medium ">Pending deposits</li>
         </ul>
     </div>
@@ -21,82 +21,83 @@
     <div class="grid grid-cols-1 2xl:grid-cols-12 gap-6">
 
         <!-- ================== Third Row Cards Start ======================= -->
-       <!-- ================== Third Row Cards Start ======================= -->
-<div class="col-span-12">
-    <div class="card border-0 h-full w-full">
-        <div class="card-header">
-            <div class="flex items-center flex-wrap gap-2 justify-between">
-                <h6 class="font-bold text-lg mb-0">Recent pending deposit</h6>
+        <!-- ================== Third Row Cards Start ======================= -->
+        <div class="col-span-12">
+            <div class="card border-0 h-full w-full">
+                <div class="card-header">
+                    <div class="flex items-center flex-wrap gap-2 justify-between">
+                        <h6 class="font-bold text-lg mb-0">Recent pending deposit</h6>
+                    </div>
+                </div>
+                <div class="card-body p-6" style="color:#0C3A30;">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-[900px] w-full table bordered-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Plan</th>
+                                    <th>Proof</th>
+
+                                    <th style="background-color: #0C3A30; color:aliceblue;">Country</th>
+                                    <th>Amount Deposited ($)</th>
+                                    <th>Payment Method</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($deposits as $deposit)
+                                <tr>
+                                    <td><span class="text-neutral-600">{{ $loop->iteration }}</span></td>
+                                    <td><span class="text-neutral-600">{{ $deposit->user->name }}</span></td>
+                                    <td><span class="text-neutral-600">{{ $deposit->user->email }}</span></td>
+                                    <td><span class="text-neutral-600">{{ $deposit->plan->name }}</span></td>
+                                    <td>
+                                        @if ($deposit->proof)
+                                        <img src="{{ Storage::url($deposit->proof) }}"
+                                            alt="Proof"
+                                            class="w-[60px] h-[60px] cursor-pointer object-cover rounded"
+                                            onclick="openModal('{{ Storage::url($deposit->proof) }}')">
+                                        @else
+                                        <span class="text-gray-400">No proof</span>
+                                        @endif
+                                    </td>
+
+                                    <!-- hi  -->
+
+
+
+
+                                    <td><span class="text-neutral-600">{{ $deposit->user->country }}</span></td>
+                                    <td><span class="text-neutral-600">${{ number_format($deposit->amount_deposited, 2) }}</span></td>
+                                    <td>
+                                        <div class="text-neutral-600">
+                                            <h6 class="text-base mb-0 font-normal">{{ $deposit->wallet->crypto_name }}</h6>
+                                            <span class="text-sm font-normal">{{ $deposit->wallet->wallet_address }}</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="text-neutral-600">{{ $deposit->created_at->format('d M, Y') }}</span></td>
+                                    <td>
+
+
+
+                                        <form method="POST" action="{{ route('admin.approve.deposit', $deposit->id) }}" onsubmit="this.querySelector('button').disabled = true;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-primary">Approve</button>
+                                        </form>
+
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="card-body p-6" style="color:#0C3A30;">
-    <div class="overflow-x-auto">
-    <table class="min-w-[900px] w-full table bordered-table mb-0">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>User</th>
-                            <th>Email</th>
-                            <th>Plan</th>
-                            <th>Proof</th>
-
-                            <th style="background-color: #0C3A30; color:aliceblue;">Country</th>
-                            <th>Amount Deposited ($)</th>
-                            <th>Payment Method</th>
-                            <th>Date</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($deposits as $deposit)
-                        <tr>
-                            <td><span class="text-neutral-600">{{ $loop->iteration }}</span></td>
-                            <td><span class="text-neutral-600">{{ $deposit->user->name }}</span></td>
-                            <td><span class="text-neutral-600">{{ $deposit->user->email }}</span></td>
-                            <td><span class="text-neutral-600">{{ $deposit->plan->name }}</span></td>
-<td>
-    @if ($deposit->proof)
-        <img src="{{ Storage::url($deposit->proof) }}"
-             alt="Proof"
-             class="w-[60px] h-[60px] cursor-pointer object-cover rounded"
-             onclick="openModal('{{ Storage::url($deposit->proof) }}')">
-    @else
-        <span class="text-gray-400">No proof</span>
-    @endif
-</td>
-
-
-
-
-
-                            <td><span class="text-neutral-600">{{ $deposit->user->country }}</span></td>
-                            <td><span class="text-neutral-600">${{ number_format($deposit->amount_deposited, 2) }}</span></td>
-                            <td>
-                                <div class="text-neutral-600">
-                                    <h6 class="text-base mb-0 font-normal">{{ $deposit->wallet->crypto_name }}</h6>
-                                    <span class="text-sm font-normal">{{ $deposit->wallet->wallet_address }}</span>
-                                </div>
-                            </td>
-                            <td><span class="text-neutral-600">{{ $deposit->created_at->format('d M, Y') }}</span></td>
-                            <td>
-                               
-
-
-                                <form method="POST" action="{{ route('admin.approve.deposit', $deposit->id) }}" onsubmit="this.querySelector('button').disabled = true;">
-    @csrf
-    <button type="submit" class="btn btn-sm btn-primary">Approve</button>
-</form>
-
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- ================== Third Row Cards End ======================= -->
+        <!-- ================== Third Row Cards End ======================= -->
 
         <!-- ================== Third Row Cards End ======================= -->
 
@@ -107,11 +108,11 @@
 
 <!-- Modal viewer -->
 <div id="imageModal"
-     class="fixed inset-0 bg-black bg-opacity-80 z-50 hidden items-center justify-center p-4"
-     onclick="closeModal()">
+    class="fixed inset-0 bg-black bg-opacity-80 z-50 hidden items-center justify-center p-4"
+    onclick="closeModal()">
     <img id="modalImage"
-         class="max-w-full max-h-full rounded-lg shadow-lg object-contain"
-         onclick="event.stopPropagation();">
+        class="max-w-full max-h-full rounded-lg shadow-lg object-contain"
+        onclick="event.stopPropagation();">
 </div>
 
 <script>

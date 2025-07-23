@@ -170,22 +170,23 @@
                     <div class="p-6  rounded-2xl">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-sm font-medium">Available Balance</p>
+                                <p class="text-sm font-medium text-['']">Available Balance</p>
                                 <template x-if="!initBalances.loaded">
                                     <div class="h-8 w-40 mt-2 bg-gray-200 rounded animate-pulse"></div>
                                 </template>
                                 <template x-if="initBalances.loaded">
                                     <h3 class="text-2xl font-bold text-primary-800 mt-1">
                                         <template x-if="showBalance">
-                                            <span x-text="'$' + initBalances.available.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span>
+                                            <span class="text-[#0C3A30]" x-text="'$' + initBalances.available.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span>
                                         </template>
                                         <template x-if="!showBalance">
-                                            <span class="text-xl">••••••••</span>
+                                            <span class="text-xl text-[#0C3A30]">••••••••</span>
                                         </template>
                                     </h3>
                                 </template>
                             </div>
 
+                            <!-- i will comment it out  -->
 
                             <div class="p-3 rounded-xl">
                                 <button @click="toggleBalance" class="flex items-center gap-1 text-xs mt-2 text-[#0C3A30] hover:text-[#9EDD05] transition-colors">

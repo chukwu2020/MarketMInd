@@ -3,10 +3,10 @@
 
 <head>
 
-<script>
+<!-- <script>
     document.documentElement.classList.remove('dark');
     document.body.classList.remove('dark');
-</script>
+</script> -->
 
     <base href="/public">
     <meta charset="UTF-8">
