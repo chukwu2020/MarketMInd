@@ -28,7 +28,7 @@
     <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="admin_assets/css/remixicon.css">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> -->
 
     <!-- Vendor CSS -->
     <link rel="stylesheet" href="{{ asset('admin_assets/css/lib/apexcharts.css') }}">
