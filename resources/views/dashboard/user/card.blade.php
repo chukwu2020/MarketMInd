@@ -179,16 +179,16 @@
     }
 </style>
 
-<div class=" min-h-screen" style="background-image: url('assets/images/hero/hero-image-1.svg');
-            min-height: 100vh;
-            background-repeat: no-repeat;
-            background-size: cover;">
+<div class=" min-h-screen" >
      <!-- <div 
     class="min-h-screen container mx-auto px-4 py-10" 
     style="background-image: url('/assets/images/hero/hero-image-1.svg'); background-repeat: no-repeat; background-size: cover; background-position: center;"> -->
 
     
-        <div class="container mx-auto px-4 py-10 text-center" style="padding-bottom: 100px;">
+        <div class="container mx-auto px-4 py-10 text-center" style=" padding-bottom: 100px; background-image: url('assets/images/hero/hero-image-1.svg');
+            min-height: 100vh;
+            background-repeat: no-repeat;
+            background-size: cover;">
 
         <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
             <h6 class="font-semibold mb-0" style="color: #0C3A30;">MY Virtual Card</h6>

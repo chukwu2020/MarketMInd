@@ -3,13 +3,13 @@
 @section('content')
 
 <!-- Main Container with fixed background -->
-<div class="w-full min-h-screen bg-cover bg-center bg-no-repeat" style="background-image: url(assets/images/hero/hero-image-1.svg);   min-height: 100vh;
-            background-repeat: no-repeat;
-            background-size: cover; background-position:center;">
+<div class="w-full min-h-screen bg-cover bg-center bg-no-repeat">
     <!-- Optional:  overlay (enable if needed for contrast) -->
     {{-- <div class="absolute inset-0 bg-black opacity-30 z-0"></div> --}}
 
-    <div class="max-w-7xl mx-auto px-4 md:px-6 py-10 relative z-10">
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-10 relative z-10"  style="background-image: url(assets/images/hero/hero-image-1.svg);   
+            background-repeat: no-repeat;
+            background-size: cover; background-position:center;">
         <!-- Header -->
         <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
             <h5 class="font-semibold text-lg md:text-xl" style="color: #0C3A30;">Investment</h5>
