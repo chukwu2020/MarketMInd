@@ -2,7 +2,7 @@
 
 @section('content')
 <!-- Certificate Overlay -->
-<div class="main-content" >
+<div class="main-content">
 
     @php
     $shouldResetOverlay = session()->pull('clearCertOverlay', false);
@@ -76,7 +76,7 @@
     </style>
 
     <!-- Main Dashboard Content -->
-    <div class="dashboard-main-body space-y-6" >
+    <div class="dashboard-main-body space-y-6">
 
         <!-- Header with Breadcrumb -->
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
@@ -92,7 +92,7 @@
                     @endphp
 
                     @if ($profilePic && file_exists(public_path('storage/profile_pics/' . $profilePic)))
-                      <img src="{{ asset('storage/profile_pics/' . $profilePic) }}"
+                    <img src="{{ asset('storage/profile_pics/' . $profilePic) }}"
                         alt="{{ $user->name }}"
                         class="rounded-full object-cover"
                         style="width: 80px; height: 80px; border: 2px solid #8bc905;" />
@@ -163,7 +163,19 @@
             }
         }">
 
-      
+            <style>
+                html,
+                body {
+                    color: #0C3A30 !important;
+                }
+
+                div,
+                * {
+                    color: #0C3A30 !important;
+                }
+            </style>
+
+
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Available Balance Card -->
@@ -172,7 +184,7 @@
                     <div class="p-6  rounded-2xl">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="mainColor text-sm font-medium text-[#0C3A30]" >Available Balance</p>
+                                <p class="mainColor text-sm font-medium text-[#0C3A30]">Available Balance</p>
                                 <template x-if="!initBalances.loaded">
                                     <div class="h-8 w-40 mt-2 bg-gray-200 rounded animate-pulse"></div>
                                 </template>
@@ -751,40 +763,40 @@
 
 
             <!-- Recent Activity -->
-        
-        <div class="rounded-2xl shadow-xl p-6 border border-gray-600 w-full sm:w-[48%] lg:w-1/3" style=" background-image: url('assets/images/hero/hero-image-1.svg');">
-    <div class="flex justify-between items-center mb-6">
-        <h3 class="text-lg font-bold text-primary-800">Recent Activity</h3>
-        <div class="relative" x-data="{ activityFilterOpen: false }">
-      <button @click="activityFilterOpen = !activityFilterOpen" 
-        class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-200 shadow-xs hover:bg-primary-50 hover:border-primary-300 hover:text-primary-800 transition-all duration-200">
-    <iconify-icon icon="mdi:filter-outline" class="text-lg text-primary-600"></iconify-icon>
-    <span class="text-sm font-medium">Filter</span>
-</button>
-            <div x-show="activityFilterOpen" @click.away="activityFilterOpen = false"
-                class="absolute right-0 mt-2 w-48 rounded-md shadow-lg z-10 py-1 border border-gray-200">
-                <a href="#" @click.prevent="$dispatch('filter-activities', 'all')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
-                    <iconify-icon icon="mdi:format-list-bulleted" class="text-lg"></iconify-icon>
-                    All Activities
-                </a>
-                <a href="#" @click.prevent="$dispatch('filter-activities', 'deposit')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
-                    <iconify-icon icon="mdi:cash-plus" class="text-lg text-emerald-500"></iconify-icon>
-                    Deposits
-                </a>
-                <a href="#" @click.prevent="$dispatch('filter-activities', 'withdrawal')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
-                    <iconify-icon icon="mdi:cash-minus" class="text-lg text-red-500"></iconify-icon>
-                    Withdrawals
-                </a>
-                <a href="#" @click.prevent="$dispatch('filter-activities', 'investment')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
-                    <iconify-icon icon="mdi:chart-line" class="text-lg text-blue-500"></iconify-icon>
-                    Investments
-                </a>
-            </div>
-        </div>
-    </div>
 
-    <div class="space-y-4 h-[65vh] min-h-[400px] max-h-[700px] overflow-y-auto w-full pr-2"
-         x-data="{
+            <div class="rounded-2xl shadow-xl p-6 border border-gray-600 w-full sm:w-[48%] lg:w-1/3" style=" background-image: url('assets/images/hero/hero-image-1.svg');">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold text-primary-800">Recent Activity</h3>
+                    <div class="relative" x-data="{ activityFilterOpen: false }">
+                        <button @click="activityFilterOpen = !activityFilterOpen"
+                            class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-200 shadow-xs hover:bg-primary-50 hover:border-primary-300 hover:text-primary-800 transition-all duration-200">
+                            <iconify-icon icon="mdi:filter-outline" class="text-lg text-primary-600"></iconify-icon>
+                            <span class="text-sm font-medium">Filter</span>
+                        </button>
+                        <div x-show="activityFilterOpen" @click.away="activityFilterOpen = false"
+                            class="absolute right-0 mt-2 w-48 rounded-md shadow-lg z-10 py-1 border border-gray-200">
+                            <a href="#" @click.prevent="$dispatch('filter-activities', 'all')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                                <iconify-icon icon="mdi:format-list-bulleted" class="text-lg"></iconify-icon>
+                                All Activities
+                            </a>
+                            <a href="#" @click.prevent="$dispatch('filter-activities', 'deposit')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                                <iconify-icon icon="mdi:cash-plus" class="text-lg text-emerald-500"></iconify-icon>
+                                Deposits
+                            </a>
+                            <a href="#" @click.prevent="$dispatch('filter-activities', 'withdrawal')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                                <iconify-icon icon="mdi:cash-minus" class="text-lg text-red-500"></iconify-icon>
+                                Withdrawals
+                            </a>
+                            <a href="#" @click.prevent="$dispatch('filter-activities', 'investment')" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                                <iconify-icon icon="mdi:chart-line" class="text-lg text-blue-500"></iconify-icon>
+                                Investments
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4 h-[65vh] min-h-[400px] max-h-[700px] overflow-y-auto w-full pr-2"
+                    x-data="{
             activityFilter: 'all',
             init() {
                 window.addEventListener('filter-activities', event => {
@@ -796,166 +808,173 @@
                 return type.toLowerCase() === this.activityFilter;
             }
          }">
-        @forelse ($recentActivities as $activity)
-            @php
-                $typeKey = strtolower(explode(' ', $activity['type'])[0]);
+                    @forelse ($recentActivities as $activity)
+                    @php
+                    $typeKey = strtolower(explode(' ', $activity['type'])[0]);
 
-                $status = strtolower($activity['status']);
-                $badgeClass = match($status) {
+                    $status = strtolower($activity['status']);
+                    $badgeClass = match($status) {
                     'pending' => 'badge-pending',
                     'ready to withdraw' => 'badge-warning',
                     'active' => 'badge-active',
                     'completed' => 'badge-approved',
                     default => 'badge-default'
-                };
+                    };
 
-                $amountClass = match($activity['type']) {
+                    $amountClass = match($activity['type']) {
                     'Deposit' => 'text-emerald-600',
                     'Withdrawal' => 'text-red-600',
                     'Investment Matured' => 'text-amber-600',
                     'Investment Active' => 'text-blue-600',
                     default => 'text-gray-600'
-                };
+                    };
 
-                $borderClass = match($activity['type']) {
+                    $borderClass = match($activity['type']) {
                     'Deposit' => 'border-emerald-500',
                     'Withdrawal' => 'border-red-500',
                     'Investment Matured' => 'border-amber-500',
                     'Investment Active' => 'border-blue-500',
                     default => 'border-gray-300'
-                };
-            @endphp
+                    };
+                    @endphp
 
-            <template x-if="filterType('{{ $typeKey }}')">
-                <div class="bg-white border {{ $borderClass }} border-l-4 rounded-2xl shadow-xl p-5 w-full hover:bg-gray-50 transition-colors max-w-full flex justify-between items-center gap-4">
-                    <div class="flex items-center gap-4">
-                        <div class="p-3 rounded-lg 
+                    <template x-if="filterType('{{ $typeKey }}')">
+                        <div class="bg-white border {{ $borderClass }} border-l-4 rounded-2xl shadow-xl p-5 w-full hover:bg-gray-50 transition-colors max-w-full flex justify-between items-center gap-4">
+                            <div class="flex items-center gap-4">
+                                <div class="p-3 rounded-lg 
                             @if($typeKey === 'deposit') bg-emerald-100
                             @elseif($typeKey === 'withdrawal') bg-red-100
                             @elseif($typeKey === 'investment') bg-blue-100
                             @elseif($typeKey === 'investment') bg-amber-100
                             @else bg-gray-100 @endif
                         ">
-                            <iconify-icon icon="mdi:{{ $activity['icon'] }}" 
-                                class="@if($typeKey === 'deposit') text-emerald-600
+                                    <iconify-icon icon="mdi:{{ $activity['icon'] }}"
+                                        class="@if($typeKey === 'deposit') text-emerald-600
                                 @elseif($typeKey === 'withdrawal') text-red-600
                                 @elseif($typeKey === 'investment') text-blue-600
                                 @elseif($typeKey === 'investment') text-amber-600
                                 @else text-gray-600 @endif
                             text-xl"></iconify-icon>
-                        </div>
+                                </div>
 
-                        <div class="flex flex-col min-w-0">
-                            <p class="font-medium text-gray-900 truncate">{{ $activity['type'] }}</p>
-                            <p class="text-sm text-gray-500">{{ $activity['date']->format('M d, h:i A') }}</p>
+                                <div class="flex flex-col min-w-0">
+                                    <p class="font-medium text-gray-900 truncate">{{ $activity['type'] }}</p>
+                                    <p class="text-sm text-gray-500">{{ $activity['date']->format('M d, h:i A') }}</p>
 
-                            @if(in_array($activity['type'], ['Investment Active', 'Investment Matured']))
-                                <p class="text-xs text-gray-600 mt-1 truncate">Plan: {{ $activity['plan_name'] }}</p>
-                            @else
-                                <p class="text-xs text-gray-400 truncate">{{ $activity['reference'] }}</p>
-                            @endif
+                                    @if(in_array($activity['type'], ['Investment Active', 'Investment Matured']))
+                                    <p class="text-xs text-gray-600 mt-1 truncate">Plan: {{ $activity['plan_name'] }}</p>
+                                    @else
+                                    <p class="text-xs text-gray-400 truncate">{{ $activity['reference'] }}</p>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div class="text-right space-y-1 ml-2 min-w-[100px]">
+                                @if(in_array($activity['type'], ['Deposit', 'Withdrawal', 'Investment Matured']))
+                                <p class="{{ $amountClass }} font-semibold whitespace-nowrap">
+                                    {{ $activity['type'] === 'Deposit' ? '+' : '-' }}${{ number_format($activity['amount'], 2) }}
+                                </p>
+                                @endif
+
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $badgeClass }} mb-1">
+                                    {{ ucfirst($activity['status']) }}
+                                </span>
+
+                                @if($activity['action_url'] && $activity['action_text'])
+                                <a href="{{ $activity['action_url'] }}" class="inline-block text-xs bg-gray-800 hover:bg-gray-900 text-white px-3 py-1 rounded whitespace-nowrap">
+                                    {{ $activity['action_text'] }}
+                                </a>
+                                @endif
+                            </div>
                         </div>
+                    </template>
+                    @empty
+                    <div class="text-center py-8">
+                        <iconify-icon icon="mdi:inbox-remove-outline" class="text-4xl text-gray-300"></iconify-icon>
+                        <p class="text-gray-400 text-sm mt-2">No recent activity available</p>
+                        <a href="{{ route('user.deposit') }}" class="mt-3 inline-block text-sm text-primary-600 hover:text-primary-800 font-medium">
+                            Make your first deposit
+                        </a>
                     </div>
+                    @endforelse
+                </div>
+            </div>
 
-                    <div class="text-right space-y-1 ml-2 min-w-[100px]">
-                        @if(in_array($activity['type'], ['Deposit', 'Withdrawal', 'Investment Matured']))
-                            <p class="{{ $amountClass }} font-semibold whitespace-nowrap">
-                                {{ $activity['type'] === 'Deposit' ? '+' : '-' }}${{ number_format($activity['amount'], 2) }}
-                            </p>
-                        @endif
+            <style>
+                .badge-approved {
+                    background-color: #d1fae5;
+                    /* Tailwind's bg-green-100 */
+                    color: #065f46;
+                    /* Tailwind's text-green-800 */
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 9999px;
+                    font-weight: 500;
+                    font-size: 0.75rem;
+                }
 
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $badgeClass }} mb-1">
-                            {{ ucfirst($activity['status']) }}
-                        </span>
+                .badge-pending {
+                    background-color: #fef3c7;
+                    /* Tailwind's bg-yellow-100 */
+                    color: #92400e;
+                    /* Tailwind's text-yellow-800 */
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 9999px;
+                    font-weight: 500;
+                    font-size: 0.75rem;
+                }
 
-                        @if($activity['action_url'] && $activity['action_text'])
-                            <a href="{{ $activity['action_url'] }}" class="inline-block text-xs bg-gray-800 hover:bg-gray-900 text-white px-3 py-1 rounded whitespace-nowrap">
-                                {{ $activity['action_text'] }}
-                            </a>
-                        @endif
+                .badge-warning {
+                    background-color: #fde68a;
+                    /* Tailwind's bg-yellow-300 */
+                    color: #92400e;
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 9999px;
+                    font-weight: 500;
+                    font-size: 0.75rem;
+                }
+
+                .badge-active {
+                    background-color: #dbeafe;
+                    /* Tailwind's bg-blue-100 */
+                    color: #1d4ed8;
+                    /* Tailwind's text-blue-700 */
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 9999px;
+                    font-weight: 500;
+                    font-size: 0.75rem;
+                }
+
+                .badge-default {
+                    background-color: #f3f4f6;
+                    color: #374151;
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 9999px;
+                    font-weight: 500;
+                    font-size: 0.75rem;
+                }
+            </style>
+
+
+            <!-- Motivational Quote -->
+            <!-- Motivational Quote -->
+            <div x-data="quoteRotator()" x-init="startRotation()"
+                class="relative rounded-2xl overflow-hidden shadow-2xl pt-8 min-h-[240px] w-full sm:w-[48%] lg:w-1/3 flex items-center justify-center text-center ">
+                <div class="absolute inset-0 bg-[#0C3A30]/80 backdrop-blur-sm"
+                    style="background-image: url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1350&q=80');"></div>
+                <div class="relative z-10 px-4 sm:px-8 w-full">
+                    <div x-transition:enter="transition-opacity duration-700"
+                        x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100"
+                        x-transition:leave="transition-opacity duration-500"
+                        x-transition:leave-start="opacity-100"
+                        x-transition:leave-end="opacity-0">
+                        <p class="text-white text-xl sm:text-2xl font-semibold italic leading-relaxed"
+                            x-text="quotes[currentIndex].quote"></p>
+                        <p class="text-white text-sm mt-4"
+                            x-text="quotes[currentIndex].author"></p>
                     </div>
                 </div>
-            </template>
-        @empty
-            <div class="text-center py-8">
-                <iconify-icon icon="mdi:inbox-remove-outline" class="text-4xl text-gray-300"></iconify-icon>
-                <p class="text-gray-400 text-sm mt-2">No recent activity available</p>
-                <a href="{{ route('user.deposit') }}" class="mt-3 inline-block text-sm text-primary-600 hover:text-primary-800 font-medium">
-                    Make your first deposit
-                </a>
             </div>
-        @endforelse
-    </div>
-</div>
-
-<style>
-    .badge-approved {
-        background-color: #d1fae5; /* Tailwind's bg-green-100 */
-        color: #065f46;           /* Tailwind's text-green-800 */
-        padding: 0.25rem 0.5rem;
-        border-radius: 9999px;
-        font-weight: 500;
-        font-size: 0.75rem;
-    }
-
-    .badge-pending {
-        background-color: #fef3c7; /* Tailwind's bg-yellow-100 */
-        color: #92400e;            /* Tailwind's text-yellow-800 */
-        padding: 0.25rem 0.5rem;
-        border-radius: 9999px;
-        font-weight: 500;
-        font-size: 0.75rem;
-    }
-
-    .badge-warning {
-        background-color: #fde68a; /* Tailwind's bg-yellow-300 */
-        color: #92400e;
-        padding: 0.25rem 0.5rem;
-        border-radius: 9999px;
-        font-weight: 500;
-        font-size: 0.75rem;
-    }
-
-    .badge-active {
-        background-color: #dbeafe; /* Tailwind's bg-blue-100 */
-        color: #1d4ed8;            /* Tailwind's text-blue-700 */
-        padding: 0.25rem 0.5rem;
-        border-radius: 9999px;
-        font-weight: 500;
-        font-size: 0.75rem;
-    }
-
-    .badge-default {
-        background-color: #f3f4f6;
-        color: #374151;
-        padding: 0.25rem 0.5rem;
-        border-radius: 9999px;
-        font-weight: 500;
-        font-size: 0.75rem;
-    }
-</style>
-
-
-            <!-- Motivational Quote -->
-            <!-- Motivational Quote -->
-<div x-data="quoteRotator()" x-init="startRotation()"
-    class="relative rounded-2xl overflow-hidden shadow-2xl pt-8 min-h-[240px] w-full sm:w-[48%] lg:w-1/3 flex items-center justify-center text-center ">
-    <div class="absolute inset-0 bg-[#0C3A30]/80 backdrop-blur-sm"
-        style="background-image: url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1350&q=80');"></div>
-    <div class="relative z-10 px-4 sm:px-8 w-full">
-        <div x-transition:enter="transition-opacity duration-700"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
-            x-transition:leave="transition-opacity duration-500"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0">
-            <p class="text-white text-xl sm:text-2xl font-semibold italic leading-relaxed"
-                x-text="quotes[currentIndex].quote"></p>
-            <p class="text-white text-sm mt-4"
-                x-text="quotes[currentIndex].author"></p>
-        </div>
-    </div>
-</div>
 
         </div>
     </div>
