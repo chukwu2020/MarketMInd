@@ -94,7 +94,7 @@ class IdController extends Controller
     // Admin: list all verifications
     public function index()
     {
-        $verifications = IdVerification::with(['user:id,name,email'])
+        $verifications = IdVerification   ::with(['user:id,name,email'])
             ->latest()
             ->paginate(10);
 
