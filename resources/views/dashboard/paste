@@ -1,3 +1,19 @@
+@php
+use Carbon\Carbon;
+
+$allInvestments = auth()->user()->investments()
+    ->where('status','active')
+    ->with('plan')
+    ->orderBy('created_at', 'desc')
+    ->get();
+
+$totalEarnedAll = 0;
+$displayCount = min(2, count($allInvestments));
+
+// Load daily earnings from cache or default to empty array
+$dailyEarnings = Cache::remember('user_'.auth()->id().'_daily_earnings', now()->addDay(), fn() => []);
+@endphp
+
 <div class="investment-performance-card bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden w-full max-w-md mx-auto"
     style="border-top: 4px solid #8bc905; background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
     <div class="p-5">
@@ -10,21 +26,6 @@
         </div>
 
         <div id="investmentContainer" class="space-y-3">
-            @php
-                use Carbon\Carbon;
-
-                $allInvestments = auth()->user()->investments()
-                    ->where('status','active')
-                    ->with('plan')
-                    ->orderBy('created_at', 'desc')
-                    ->get();
-
-                $totalEarnedAll = 0;
-                $displayCount = min(2, count($allInvestments));
-
-                $dailyEarnings = Cache::remember('user_'.auth()->id().'_daily_earnings', now()->addDay(), fn() => []);
-            @endphp
-
             @foreach($allInvestments->take($displayCount) as $investment)
                 @php
                     $startDate = $investment->created_at;
@@ -37,63 +38,98 @@
                     $projectedTotal = $amount * (1 + $rate / 100);
                     $projectedProfit = $amount * $rate / 100;
 
-                    $daysPassed = $now->diffInDays($startDate, false);
                     $daysCompleted = max(0, $now->diffInDays($startDate));
-                    $weeksPassed = floor($daysCompleted / 7);
+                    $currentDay = min($daysCompleted + 1, $duration);
 
                     $isLongTerm = $duration > 28;
-                    $isShortTerm = $duration <= 28;
 
-                    $progressKey = 'investment_'.$investment->id.'_progress_'.now()->format($isLongTerm ? 'Y_W' : 'Y_m_d');
+                    $progressKey = 'investment_' . $investment->id . '_progress_' . now()->format($isLongTerm ? 'Y_W' : 'Y_m_d');
                     $previousEarned = $dailyEarnings[$investment->id] ?? 0;
 
-                    $fluctuation = mt_rand(-10, 10);
+                    // Fluctuation color and icons - keep unchanged per your instructions
+                    $fluctuation = mt_rand(-100, 100);
                     $isPositive = $fluctuation >= 0;
                     $fluctuationDisplay = abs($fluctuation);
+                    $trendColor = $isPositive ? 'text-green-600' : 'text-red-600';
+                    $borderLeftColor = $isPositive ? 'border-green-500' : 'border-red-500';
+                    $progressBarColor = $isPositive ? 'bg-green-500' : 'bg-red-500';
 
-                    $multiplier = 1 + ($fluctuation / 100); // Randomized multiplier
+                    // -------------------------
+                    // Earnings calculation:
+                    // For duration <= 28 days: daily earnings with 10% guaranteed day 1 + daily fluctuation ±10%
+                    // For duration > 28 days: weekly earnings with 10% guaranteed first week + weekly fluctuation ±10%
+                    // -------------------------
 
-                    // Calculate new earnings (only once per day/week via cache)
-                    $earnedNow = Cache::remember($progressKey, now()->addDay(), function () use (
-                        $isLongTerm, $isShortTerm, $projectedProfit, $multiplier, $weeksPassed, $daysCompleted, $duration
-                    ) {
-                        if ($isLongTerm) {
-                            return min($projectedProfit * 0.95, ($weeksPassed / max(1, floor($duration / 7))) * $projectedProfit * $multiplier);
+                    $totalEarned = 0;
+
+                    if (!$isLongTerm) {
+                        // Short term - daily earnings
+                        $baseDaily = $projectedProfit / $duration;
+                        $minimumFirstDay = $projectedProfit * 0.10; // 10% guaranteed first day
+                        $earnedSoFar = 0;
+
+                        if ($currentDay === 1) {
+                            $earnedSoFar = $minimumFirstDay;
                         } else {
-                            return min($projectedProfit * 0.95, ($daysCompleted / $duration) * $projectedProfit * $multiplier);
+                            $earnedSoFar = $minimumFirstDay;
+
+                            for ($i = 2; $i <= $currentDay; $i++) {
+                                $dailyFluct = mt_rand(-10, 10); // +/- 10%
+                                $dailyEarning = $baseDaily * (1 + $dailyFluct / 100);
+                                $earnedSoFar += $dailyEarning;
+                            }
+
+                            $earnedSoFar = min($earnedSoFar, $projectedProfit);
                         }
-                    });
 
-                    $totalEarned = $earnedNow;
+                        $totalEarned = round($earnedSoFar, 2);
+                    } else {
+                        // Long term - weekly earnings
+                        $weeksCompleted = floor($daysCompleted / 7) + 1; // count current week
+                        $totalWeeks = ceil($duration / 7);
+                        $baseWeekly = $projectedProfit / $totalWeeks;
+                        $minimumFirstWeek = $projectedProfit * 0.10; // 10% guaranteed first week
+                        $earnedSoFar = 0;
 
-                    // Show full profit if matured
-                    if ($daysCompleted >= $duration) {
-                        $totalEarned = $projectedProfit;
-                        $fluctuation = 0;
-                        $isPositive = true;
+                        if ($weeksCompleted === 1) {
+                            $earnedSoFar = $minimumFirstWeek;
+                        } else {
+                            $earnedSoFar = $minimumFirstWeek;
+
+                            for ($w = 2; $w <= $weeksCompleted; $w++) {
+                                $weeklyFluct = mt_rand(-10, 10); // +/- 10%
+                                $weeklyEarning = $baseWeekly * (1 + $weeklyFluct / 100);
+                                $earnedSoFar += $weeklyEarning;
+                            }
+
+                            $earnedSoFar = min($earnedSoFar, $projectedProfit);
+                        }
+
+                        $totalEarned = round($earnedSoFar, 2);
+
+                        // For display, we show day as weeks*7 capped to duration days
+                        $currentDay = min($weeksCompleted * 7, $duration);
                     }
 
                     $dailyEarnings[$investment->id] = $totalEarned;
                     $totalEarnedAll += $totalEarned;
 
-                    $trendColor = $isPositive ? 'text-green-600' : 'text-red-600';
-                    $trendBg = $isPositive ? 'bg-green-50' : 'bg-red-50';
-                    $trendBorder = $isPositive ? 'border-green-100' : 'border-red-100';
+                    $progressPercentage = min(100, round(($totalEarned / $projectedProfit) * 100));
                 @endphp
 
                 <!-- Single Investment Card -->
-                <div class="investment-item {{ $trendBg }} rounded-lg p-3 border {{ $trendBorder }} shadow-sm hover:shadow-md transition-shadow">
+                <div class="investment-item bg-white rounded-lg p-3 border-l-4 {{ $borderLeftColor }} shadow-sm hover:shadow-md transition-shadow">
                     <div class="flex justify-between items-center">
                         <span class="text-sm font-medium text-gray-800">{{ strtoupper($investment->plan->name) }}</span>
                         <span class="text-xs font-bold {{ $trendColor }} flex items-center animate-fluctuation-{{ $isPositive ? 'up' : 'down' }}">
                             @if($isPositive)
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
-                                </svg>
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                            </svg>
                             @else
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-                                </svg>
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                            </svg>
                             @endif
                             {{ $fluctuationDisplay }}%
                         </span>
@@ -101,7 +137,7 @@
 
                     <div class="flex justify-between items-center mt-2">
                         <span class="text-xs text-gray-500">
-                            Day {{ min($daysCompleted, $duration) }} of {{ $duration }}
+                            Day {{ $currentDay }} of {{ $duration }}
                         </span>
                         <span class="text-xs font-medium">
                             <span class="{{ $totalEarned > 0 ? 'text-gray-800' : 'text-gray-500' }}">
@@ -114,9 +150,7 @@
 
                     <!-- Progress Bar -->
                     <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2">
-                        <div class="h-1.5 rounded-full {{ $daysPassed > $duration ? 'bg-purple-500' : ($isPositive ? 'bg-green-500' : 'bg-red-500') }}"
-                            style="width: {{ min(100, ($daysCompleted / $duration) * 100) }}%">
-                        </div>
+                        <div class="h-1.5 rounded-full {{ $progressBarColor }}" style="width: {{ $progressPercentage }}%"></div>
                     </div>
                 </div>
             @endforeach
@@ -144,118 +178,76 @@
     </div>
 </div>
 
+<style>
+    @keyframes fluctuationUp {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-2px); }
+    }
 
-                <style>
-                    @keyframes fluctuationUp {
+    @keyframes fluctuationDown {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(2px); }
+    }
 
-                        0%,
-                        100% {
-                            transform: translateY(0);
-                        }
+    .animate-fluctuation-up {
+        animation: fluctuationUp 1.5s ease-in-out infinite;
+    }
 
-                        50% {
-                            transform: translateY(-2px);
-                        }
-                    }
+    .animate-fluctuation-down {
+        animation: fluctuationDown 1.5s ease-in-out infinite;
+    }
 
-                    @keyframes fluctuationDown {
+    .text-green-600 {
+        color: #16a34a !important;
+    }
 
-                        0%,
-                        100% {
-                            transform: translateY(0);
-                        }
+    .text-red-600 {
+        color: #dc2626 !important;
+    }
 
-                        50% {
-                            transform: translateY(2px);
-                        }
-                    }
+    .investment-performance-card {
+        border-top-width: 4px;
+        border-top-color: #8bc905;
+    }
 
-                    .animate-fluctuation-up {
-                        animation: fluctuationUp 1.5s ease-in-out infinite;
-                    }
+    .investment-item {
+        transition: all 0.2s ease;
+    }
 
-                    .animate-fluctuation-down {
-                        animation: fluctuationDown 1.5s ease-in-out infinite;
-                    }
+    .investment-item:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+</style>
 
-                    .investment-performance-card {
-                        border-top-width: 4px;
-                        border-top-color: #8bc905;
-                    }
+<script>
+    // Auto-refresh every 15 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const refreshInvestments = () => {
+            fetch(window.location.href + '?refresh=' + new Date().getTime(), {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                cache: 'no-store'
+            })
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newComponent = doc.querySelector('.investment-performance-card');
+                if (newComponent) {
+                    document.querySelector('.investment-performance-card').outerHTML = newComponent.outerHTML;
+                }
+            });
+        };
 
-                    .total-invested-card {
-                        border-top-width: 4px;
-                        border-top-color: #8bc905;
-                    }
+        setInterval(refreshInvestments, 1200);
 
-                    #expandedInvestments {
-                        max-height: 0;
-                        overflow: hidden;
-                        transition: max-height 0.5s ease;
-                    }
-
-                    #expandedInvestments.show {
-                        max-height: 1000px;
-                    }
-
-                    .investment-item {
-                        transition: all 0.2s ease;
-                    }
-
-                    .investment-item:hover {
-                        transform: translateY(-1px);
-                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-                    }
-                </style>
-
-                <script>
-                    // Toggle expanded view
-                    function toggleExpand() {
-                        const container = document.getElementById('expandedInvestments');
-                        container.classList.toggle('show');
-
-                        const btn = document.querySelector('[onclick="toggleExpand()"]');
-                        if (container.classList.contains('show')) {
-                            btn.textContent = 'Show Less';
-                        } else {
-                            btn.textContent = `View All ({{ count($allInvestments) }})`;
-                        }
-                    }
-
-                    // Auto-refresh every 15 seconds
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const refreshInvestments = () => {
-                            fetch(window.location.href + '?refresh=' + new Date().getTime(), {
-                                    headers: {
-                                        'X-Requested-With': 'XMLHttpRequest'
-                                    },
-                                    cache: 'no-store'
-                                })
-                                .then(response => response.text())
-                                .then(html => {
-                                    const parser = new DOMParser();
-                                    const doc = parser.parseFromString(html, 'text/html');
-                                    const newComponent = doc.querySelector('.investment-performance-card');
-                                    if (newComponent) {
-                                        document.querySelector('.investment-performance-card').outerHTML = newComponent.outerHTML;
-                                    }
-                                });
-                        };
-
-                        setInterval(refreshInvestments, 500);
-
-                        document.addEventListener('visibilitychange', () => {
-                            if (!document.hidden) refreshInvestments();
-                        });
-                    });
-                </script>
-
-
-
-
-
-
-
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) refreshInvestments();
+        });
+    });
+</script>
 
 
 

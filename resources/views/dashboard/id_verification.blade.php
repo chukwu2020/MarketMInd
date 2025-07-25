@@ -3,7 +3,7 @@
 @section('content')
 <div class="min-h-screen bg-gray-50">
     <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div class="bg-white shadow-xl rounded-lg overflow-hidden">
+        <div class="bg-white shadow-xl rounded-lg overflow-hidden" style="background-image: url(assets/images/hero/hero-image-1.svg);" >
             <!-- Header with techy background -->
             <div class="bg-gradient-to-r from-blue-600 to-blue-800 px-6 py-8 text-center">
                 <h2 class="text-3xl font-bold text-white">Identity Verification</h2>
@@ -25,7 +25,7 @@
                 </div>
             @endif
 
-            @if($errors->any())
+            @if($errors->any()))
                 <div class="bg-red-50 border-l-4 border-red-500 p-4 mx-6 mt-6">
                     <div class="flex">
                         <div class="flex-shrink-0">
@@ -42,7 +42,7 @@
                 </div>
             @endif
 
-            <form id="verificationForm" action="{{ route('id.upload') }}" method="POST" enctype="multipart/form-data" class="px-6 py-8 space-y-6">
+            <form id="verificationForm" action="{{ route('id.verification.store') }}" method="POST" enctype="multipart/form-data" class="px-6 py-8 space-y-6">
                 @csrf
 
                 <!-- Continent and Country Selection -->
@@ -67,72 +67,40 @@
                     </div>
                 </div>
 
-                <!-- ID Document Upload with Preview -->
+                <!-- ID Document Upload -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload ID Document Front and Back</label>
-                    <div class="mt-1 flex flex-col items-center">
-                        <div id="id-preview-container" class="hidden mb-4 w-full max-w-xs">
-                            <div class="relative">
-                                <img id="id-preview" class="w-full h-auto border border-gray-300 rounded-md">
-                                <button type="button" onclick="clearIdPreview()" class="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 transform translate-x-1/2 -translate-y-1/2">
-                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
-                                </button>
-                            </div>
-                            <p id="id-file-name" class="text-sm text-gray-500 mt-1 text-center"></p>
-                        </div>
-                        <label class="w-full flex flex-col items-center px-4 py-6 bg-white text-blue-600 rounded-lg border-2 border-dashed border-blue-300 cursor-pointer hover:bg-blue-50 transition-colors duration-150">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                            </svg>
-                            <span class="mt-2 text-base font-medium">Select ID Document</span>
-                            <span class="text-sm text-gray-500">JPG, PNG, or PDF (Max 5MB)</span>
-                            <input id="id-upload" type="file" name="document" class="hidden" accept=".jpg,.jpeg,.png,.pdf" required>
-                        </label>
+                    <label class="block text-sm font-medium mt-5 text-gray-700 mb-2">Upload ID  (Passport, Driver's License, etc.)</label>
+                    <div class="mt-1">
+                        <input id="document" name="document" type="file" class="block w-full text-sm text-gray-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-md file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-blue-50 file:text-blue-700
+                            hover:file:bg-blue-100" 
+                            accept=".jpg,.jpeg,.png,.pdf" 
+                            required>
+                       
                     </div>
                 </div>
 
-                <!-- Selfie Capture with Preview -->
+                <!-- Selfie Upload -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Take a Selfie</label>
-                    <div class="mt-1 flex flex-col items-center">
-                        <div id="selfie-preview-container" class="hidden mb-4 w-full max-w-xs">
-                            <div class="relative">
-                                <img id="selfie-preview" class="w-full h-auto border border-gray-300 rounded-md">
-                                <button type="button" onclick="clearSelfiePreview()" class="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 transform translate-x-1/2 -translate-y-1/2">
-                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div id="selfie-capture-container" class="w-full">
-                            <div id="selfie-instructions" class="text-center mb-4">
-                                <p class="text-sm text-gray-500">Please ensure your face is clearly visible</p>
-                            </div>
-                            <div class="relative bg-gray-100 rounded-lg overflow-hidden">
-                                <video id="video" class="w-full hidden" autoplay playsinline></video>
-                                <canvas id="canvas" class="hidden"></canvas>
-                                <div id="selfie-placeholder" class="flex flex-col items-center justify-center py-8 cursor-pointer">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    </svg>
-                                    <p class="mt-2 text-gray-600">Click to take a selfie</p>
-                                </div>
-                            </div>
-                            <div id="camera-controls" class="mt-4 flex justify-center space-x-4 hidden">
-                                <button type="button" id="capture-btn" class="px-4 py-2 rounded-md transition" style="background-color: #9EDD05 !important; color:#0C3A30 !important;">Capture</button>
-                                <button type="button" id="retake-btn" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition hidden">Retake</button>
-                            </div>
-                            <input type="hidden" name="selfie" id="selfie-data">
-                        </div>
+                    <label class="block text-sm font-medium mt-8 text-gray-700 mb-2">Upload a clear selfie holding your ID</label>
+                    <div class="mt-1">
+                        <input id="selfie" name="selfie" type="file" class="block w-full text-sm text-gray-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-md file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-blue-50 file:text-blue-700
+                            hover:file:bg-blue-100" 
+                            accept=".jpg,.jpeg,.png" 
+                            required>
+                    
                     </div>
                 </div>
 
                 <div class="pt-4">
-                    <button type="submit" id="submit-btn" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150" style="background-color: #9EDD05 !important; color:#0C3A30 !important;">
+                    <button type="submit" id="submit-btn" class="w-full flex  mt-6 justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150" style="background-color: #9EDD05 !important; color:#0C3A30 !important;">
                         <span id="submit-text">Submit Verification</span>
                         <span id="submit-spinner" class="hidden ml-2">
                             <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -178,114 +146,6 @@
         }
     });
 
-    // ID Document Upload with Preview
-    const idUpload = document.getElementById('id-upload');
-    const idPreviewContainer = document.getElementById('id-preview-container');
-    const idPreview = document.getElementById('id-preview');
-    const idFileName = document.getElementById('id-file-name');
-
-    idUpload.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                idPreview.src = event.target.result;
-                idPreviewContainer.classList.remove('hidden');
-                idFileName.textContent = file.name;
-            };
-            if (file.type.match('image.*')) {
-                reader.readAsDataURL(file);
-            } else {
-                // For PDFs, show a placeholder
-                idPreview.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%239CA3AF'%3E%3Cpath d='M8 3v10a4 4 0 01-4 4H2V5a2 2 0 012-2h4zm2 0h4a2 2 0 012 2v10a2 2 0 01-2 2h-4V3zm6 0h4a2 2 0 012 2v10a4 4 0 01-4 4h-2V3z'/%3E%3C/svg%3E";
-                idPreviewContainer.classList.remove('hidden');
-                idFileName.textContent = file.name;
-            }
-        }
-    });
-
-    function clearIdPreview() {
-        idUpload.value = '';
-        idPreviewContainer.classList.add('hidden');
-        idPreview.src = '';
-        idFileName.textContent = '';
-    }
-
-    // Selfie Capture with Preview
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const selfiePlaceholder = document.getElementById('selfie-placeholder');
-    const captureBtn = document.getElementById('capture-btn');
-    const retakeBtn = document.getElementById('retake-btn');
-    const cameraControls = document.getElementById('camera-controls');
-    const selfieData = document.getElementById('selfie-data');
-    const selfiePreviewContainer = document.getElementById('selfie-preview-container');
-    const selfiePreview = document.getElementById('selfie-preview');
-    let stream = null;
-
-    selfiePlaceholder.addEventListener('click', async function() {
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { 
-                    width: 640, 
-                    height: 480,
-                    facingMode: 'user' 
-                }, 
-                audio: false 
-            });
-            video.srcObject = stream;
-            video.classList.remove('hidden');
-            selfiePlaceholder.classList.add('hidden');
-            cameraControls.classList.remove('hidden');
-            captureBtn.classList.remove('hidden');
-        } catch (err) {
-            console.error("Error accessing camera:", err);
-            alert("Could not access the camera. Please ensure you've granted camera permissions.");
-        }
-    });
-
-    captureBtn.addEventListener('click', function() {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        // Stop video stream
-        stream.getTracks().forEach(track => track.stop());
-        
-        // Show preview and hide video
-        video.classList.add('hidden');
-        selfiePreview.src = canvas.toDataURL('image/jpeg');
-        selfiePreviewContainer.classList.remove('hidden');
-        
-        // Convert canvas to base64 and set as hidden input value
-        selfieData.value = canvas.toDataURL('image/jpeg', 0.8);
-        
-        // Show retake button and hide capture button
-        captureBtn.classList.add('hidden');
-        retakeBtn.classList.remove('hidden');
-    });
-
-    retakeBtn.addEventListener('click', function() {
-        // Clear preview
-        selfiePreviewContainer.classList.add('hidden');
-        selfiePreview.src = '';
-        selfieData.value = '';
-        
-        // Restart camera
-        selfiePlaceholder.click();
-    });
-
-    function clearSelfiePreview() {
-        selfiePreviewContainer.classList.add('hidden');
-        selfiePreview.src = '';
-        selfieData.value = '';
-        selfiePlaceholder.classList.remove('hidden');
-        cameraControls.classList.add('hidden');
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-        }
-    }
-
     // Form submission handling
     document.getElementById('verificationForm').addEventListener('submit', function(e) {
         const submitBtn = document.getElementById('submit-btn');
@@ -298,7 +158,10 @@
         submitSpinner.classList.remove('hidden');
         
         // Validate required fields
-        if (!idUpload.files[0] || !selfieData.value) {
+        const documentInput = document.getElementById('document');
+        const selfieInput = document.getElementById('selfie');
+        
+        if (!documentInput.files[0] || !selfieInput.files[0]) {
             e.preventDefault();
             alert('Please complete all required fields before submitting');
             submitBtn.disabled = false;

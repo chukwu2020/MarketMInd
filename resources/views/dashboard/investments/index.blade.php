@@ -37,60 +37,7 @@
         $activeInvestments = $investments->reject(fn($inv) => $inv->is_fully_withdrawn);
         @endphp
 
-        <!-- Desktop Table -->
-        <!-- <section class="hidden md:block">
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left border-t-4" style="border-color: #9EDD05;">
-                    <thead class="bg-gray-100  text-xs uppercase text-gray-600 ">
-                        <tr>
-                            @foreach (['Plan', 'Amount', 'ROI', 'Profit', 'Start Date', 'End Date', 'Status', 'Action'] as $head)
-                            <th class="px-6 py-3" style="color: #0C3A30;">{{ $head }}</th>
-                            @endforeach
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        @forelse ($activeInvestments as $investment)
-                        @php
-                        [$statusClass, $statusText] = $statusMap[$investment->status] ?? $statusMap['active'];
-                        $highlightRow = $investment->is_withdrawable ? 'bg-green-50 ' : '';
-                        @endphp
-                        <tr class="{{ $highlightRow }} hover:bg-gray-50 transition">
-                            <td class="px-6 py-4 font-medium text-gray-800 ">{{ $investment->plan->name ?? 'N/A' }}</td>
-                            <td class="px-6 py-4 text-gray-600 ">${{ number_format($investment->amount_invested, 2) }}</td>
-                            <td class="px-6 py-4 text-gray-600 ">{{ $investment->roi ?? '0' }}%</td>
-                            <td class="px-6 py-4 text-gray-600 ">${{ number_format($investment->total_profit, 2) }}</td>
-                            <td class="px-6 py-4 text-gray-600 ">{{ \Carbon\Carbon::parse($investment->start_date)->format('M d, Y') }}</td>
-                            <td class="px-6 py-4 text-gray-600">{{ \Carbon\Carbon::parse($investment->end_date)->format('M d, Y') }}</td>
-                            <td class="px-6 py-4">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $statusClass }}">
-                                    {{ $statusText }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                @if ($investment->is_withdrawable && $investment->status !== 'withdrawn')
-                                <form method="POST" action="{{ route('investments.withdraw', $investment->id) }}">
-                                    @csrf
-                                    <button type="submit" class="font-medium text-xs py-2 px-4 rounded transition" style="background-color: #9EDD05; color:#0C3A30;">
-                                        Withdraw from investment
-                                    </button>
-                                </form>
-
-                                @else
-                                <span class="text-sm text-gray-400 ">Not Due</span>
-                                @endif
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">
-                                No active investments found.
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </section> -->
+       
 <!-- Desktop Table -->
 <section class="hidden md:block min-h-[60vh] flex flex-col justify-start">
     <div class="overflow-x-auto flex-1">

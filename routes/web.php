@@ -25,9 +25,7 @@ use App\Http\Controllers\{
     WithdrawalController
 };
 use Illuminate\Http\Request;
-
-
-
+use Illuminate\Support\Facades\Cache;
 
 /*
 |--------------------------------------------------------------------------
@@ -116,7 +114,7 @@ Route::get('/user/notifications', function () {
 // certificate 
 
 
-Route::post('/certificate-shown', function() {
+Route::post('/certificate-shown', function () {
     // Clear the showAt timestamp so it doesn't show again
     session()->forget('certShowAt');
     return response()->json(['success' => true]);
@@ -154,22 +152,43 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
     });
 
-// user very identity
-Route::post('/dismiss-id-alert', function () {
-    session(['hide_id_alert' => true]);
-    return back();
+    // user very identity
+    Route::middleware(['auth', 'verified'])->group(function () {
+        Route::get('/id-verification', [IdController::class, 'create'])->name('id.verification.create');
+        Route::post('/id-verification', [IdController::class, 'store'])->name('id.verification.store');
+    });
+
+    // dismis id box route
+    // Route::post('/dismiss-id-alert', function (Request $request) {
+    //     if (!auth()->check()) {
+    //         return response()->json(['error' => 'Unauthorized'], 401);
+    //     }
+    //     Cache::put(
+    //         'user_' . auth()->id() . '_id_verification_alert_dismissed',
+    //         true,
+    //         now()->addDays(30)
+    //     );
+    //     return response()->json(['success' => true]);
+    // })->name('id.alert.dismiss');
+Route::post('/dismiss-id-alert', function (Request $request) {
+    Cache::put(
+        'user_' . auth()->id() . '_id_verification_alert_dismissed',
+        true,
+        now()->addDays(30) // or Cache::forever() for permanent dismissal
+    );
+    return response()->json(['success' => true]);
 })->name('id.alert.dismiss');
 
-
-// id verification
-Route::get('/verify-id', [IdController::class, 'showForm'])->name('id.form');
-Route::post('/upload-id', [IdController::class, 'upload'])->name('id.upload');
-
-
+    // Admin Routes
+    Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
+        Route::get('/id-verifications', [IdController::class, 'index'])->name('admin.verifications.index');
+        Route::post('/id-verifications/{id}/approve', [IdController::class, 'approve'])->name('admin.verifications.approve');
+        Route::post('/id-verifications/{id}/reject', [IdController::class, 'reject'])->name('admin.verifications.reject');
+    });
 
     // Shared Routes (Dashboard investments & withdrawals)
     Route::post('/user/investments/{id}/withdraw', [InvestmentController::class, 'withdraw'])->name('investments.withdraw');
-   
+
 
     Route::post('/dashboard/withdraw', [WithdrawalController::class, 'withdrawFromBalance'])->name('user.balance.withdraw');
     Route::get('/investments', [InvestmentController::class, 'index'])->name('user.investments');
@@ -187,7 +206,7 @@ Route::post('/upload-id', [IdController::class, 'upload'])->name('id.upload');
 
         // Deposit
         Route::controller(DepositController::class)->group(function () {
-        
+
             Route::get('/deposit', 'userDeposit')->name('user.deposit');
 
             Route::post('/make-deposit', 'userMakeDeposit')->name('user.make-deposit');
@@ -222,16 +241,10 @@ Route::post('/upload-id', [IdController::class, 'upload'])->name('id.upload');
         // admin contact us
 
 
-// admin verify identity 
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
-    Route::get('/id-verifications', [AdminController::class, 'indexId'])->name('admin.id.verifications');
-    Route::post('/id-verifications/{id}/approve', [AdminController::class, 'approve'])->name('admin.id.verify.approve');
-    Route::post('/id-verifications/{id}/reject', [AdminController::class, 'reject'])->name('admin.id.verify.reject');
-});
 
 
         Route::get('/messages', [AdminController::class, 'index'])->name('admin.messages.index');
-Route::delete('/admin/messages/{message}', [AdminController::class, 'destroy'])->name('admin.messages.destroy');
+        Route::delete('/admin/messages/{message}', [AdminController::class, 'destroy'])->name('admin.messages.destroy');
 
         Route::middleware(['auth'])->group(function () {
 
