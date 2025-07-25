@@ -80,7 +80,7 @@ class IdController extends Controller
             }
 
             return redirect()->route('user_dashboard')
-                ->with('success', '📝 ID verification submitted. It will be reviewed shortly.');
+                ->with('success', ' ID verification submitted. It will be reviewed shortly.');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -98,7 +98,7 @@ class IdController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('admin\admin_approve_id_verification', compact('verifications'));
+        return view('admin_approve_id_verification', compact('verifications'));
     }
     // Admin: approve
     public function approve($id)

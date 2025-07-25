@@ -172,5 +172,47 @@
         
         return true;
     });
+
+
+
+
+    document.getElementById('verificationForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submit-btn');
+    const submitText = document.getElementById('submit-text');
+    const submitSpinner = document.getElementById('submit-spinner');
+    
+    // Disable button and show spinner
+    submitBtn.disabled = true;
+    submitText.textContent = 'Processing...';
+    submitSpinner.classList.remove('hidden');
+
+    // Disable all form fields to prevent resubmission
+    const formElements = this.elements;
+    for (let i = 0; i < formElements.length; i++) {
+        formElements[i].disabled = true;
+    }
+
+    // Validate required fields (run this before disabling everything ideally)
+    const documentInput = document.getElementById('document');
+    const selfieInput = document.getElementById('selfie');
+
+    if (!documentInput.files[0] || !selfieInput.files[0]) {
+        e.preventDefault();
+        alert('Please complete all required fields before submitting');
+
+        // Re-enable form
+        for (let i = 0; i < formElements.length; i++) {
+            formElements[i].disabled = false;
+        }
+
+        submitBtn.disabled = false;
+        submitText.textContent = 'Submit Verification';
+        submitSpinner.classList.add('hidden');
+        return false;
+    }
+
+    return true;
+});
+
 </script>
 @endsection
