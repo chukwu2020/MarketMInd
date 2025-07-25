@@ -119,15 +119,15 @@
 <li class="mt-2">
     <a href="{{ route('signout') }}" 
    onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-   style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 6px; text-decoration: none;  color: red; margin-top: 10px; transition: all 0.1s ease; font-weight: 600; font-size:18px"
-      onmouseover="this.style.backgroundColor='#b91c1c'; this.style.color='black';"
-   onmouseout="this.style.backgroundColor='transparent'; this.style.color='red';">
+   style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 6px; text-decoration: none; background-color: red !important; color: red; margin-top: 10px; transition: all 0.1s ease; font-weight: 600; font-size:18px"
+      onmouseover="this.style.backgroundColor='#ef4444'; this.style.color='black';"
+   >
    
     <iconify-icon icon="lucide:power"></iconify-icon>
-    <span>Logout</span>
+    <span >Logout</span>
 </a>
 
-    <form id="logout-form" method="POST" action="{{ route('signout') }}" class="hidden">
+    <form id="logout-form" method="POST"  action="{{ route('signout') }}" class="hidden">
         @csrf
     </form>
 </li>

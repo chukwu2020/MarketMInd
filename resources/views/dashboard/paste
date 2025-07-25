@@ -1,0 +1,407 @@
+<div class="investment-performance-card bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden w-full max-w-md mx-auto"
+    style="border-top: 4px solid #8bc905; background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
+    <div class="p-5">
+        <!-- Header -->
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800">INVESTMENT PERFORMANCE</h3>
+                <h6 class="text-xs text-gray-500 mt-1">Live Updates • {{ now()->format('M j, g:i a') }}</h6>
+            </div>
+        </div>
+
+        <div id="investmentContainer" class="space-y-3">
+            @php
+                use Carbon\Carbon;
+
+                $allInvestments = auth()->user()->investments()
+                    ->where('status','active')
+                    ->with('plan')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+                $totalEarnedAll = 0;
+                $displayCount = min(2, count($allInvestments));
+
+                $dailyEarnings = Cache::remember('user_'.auth()->id().'_daily_earnings', now()->addDay(), fn() => []);
+            @endphp
+
+            @foreach($allInvestments->take($displayCount) as $investment)
+                @php
+                    $startDate = $investment->created_at;
+                    $now = now();
+
+                    $duration = $investment->plan->duration;
+                    $rate = $investment->plan->interest_rate;
+                    $amount = $investment->amount_invested;
+
+                    $projectedTotal = $amount * (1 + $rate / 100);
+                    $projectedProfit = $amount * $rate / 100;
+
+                    $daysPassed = $now->diffInDays($startDate, false);
+                    $daysCompleted = max(0, $now->diffInDays($startDate));
+                    $weeksPassed = floor($daysCompleted / 7);
+
+                    $isLongTerm = $duration > 28;
+                    $isShortTerm = $duration <= 28;
+
+                    $progressKey = 'investment_'.$investment->id.'_progress_'.now()->format($isLongTerm ? 'Y_W' : 'Y_m_d');
+                    $previousEarned = $dailyEarnings[$investment->id] ?? 0;
+
+                    $fluctuation = mt_rand(-10, 10);
+                    $isPositive = $fluctuation >= 0;
+                    $fluctuationDisplay = abs($fluctuation);
+
+                    $multiplier = 1 + ($fluctuation / 100); // Randomized multiplier
+
+                    // Calculate new earnings (only once per day/week via cache)
+                    $earnedNow = Cache::remember($progressKey, now()->addDay(), function () use (
+                        $isLongTerm, $isShortTerm, $projectedProfit, $multiplier, $weeksPassed, $daysCompleted, $duration
+                    ) {
+                        if ($isLongTerm) {
+                            return min($projectedProfit * 0.95, ($weeksPassed / max(1, floor($duration / 7))) * $projectedProfit * $multiplier);
+                        } else {
+                            return min($projectedProfit * 0.95, ($daysCompleted / $duration) * $projectedProfit * $multiplier);
+                        }
+                    });
+
+                    $totalEarned = $earnedNow;
+
+                    // Show full profit if matured
+                    if ($daysCompleted >= $duration) {
+                        $totalEarned = $projectedProfit;
+                        $fluctuation = 0;
+                        $isPositive = true;
+                    }
+
+                    $dailyEarnings[$investment->id] = $totalEarned;
+                    $totalEarnedAll += $totalEarned;
+
+                    $trendColor = $isPositive ? 'text-green-600' : 'text-red-600';
+                    $trendBg = $isPositive ? 'bg-green-50' : 'bg-red-50';
+                    $trendBorder = $isPositive ? 'border-green-100' : 'border-red-100';
+                @endphp
+
+                <!-- Single Investment Card -->
+                <div class="investment-item {{ $trendBg }} rounded-lg p-3 border {{ $trendBorder }} shadow-sm hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-800">{{ strtoupper($investment->plan->name) }}</span>
+                        <span class="text-xs font-bold {{ $trendColor }} flex items-center animate-fluctuation-{{ $isPositive ? 'up' : 'down' }}">
+                            @if($isPositive)
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                                </svg>
+                            @else
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                                </svg>
+                            @endif
+                            {{ $fluctuationDisplay }}%
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-xs text-gray-500">
+                            Day {{ min($daysCompleted, $duration) }} of {{ $duration }}
+                        </span>
+                        <span class="text-xs font-medium">
+                            <span class="{{ $totalEarned > 0 ? 'text-gray-800' : 'text-gray-500' }}">
+                                ${{ number_format($totalEarned, 2) }}
+                            </span>
+                            <span class="mx-1 text-gray-300">/</span>
+                            <span class="text-gray-700">${{ number_format($projectedProfit, 2) }}</span>
+                        </span>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2">
+                        <div class="h-1.5 rounded-full {{ $daysPassed > $duration ? 'bg-purple-500' : ($isPositive ? 'bg-green-500' : 'bg-red-500') }}"
+                            style="width: {{ min(100, ($daysCompleted / $duration) * 100) }}%">
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+
+        @php
+            Cache::put('user_'.auth()->id().'_daily_earnings', $dailyEarnings, now()->addDay());
+        @endphp
+
+        <!-- Summary -->
+        @php
+            $totalProjectedAll = $allInvestments->sum(fn($inv) => ($inv->amount_invested * $inv->plan->interest_rate) / 100);
+        @endphp
+
+        <div class="mt-4 pt-4 border-t border-gray-200">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-gray-600">Total Earned</span>
+                <span class="text-sm font-bold text-gray-800">${{ number_format($totalEarnedAll, 2) }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-sm font-medium text-gray-600">Projected Total</span>
+                <span class="text-xl font-bold text-green-600">${{ number_format($totalProjectedAll, 2) }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+                <style>
+                    @keyframes fluctuationUp {
+
+                        0%,
+                        100% {
+                            transform: translateY(0);
+                        }
+
+                        50% {
+                            transform: translateY(-2px);
+                        }
+                    }
+
+                    @keyframes fluctuationDown {
+
+                        0%,
+                        100% {
+                            transform: translateY(0);
+                        }
+
+                        50% {
+                            transform: translateY(2px);
+                        }
+                    }
+
+                    .animate-fluctuation-up {
+                        animation: fluctuationUp 1.5s ease-in-out infinite;
+                    }
+
+                    .animate-fluctuation-down {
+                        animation: fluctuationDown 1.5s ease-in-out infinite;
+                    }
+
+                    .investment-performance-card {
+                        border-top-width: 4px;
+                        border-top-color: #8bc905;
+                    }
+
+                    .total-invested-card {
+                        border-top-width: 4px;
+                        border-top-color: #8bc905;
+                    }
+
+                    #expandedInvestments {
+                        max-height: 0;
+                        overflow: hidden;
+                        transition: max-height 0.5s ease;
+                    }
+
+                    #expandedInvestments.show {
+                        max-height: 1000px;
+                    }
+
+                    .investment-item {
+                        transition: all 0.2s ease;
+                    }
+
+                    .investment-item:hover {
+                        transform: translateY(-1px);
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    }
+                </style>
+
+                <script>
+                    // Toggle expanded view
+                    function toggleExpand() {
+                        const container = document.getElementById('expandedInvestments');
+                        container.classList.toggle('show');
+
+                        const btn = document.querySelector('[onclick="toggleExpand()"]');
+                        if (container.classList.contains('show')) {
+                            btn.textContent = 'Show Less';
+                        } else {
+                            btn.textContent = `View All ({{ count($allInvestments) }})`;
+                        }
+                    }
+
+                    // Auto-refresh every 15 seconds
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const refreshInvestments = () => {
+                            fetch(window.location.href + '?refresh=' + new Date().getTime(), {
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    },
+                                    cache: 'no-store'
+                                })
+                                .then(response => response.text())
+                                .then(html => {
+                                    const parser = new DOMParser();
+                                    const doc = parser.parseFromString(html, 'text/html');
+                                    const newComponent = doc.querySelector('.investment-performance-card');
+                                    if (newComponent) {
+                                        document.querySelector('.investment-performance-card').outerHTML = newComponent.outerHTML;
+                                    }
+                                });
+                        };
+
+                        setInterval(refreshInvestments, 500);
+
+                        document.addEventListener('visibilitychange', () => {
+                            if (!document.hidden) refreshInvestments();
+                        });
+                    });
+                </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <!-- id verification  -->
+
+
+            @if(session('success'))
+    <div class="bg-green-100 text-green-700 p-4 rounded mb-4">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="bg-red-100 text-red-700 p-4 rounded mb-4">
+        {{ session('error') }}
+    </div>
+@endif
+
+@php
+$idVerification = auth()->user()->idVerification;
+$status = $idVerification ? $idVerification->status : null;
+$hasMadeDeposit = auth()->user()->deposits()->exists(); // Check if user has any deposits
+@endphp
+
+@if($hasMadeDeposit)
+<!-- Verification Status Display - ONLY SHOWS AFTER FIRST DEPOSIT -->
+<div class="mb-6">
+    @if($status === 'approved')
+        <!-- APPROVED STATE - GREEN BORDER AND BACKGROUND -->
+        <div style="border-left: 4px solid #10B981 !important; background-color: #ECFDF5 !important;" class="p-4 rounded-r-lg relative">
+            <div class="flex items-start">
+                <svg class="h-5 w-5 flex-shrink-0 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="#10B981">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <h4 class="font-semibold" style="color: #065F46 !important;">Identity Verified</h4>
+                    <p class="text-sm mt-1" style="color: #065F46 !important;">Your identity has been successfully verified.</p>
+                </div>
+            </div>
+            <!-- CLOSE BUTTON -->
+            
+                <button onclick="this.closest('div').style.transition='opacity 0.3s'; this.closest('div').style.opacity='0'; setTimeout(() => this.closest('div').style.display='none', 300)">
+
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    
+    @elseif($status === 'pending')
+        <!-- PENDING STATE - YELLOW BACKGROUND AND RED BORDER -->
+        <div style="border-left: 4px solid #EF4444 !important; background-color: #FEF3C7 !important;" class="p-4 rounded-r-lg">
+            <div class="flex items-start">
+                <svg class="h-5 w-5 flex-shrink-0 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="#D97706">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <h4 class="font-semibold" style="color: #92400E !important;">Verification Pending</h4>
+                    <p class="text-sm mt-1" style="color: #92400E !important;">Your documents are under review. Please wait for admin approval.</p>
+                </div>
+            </div>
+        </div>
+    
+    @elseif($status === 'rejected')
+        <!-- REJECTED STATE - RED BORDER AND BACKGROUND -->
+        <div style="border-left: 4px solid #DC2626 !important; background-color: #FEE2E2 !important;" class="p-4 rounded-r-lg">
+            <div class="flex items-start">
+                <svg class="h-5 w-5 flex-shrink-0 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="#DC2626">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <h4 class="font-semibold" style="color: #991B1B !important;">Verification Rejected</h4>
+                    <p class="text-sm mt-1" style="color: #991B1B !important;">Please check your email for details and resubmit your documents.</p>
+                    <a href="{{ route('id.form') }}" class="inline-block mt-2 text-sm font-medium" style="color: #B91C1C !important;">
+                        Resubmit Documents →
+                    </a>
+                </div>
+            </div>
+        </div>
+    
+    @else
+        <!-- NOT SUBMITTED STATE - SHOW VERIFICATION ALERT (ONLY AFTER DEPOSIT) -->
+        <div style="border-left: 4px solid #EF4444 !important; background-color: #FEE2E2 !important;" class="p-4 rounded-r-lg">
+            <div class="flex items-start justify-between">
+                <div class="flex items-start">
+                    <svg class="h-5 w-5 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" style="color: #DC2626 !important;">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <div>
+                        <h4 class="font-semibold" style="color: #991B1B !important;">Identity Verification Required</h4>
+                        <p class="text-sm mt-1" style="color: #991B1B !important;">Please verify your identity to continue using your account.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 pl-4">
+                    <a href="{{ route('id.form') }}" class="text-white px-3 py-1 rounded-md text-sm font-medium" style="background-color: #EF4444 !important;">
+                        Verify Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
+</div>
+@endif

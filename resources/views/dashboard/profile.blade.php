@@ -39,7 +39,7 @@
                     @if ($profilePic && file_exists(public_path('storage/profile_pics/' . $profilePic)))
                     <img src="{{ asset('storage/profile_pics/' . $profilePic) }}"
                         alt="{{ $user->name }}"
-                        class="rounded-full object-cover"
+                         class="mx-auto rounded-full flex items-center justify-center font-semibold text-3xl select-none"
                         style="width: 7rem; height: 7rem; border: 2px solid #8bc905;" />
                     @else
                     <div
@@ -176,6 +176,7 @@
                         <div id="change-password" class="hidden mt-6">
                             <form action="{{ route('profile.password.update') }}" method="POST">
                                 @csrf
+                              
                                 <div class="mb-4">
                                     <label class="block text-sm font-semibold text-[#0C3A30] mb-2">Current Password</label>
                                     <input type="password" name="old_password" class="form-control custom-input" required />
@@ -193,6 +194,7 @@
                                 </button>
                             </form>
                         </div>
+                        
                     </div>
                 </div>
             </div>

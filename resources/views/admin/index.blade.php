@@ -47,7 +47,19 @@
                 </div>
             </div>
         </div>
-
+ <div class="card shadow-none border border-gray-200 rounded-lg h-full bg-gradient-to-r from-green-600/10 to-white">
+            <div class="card-body p-5">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <p class="font-medium text-neutral-900 mb-1">User Id Verification</p>
+                       <a href="{{route('admin.id.verifications')}}"></a>
+                    </div>
+                    <div class="w-[50px] h-[50px] bg-green-600 rounded-full flex justify-center items-center">
+                        <iconify-icon icon="solar:wallet-bold" class="text-white text-2xl"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- Total Withdrawals -->
         <div class="card shadow-none border border-gray-200 rounded-lg h-full bg-gradient-to-r from-red-600/10 to-white">
             <div class="card-body p-5">

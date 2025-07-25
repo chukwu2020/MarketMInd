@@ -74,10 +74,11 @@
 
                     <div class="d-flex login-warp gap-4 align-items-center justify-content-between">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="remember" id="remember">
-                  <label class="form-check-label" for="remember">
-    Keep Me Logged In
-</label>
+                    <div class="form-check" style="display: flex; align-items: center; gap: 0.5rem;">
+    <input type="checkbox" id="remember" name="remember"
+        style="width: 18px; height: 18px; accent-color: #4CAF50;" />
+    <label for="remember">Keep Me Logged In</label>
+</div>
 
                             @if(session('status') === 'Please verify your email before logging in.')
                                 <form method="POST" action="{{ route('password.otp.request') }}">

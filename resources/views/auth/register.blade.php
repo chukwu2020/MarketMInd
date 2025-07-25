@@ -60,7 +60,7 @@
 
                         <div class="mb-3 col-md-6">
                             <label for="phone">Phone</label>
-                            <input type="tel" id="phone" name="phone" class="form-control" inputmode="tel" placeholder="+()" value="{{ old('phone') }}">
+                            <input type="tel" id="phone" name="phone" class="form-control" inputmode="tel" placeholder="+123456789.." value="{{ old('phone') }}">
                             <span class="text-danger">@error('phone') {{ $message }} @enderror</span>
                         </div>
                         <div class="mb-3 col-md-6 position-relative">

@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\ContactUSMessage;
 use App\Models\Deposit;
+use App\Models\Idverification;
 use App\Models\Investment;
 use App\Models\Message;
 use App\Models\Plan;
 use App\Models\User;
 use App\Models\Withdrawal;
 use App\Models\WithdrawalCard;
+use App\Notifications\IDVerificationSubmitted;
 use App\Notifications\TransactionNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -207,26 +209,26 @@ class AdminController extends Controller
 
 
 
-   public function approveBalanceWithdrawal($id)
-{
-    $withdrawal = Withdrawal::findOrFail($id);
+    public function approveBalanceWithdrawal($id)
+    {
+        $withdrawal = Withdrawal::findOrFail($id);
 
-    // ✅ Skip if already approved
-    if ($withdrawal->status === 'approved') {
-        return back()->with('error', 'This withdrawal has already been approved.');
+        // ✅ Skip if already approved
+        if ($withdrawal->status === 'approved') {
+            return back()->with('error', 'This withdrawal has already been approved.');
+        }
+
+        $withdrawal->status = 'approved';
+        $withdrawal->save();
+
+        $user = $withdrawal->user;
+        $user->notify(new TransactionNotification(
+            '🎉 Congratulations!',
+            'Your withdrawal of $' . number_format($withdrawal->amount, 2) . ' has been approved successfully!'
+        ));
+
+        return back()->with('success', 'Withdrawal approved successfully.');
     }
-
-    $withdrawal->status = 'approved';
-    $withdrawal->save();
-
-    $user = $withdrawal->user;
-    $user->notify(new TransactionNotification(
-        '🎉 Congratulations!',
-        'Your withdrawal of $' . number_format($withdrawal->amount, 2) . ' has been approved successfully!'
-    ));
-
-    return back()->with('success', 'Withdrawal approved successfully.');
-}
 
     // message
 
@@ -238,14 +240,14 @@ class AdminController extends Controller
 
         return view('admin.contactUs.index', compact('messages'));
     }
-// contact us
-public function destroy($id)
-{
-    $message = Message::findOrFail($id);
-    $message->delete();
+    // contact us
+    public function destroy($id)
+    {
+        $message = Message::findOrFail($id);
+        $message->delete();
 
-    return redirect()->route('admin.messages.index')->with('success', 'Message deleted successfully.');
-}
+        return redirect()->route('admin.messages.index')->with('success', 'Message deleted successfully.');
+    }
 
 
 
@@ -300,4 +302,49 @@ public function destroy($id)
 
         return redirect()->back()->with('success', 'Profile updated successfully.');
     }
+
+
+
+
+    // admin verify identity
+
+
+    public function indexId()
+    {
+        $verifications = Idverification::with('user')->latest()->get();
+        return view('admin.id_verification', compact('verifications'));
+    }
+
+    public function approve($id)
+    {
+        $verification = Idverification::with('user')->findOrFail($id);
+        $verification->status = 'approved';
+        $verification->save();
+
+        $user = $verification->user;
+
+        $user->notify(new TransactionNotification(
+            '✅ Identity Approved',
+            'Your ID verification has been approved. You now have full access to all platform features.'
+        ));
+
+        return back()->with('success', 'ID verification approved.');
+    }
+
+
+   public function reject(Request $request, $id)
+{
+    $verification = Idverification::with('user')->findOrFail($id);
+    $verification->status = 'rejected';
+    $verification->save();
+
+    $user = $verification->user;
+
+    $user->notify(new TransactionNotification(
+        '❌ Identity Rejected',
+        'Unfortunately, your ID verification was rejected. Please upload a clearer document or contact support.'
+    ));
+
+    return back()->with('error', 'ID verification rejected.');
+}
 }

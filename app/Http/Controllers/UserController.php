@@ -165,61 +165,56 @@ class UserController extends Controller
         return $masked . '@' . $domain;
     }
 
-    public function user_dashboard()
-    {
-        $user = auth()->user();
+  public function user_dashboard()
+{
+    $user = auth()->user();
 
-        $cardExists = WithdrawalCard::where('user_id', $user->id)->exists();
-        $totalInvested = Investment::where('user_id', $user->id)->sum('amount_invested');
+    $cardExists = WithdrawalCard::where('user_id', $user->id)->exists();
+    $totalInvested = Investment::where('user_id', $user->id)->sum('amount_invested');
+    $verification = $user->idverification;
+    // Deposits
+    $deposits = Deposit::where('user_id', $user->id)
+        ->latest()
+        ->take(5)
+        ->get()
+        ->map(function ($deposit) {
+            return [
+                'type' => 'Deposit',
+                'amount' => $deposit->amount_deposited,
+                'status' => $deposit->status ? 'Completed' : 'Pending',
+                'date' => $deposit->created_at,
+                'reference' => 'DEP-' . $deposit->id,
+                'icon' => 'bank-transfer-in',
+                'action_url' => null,
+                'action_text' => null
+            ];
+        });
 
-        // Get all activity types
-        $activities = collect();
+    // Withdrawals
+    $withdrawals = Withdrawal::where('user_id', $user->id)
+        ->latest()
+        ->take(5)
+        ->get()
+        ->map(function ($withdrawal) {
+            return [
+                'type' => 'Withdrawal',
+                'amount' => $withdrawal->amount,
+                'status' => $withdrawal->status === 'pending' ? 'Pending' : 'Completed',
+                'date' => $withdrawal->created_at,
+                'reference' => 'WD-' . $withdrawal->id,
+                'icon' => 'bank-transfer-out',
+                'action_url' => null,
+                'action_text' => null
+            ];
+        });
 
-        // Deposits
-        $deposits = Deposit::where('user_id', $user->id)
-            ->latest()
-            ->take(5)
-            ->get()
-            ->map(function ($deposit) {
-                return [
-                    'type' => 'Deposit',
-                    'amount' => $deposit->amount_deposited,
-                    'status' => $deposit->status ? 'Completed' : 'Pending',
-                    'date' => $deposit->created_at,
-                    'reference' => 'DEP-' . $deposit->id,
-                    'icon' => 'bank-transfer-in',
-                    'action_url' => null,
-                    'action_text' => null
-                ];
-            });
+    // Active Investments
+    $allInvestments = $user->investments()
+        ->where('status', 'active')
+        ->with('plan')
+        ->get();
 
-        // Withdrawals
-        $withdrawals = Withdrawal::where('user_id', $user->id)
-            ->latest()
-            ->take(5)
-            ->get()
-            ->map(function ($withdrawal) {
-                return [
-                    'type' => 'Withdrawal',
-                    'amount' => $withdrawal->amount,
-                    'status' => $withdrawal->status === 'pending' ? 'Pending' : 'Completed',
-                    'date' => $withdrawal->created_at,
-                    'reference' => 'WD-' . $withdrawal->id,
-                    'icon' => 'bank-transfer-out',
-                    'action_url' => null,
-                    'action_text' => null
-                ];
-            });
-
-        // Active Investments
-       // Active Investments
-$activeInvestments = Investment::with('plan') 
-    ->where('user_id', $user->id)
-    ->where('status', 'active')
-    ->latest()
-    ->take(5)
-    ->get()
-    ->map(function ($investment) {
+    $activeInvestments = $allInvestments->take(5)->map(function ($investment) {
         return [
             'type' => 'Investment Active',
             'amount' => $investment->amount_invested,
@@ -233,54 +228,55 @@ $activeInvestments = Investment::with('plan')
         ];
     });
 
+    // Matured Investments (ready for withdrawal)
+    $maturedInvestments = Investment::with('plan')
+        ->where('user_id', $user->id)
+        ->where('status', 'completed')
+        ->latest()
+        ->get()
+        ->filter(fn($inv) => $inv->is_withdrawable)
+        ->take(5)
+        ->map(function ($investment) {
+            return [
+                'type' => 'Investment Matured',
+                'amount' => $investment->amount_invested + $investment->total_profit,
+                'status' => 'Ready to Withdraw',
+                'date' => $investment->updated_at,
+                'reference' => 'MAT-' . $investment->id,
+                'icon' => 'cash-check',
+                'plan_name' => $investment->plan->name ?? 'N/A',
+                'action_url' => route('investments.withdraw', $investment->id),
+                'action_text' => 'Withdraw Now'
+            ];
+        });
 
-        // Matured Investments (ready for withdrawal)
-        // Get matured investments that are withdrawable and not yet withdrawn
-       $maturedInvestments = Investment::with('plan') // <- fix here
-    ->where('user_id', $user->id)
-    ->where('status', 'completed')
-    ->latest()
-    ->get()
-    ->filter(fn($inv) => $inv->is_withdrawable)
-    ->take(5)
-    ->map(function ($investment) {
-        return [
-            'type' => 'Investment Matured',
-            'amount' => $investment->amount_invested + $investment->total_profit,
-            'status' => 'Ready to Withdraw',
-            'date' => $investment->updated_at,
-            'reference' => 'MAT-' . $investment->id,
-            'icon' => 'cash-check',
-            'plan_name' => $investment->plan->name ?? 'N/A',
-            'action_url' => route('investments.withdraw', $investment->id),
-            'action_text' => 'Withdraw Now'
-        ];
-    });
+    // Combine all activities
+    $activities = collect();
+    $recentActivities = $activities
+        ->merge($deposits)
+        ->merge($withdrawals)
+        ->merge($activeInvestments)
+        ->merge($maturedInvestments)
+        ->sortByDesc('date')
+        ->take(3);
 
-
-
-        // Combine all activities
-        $recentActivities = $activities
-            ->merge($deposits)
-            ->merge($withdrawals)
-            ->merge($activeInvestments)
-            ->merge($maturedInvestments)
-            ->sortByDesc('date')
-            ->take(3);
-
-        if (session('certShowAt') && session('certShowAt') < now()->timestamp) {
-            session()->forget('certShowAt');
-        }
-        $overlayCountToday = session('overlayCountToday', 0);
-
-        return view('dashboard.index', compact(
-            'user',
-            'cardExists',
-            'totalInvested',
-            'recentActivities',
-            'overlayCountToday'
-        ));
+    if (session('certShowAt') && session('certShowAt') < now()->timestamp) {
+        session()->forget('certShowAt');
     }
+    $overlayCountToday = session('overlayCountToday', 0);
+
+    // Finally, return view with ALL variables
+    return view('dashboard.index', compact(
+        'user',
+        'cardExists',
+        'totalInvested',
+        'recentActivities',
+        'overlayCountToday',
+        'allInvestments',
+        'verification'
+    ));
+}
+
 
 
     public function plans_header()

@@ -20,7 +20,7 @@ use App\Http\Controllers\{
     Auth\LoginController,
     Auth\ResetPasswordController,
     Auth\ForgotPasswordController,
-   
+    IdController,
     MessageController,
     WithdrawalController
 };
@@ -126,7 +126,7 @@ Route::post('/certificate-shown', function() {
 
 Route::post('/create-user', [UserController::class, 'createUser'])->name('user.create');
 
-
+Route::post('/user/take-profit', [UserController::class, 'takeProfit'])->middleware('auth');
 Route::get('/verify-otp/{token}', [UserController::class, 'showVerifyOtpForm'])->name('verify.otp');
 
 
@@ -153,6 +153,19 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
     });
+
+// user very identity
+Route::post('/dismiss-id-alert', function () {
+    session(['hide_id_alert' => true]);
+    return back();
+})->name('id.alert.dismiss');
+
+
+// id verification
+Route::get('/verify-id', [IdController::class, 'showForm'])->name('id.form');
+Route::post('/upload-id', [IdController::class, 'upload'])->name('id.upload');
+
+
 
     // Shared Routes (Dashboard investments & withdrawals)
     Route::post('/user/investments/{id}/withdraw', [InvestmentController::class, 'withdraw'])->name('investments.withdraw');
@@ -207,6 +220,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [AdminController::class, 'admin_dashboard'])->name('admin_dashboard');
         // 
         // admin contact us
+
+
+// admin verify identity 
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    Route::get('/id-verifications', [AdminController::class, 'indexId'])->name('admin.id.verifications');
+    Route::post('/id-verifications/{id}/approve', [AdminController::class, 'approve'])->name('admin.id.verify.approve');
+    Route::post('/id-verifications/{id}/reject', [AdminController::class, 'reject'])->name('admin.id.verify.reject');
+});
+
 
         Route::get('/messages', [AdminController::class, 'index'])->name('admin.messages.index');
 Route::delete('/admin/messages/{message}', [AdminController::class, 'destroy'])->name('admin.messages.destroy');

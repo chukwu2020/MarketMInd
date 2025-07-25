@@ -92,12 +92,12 @@
                 <div class="w-full min-w-[600px] sm:min-w-0">
                     <table class="table w-full whitespace-nowrap text-sm">
                         <thead style="background: #fff !important;">
-                            <tr class="text-left"  style="background: #fff !important; ">
-                                <th>#</th>
-                                <th>Plan Name</th>
-                                <th>Min Deposit ($)</th>
-                                <th>Max Deposit ($)</th>
-                                <th>Interest Rate</th>
+                            <tr class="text-left"  style="background-color: #fff; color:black;" ">
+                                <th style="background-color: #fff; color:black;">#</th>
+                                <th style="background-color: #fff; color:black;">Plan Name</th>
+                                <th style="background-color: #fff; color:black;">Min Deposit ($)</th>
+                                <th style="background-color: #fff; color:black;">Max Deposit ($)</th>
+                                <th style="background-color: #fff; color:black;">Interest Rate</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -147,7 +147,7 @@
                                 {{ old('plan_id') == $plan->id ? 'selected' : '' }}
                                 class="py-2 my-1 border-t border-gray-600">
                                 📈 {{ ucfirst($plan->name) }} →
-                                <span class="text-green-600">{{ $plan->interest_rate }}%</span> ROI
+                                <span class="text-green-600">{{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}%</span> 
                             </option>
                             @endforeach
                         </optgroup>
@@ -182,7 +182,7 @@
                         Select Cryptocurrency <span class="text-red-600">*</span>
                     </label>
                     <select name="wallet_id" id="wallet_id" class="form-control">
-                        <option selected disabled>Choose Payment Method</option>
+                        <option selected disabled class="text-gray-500 font-medium">Choose Payment Method</option>
                         @foreach($wallets as $wallet)
                         <option value="{{ $wallet->id }}" {{ old('wallet_id') == $wallet->id ? 'selected' : '' }}>
                             🔗{{ ucfirst($wallet->crypto_name) }}
@@ -193,14 +193,41 @@
                 </div>
 
                 <!-- Amount -->
-                <div class="md:col-span-2">
-                    <label for="amount" class="block mb-2 font-bold text-neutral-900">
-                        Amount <span class="text-red-600">*</span>
-                    </label>
-                    <input type="text" name="amount" id="amount" class="form-control w-full px-3 py-2"
-                        value="{{ old('amount') }}" placeholder="Enter amount">
-                    <span class="text-red-600 text-sm mt-1 block">@error('amount'){{ $message }}@enderror</span>
-                </div>
+           <!-- Amount -->
+<div class="md:col-span-2">
+ <label for="amount" class="block mb-2 font-bold text-neutral-900">
+        Amount <span class="text-red-600">*</span>
+    </label>
+ <!-- Input Field -->
+    <input type="text" name="amount" id="amount"
+        class="form-control w-full px-3 py-2"
+        value="{{ old('amount') }}" placeholder="Enter amount">
+    <span class="text-red-600 text-sm mt-1 block">@error('amount'){{ $message }}@enderror</span>
+   
+
+    <!-- Preset Amount Buttons -->
+    <div class="flex flex-wrap gap-2 mb-3">
+        @foreach([500, 1000, 1500, 2000, 2500, 3000] as $preset)
+            <button type="button"
+                onclick="addToAmount({{ $preset }})"
+                class="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-lg hover:bg-green-100 border border-gray-300 text-sm shadow-sm transition">
+                ₦{{ number_format($preset) }}
+            </button>
+        @endforeach
+    </div>
+
+    
+</div>
+
+<!-- JavaScript to Append Amounts -->
+<script>
+    function addToAmount(value) {
+        const input = document.getElementById('amount');
+        const current = parseInt(input.value.replace(/[^\d]/g, '')) || 0;
+        input.value = current + value;
+    }
+</script>
+
 
                 <!-- Buttons -->
                 <div class="md:col-span-2 flex justify-center gap-6 mt-4">

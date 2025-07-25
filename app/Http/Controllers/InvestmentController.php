@@ -55,4 +55,11 @@ class InvestmentController extends Controller
 
         return view('dashboard.investments.investmentList', compact('withdrawnInvestments'));
     }
+
+
+
+
+
+
+    
 }

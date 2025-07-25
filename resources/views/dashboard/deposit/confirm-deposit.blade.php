@@ -63,7 +63,7 @@
                                 </thead>
 
                                 <tbody>
-                                    <tr>
+                                    <tr style="background-color: #fff; color:black;">
                                         <td class="text-center border border-[#9EDD05]">{{ $wallet->crypto_name }}</td>
                                         <td class="text-center">
                                             <div class="flex items-center justify-center gap-2 max-w-xs mx-auto">

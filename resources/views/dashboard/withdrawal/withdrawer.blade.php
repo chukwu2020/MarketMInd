@@ -171,7 +171,7 @@ $usdt = $profile->usdt_address ?? null;
                     walletInfo.innerHTML = `
                         <label class="block mb-1 text-sm font-medium text-gray-700">Select Wallet</label>
                         <div id="wallet-dropdown" tabindex="0"
-                            class="w-full px-4 py-3 rounded-lg border cursor-pointer flex justify-between items-center"
+                            class="w-full px-4 py-3 rounded-lg border  cursor-pointer flex justify-between items-center"
                             style="border-color: #8AC304; background-color: white;">
                             <span id="wallet-text">Choose wallet address</span>
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -181,7 +181,7 @@ $usdt = $profile->usdt_address ?? null;
 
                         <input type="hidden" name="wallet_choice" id="wallet_choice">
 
-                        <div id="wallet-options" class="absolute z-20 mt-1 w-full border rounded-lg shadow-lg hidden bg-white text-gray-800" style="border-color: #8AC304;">
+                        <div id="wallet-options" class="absolute z-20 mt-1 w-full border rounded-lg shadow-lg hidden bg-white text-gray-800" style="border-color: #8AC304; overflow:hidden;">
                             @if($bitcoin)
                                 <div class="wallet-item px-4 py-3 cursor-pointer hover:bg-gray-100" data-wallet="bitcoin">🟢 BTC - {{ $bitcoin }}</div>
                             @endif
@@ -207,7 +207,10 @@ $usdt = $profile->usdt_address ?? null;
                     walletInfo.innerHTML = `
                         <div class="text-sm text-gray-800 bg-[#f9f9f9] border border-[#8AC304] p-4 rounded-lg shadow-sm">
                             For digital wallet withdrawals, please 
-                            <a href="#" onclick="smartsupp('chat:open'); return false;" class="underline text-blue-600">contact support</a>.
+                           
+                            <a href="#" onclick="Tawk_API.maximize(); return false;" class="underline text-blue-600">contact support</a>
+
+                            
                         </div>
                     `;
                 } else {

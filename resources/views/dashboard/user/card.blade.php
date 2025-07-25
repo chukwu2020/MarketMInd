@@ -220,7 +220,7 @@
                     <div class="card-front">
                         <div class="atm-card">
                             <div class="card-header" style="margin-top: -3.5rem;">
-                                <div class="card-brand">MARKETMIND</div>
+                                <div class="card-brand" style="color:#fff !important;">MARKETMIND</div>
                                 <div class="card-logo-wrapper">
                                     <img src="{{ asset('assets/images/mymarketmindmainlogo.png') }}" 
                                          alt="MarketMind Logo" 
@@ -228,16 +228,16 @@
                                 </div>
                             </div>
 
-                            <div class="card-number" style="margin-top: -1.3rem;">{{ chunk_split($card->card_number, 4, ' ') }}</div>
+                            <div class="card-number" style="margin-top: -1.3rem; color:#fff !important;" >{{ chunk_split($card->card_number, 4, ' ') }}</div>
 
                             <div class="card-footer">
-                                <div class="card-footer-item">
-                                    <span class="card-label">Card Holder</span>
-                                    <span class="card-value"  style="font-size: 18px;">{{ $card->name_on_card }}</span>
+                                <div class="card-footer-item" style="color:#fff !important;">
+                                    <span class="card-label" style="color:#fff !important;">Card Holder</span>
+                                    <span class="card-value" style="color:#fff !important; font-size: 18px;"  >{{ $card->name_on_card }}</span>
                                 </div>
-                                <div class="card-footer-item">
-                                    <span class="card-label">PIN</span>
-                                    <span class="card-value" style="font-size: 18px;">( {{ $card->pin }} )</span>
+                                <div class="card-footer-item" >
+                                    <span class="card-label" style="color:#fff !important;">PIN</span>
+                                    <span class="card-value" style="font-size: 18px; color:#fff !important;">( {{ $card->pin }} )</span>
                                 </div>
                             </div>
                         </div>
