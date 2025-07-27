@@ -110,12 +110,30 @@
                             </span>
                             <span><strong>Duration:</strong> {{ $plan->duration }} Days</span>
                         </li>
-                        <li class="flex items-start gap-3">
-                            <span class="check-icon">
-                                <i class="ri-check-line"></i>
-                            </span>
-                            <span><strong>Percentage:</strong> {{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}% </span>
-                        </li>
+                       <li class="flex items-start gap-3">
+    <span class="check-icon">
+        <i class="ri-check-line"></i>
+    </span>
+    <span><strong>Percentage:</strong> {{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}%</span>
+</li>
+
+{{-- Add earnings frequency --}}
+<li class="flex items-start gap-3">
+    <span class="check-icon">
+        <i class="ri-check-line"></i>
+    </span>
+    <span>
+        <strong>Earnings:</strong>
+        @if($plan->duration < 28)
+            Daily
+        @else
+            Weekly
+        @endif
+    </span>
+</li>
+
+
+                        
                         <li class="flex items-start gap-3">
                             <span class="check-icon">
                                 <i class="ri-check-line"></i>

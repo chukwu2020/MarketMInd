@@ -125,6 +125,7 @@ $usdt = $profile->usdt_address ?? null;
         </button>
 
     </form>
+   
 </div>
 
 {{-- SCRIPT --}}
@@ -181,7 +182,8 @@ $usdt = $profile->usdt_address ?? null;
 
                         <input type="hidden" name="wallet_choice" id="wallet_choice">
 
-                        <div id="wallet-options" class="absolute z-20 mt-1 w-full border rounded-lg shadow-lg hidden bg-white text-gray-800" style="border-color: #8AC304; overflow:hidden;">
+                    <div id="wallet-options" class="absolute z-20 mt-1 border rounded-lg shadow-lg hidden bg-white text-gray-800 w-full max-w-full overflow-auto" style="border-color: #8AC304;">
+
                             @if($bitcoin)
                                 <div class="wallet-item px-4 py-3 cursor-pointer hover:bg-gray-100" data-wallet="bitcoin">🟢 BTC - {{ $bitcoin }}</div>
                             @endif
@@ -206,9 +208,9 @@ $usdt = $profile->usdt_address ?? null;
                     walletInfo.classList.remove('hidden');
                     walletInfo.innerHTML = `
                         <div class="text-sm text-gray-800 bg-[#f9f9f9] border border-[#8AC304] p-4 rounded-lg shadow-sm">
-                            For digital wallet withdrawals, please 
+                            For digital transfer withdrawals, please 
                            
-                            <a href="#" onclick="Tawk_API.maximize(); return false;" class="underline text-blue-600">contact support</a>
+                            <a href="#" onclick="Tawk_API.maximize(); return false;" class="underline text-blue-600">(click to contact contact support )</a>
 
                             
                         </div>
@@ -286,4 +288,5 @@ $usdt = $profile->usdt_address ?? null;
         border-color: #8AC304 !important;
     }
 </style>
+
 @endsection

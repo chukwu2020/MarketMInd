@@ -127,4 +127,6 @@ class IdController extends Controller
 
         return back()->with('success', 'Verification rejected.');
     }
+
+    
 }

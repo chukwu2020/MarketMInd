@@ -65,6 +65,16 @@
         background-color: #8AC304;
         color: #0C3A30;
     }
+
+    /* Extra styling for disabled spacer options */
+    select option[disabled] {
+        color: transparent;
+        background-color: transparent;
+        cursor: default;
+        /* You can add spacing with line-height */
+        line-height: 1.8;
+        user-select: none;
+    }
 </style>
 
 <div class="dashboard-main-body">
@@ -88,28 +98,33 @@
     <!-- Plans Table -->
     <div class="grid grid-cols-12 mb-8">
         <div class="col-span-12">
-            <div class="card rounded-xl p-6 overflow-x-auto" style="background: #fff !important; background-image: url(assets/images/hero/hero-image-1.svg);">
+            <div class="card rounded-xl p-6 overflow-x-auto" style=" background-image: url(assets/images/hero/hero-image-1.svg);">
                 <div class="w-full min-w-[600px] sm:min-w-0">
                     <table class="table w-full whitespace-nowrap text-sm">
                         <thead style="background: #fff !important;">
-                            <tr class="text-left"  style="background-color: #fff; color:black;" ">
+                            <tr class="text-left" style="background-color: #fff; color:black;">
                                 <th style="background-color: #fff; color:black;">#</th>
                                 <th style="background-color: #fff; color:black;">Plan Name</th>
                                 <th style="background-color: #fff; color:black;">Min Deposit ($)</th>
                                 <th style="background-color: #fff; color:black;">Max Deposit ($)</th>
+                                   <th style="background-color: #fff; color:black;">Duration</th>
+                              
+
                                 <th style="background-color: #fff; color:black;">Interest Rate</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($plans as $index => $plan)
-                            <tr class="hover:bg-green-50">
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ ucfirst($plan->name) }}</td>
-                                <td>{{ number_format($plan->minimum_amount, 2) }}</td>
-                                <td>{{ number_format($plan->maximum_amount, 2) }}</td>
-                                <td>{{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}%</td>
+                        <tr class="hover:bg-green-50">
+    <td>{{ $index + 1 }}</td>
+    <td>{{ ucfirst($plan->name) }}</td>
+   
+    <td>{{ number_format($plan->minimum_amount, 2) }}</td>
+    <td>{{ number_format($plan->maximum_amount, 2) }}</td>
+ <td>{{ $plan->duration }} Day{{ $plan->duration > 1 ? 's' : '' }}</td> 
+    <td>{{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}%</td>
+</tr>
 
-                            </tr>
                             @endforeach
                         </tbody>
                     </table>
@@ -117,7 +132,18 @@
             </div>
         </div>
     </div>
+    <style>
+        th,
+        td {
+            border-right: 1px solid #ccc;
+        }
 
+        th:last-child,
+        td:last-child {
+            border-right: none;
+            /* optional: hide last right border */
+        }
+    </style>
     <!-- Deposit Form -->
     <div class="card p-10 max-w-3xl mx-auto" style="background-image: url(assets/images/hero/hero-image-1.svg);">
         <p class="mb-6 text-lg font-semibold text-neutral-900">Choose An Investment Plan to Deposit</p>
@@ -132,49 +158,72 @@
                         Select Package <span class="text-red-600">*</span>
                     </label>
 
-                    <select name="plan_id" id="plan_id" class="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all shadow-inner">
-                        <option value="" disabled selected class="text-gray-500 font-medium">📦 Choose Investment Package</option>
+                   <select name="plan_id" id="plan_id" class="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all shadow-inner">
+    <option value="" disabled selected class="text-gray-500 font-medium py-3">📦 Choose Investment Package</option>
 
-                        @foreach($plans->groupBy('duration') as $duration => $durationPlans)
-                        <optgroup label="⏳ {{ $duration }} Day Plan • {{ $durationPlans->count() }} Options"
-                            class="text-xl font-bold text-white" style="background-color: #9EDD05; padding: 25px 20px; letter-spacing: 0.5px">
-                            @foreach($durationPlans as $plan)
-                        @php
-    $label = $plan->name . ' → ' . rtrim(rtrim($plan->interest_rate, '0'), '.') . '%';
-@endphp
+    @foreach($plans->groupBy('duration') as $duration => $durationPlans)
+   <optgroup label="⏳ {{ $duration }} Day Plan • {{ $durationPlans->count() }} Options"
 
-                            <option value="{{ $plan->id }}"
-                                {{ old('plan_id') == $plan->id ? 'selected' : '' }}
-                                class="py-2 my-1 border-t border-gray-600">
-                                📈 {{ ucfirst($plan->name) }} →
-                                <span class="text-green-600">{{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}%</span> 
-                            </option>
-                            @endforeach
-                        </optgroup>
-                        @endforeach
-                    </select>
-                    <span class="text-red-600 text-sm mt-1 block">@error('plan_id'){{ $message }}@enderror</span>
-                </div>
+        class="text-lg font-bold" style="background-color: #eefdea; padding: 15px 20px; margin: 20px 0; border-bottom: 2px solid #0C3A30;">
+        @foreach($durationPlans as $plan)
+        @php
+        $label = $plan->name . ' → ' . rtrim(rtrim($plan->interest_rate, '0'), '.') . '%';
+        @endphp
+
+        <option value="{{ $plan->id }}"
+            {{ old('plan_id') == $plan->id ? 'selected' : '' }}
+            class="py-3 px-4 my-2 rounded-lg hover:bg-green-50 transition-all duration-200">
+            <div class="flex justify-between items-center">
+                <span class="font-medium">📈 {{ ucfirst($plan->name) }}</span>
+                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold">
+                    {{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}%
+                </span>
+            </div>
+        </option>
+        @endforeach
+    </optgroup>
+    @endforeach
+</select>
+
 <style>
+    select {
+        border-radius: 12px !important;
+    }
+    
     select optgroup {
-        padding: 12px 10px ;
-        margin-top: 20px !important;
-        background-color: #eefdea;
+        padding: 15px 20px;
+        margin: 25px 0 10px 0 !important;
+        background-color: #f8faf7;
         font-weight: bold;
-        font-size: 1rem;
+        font-size: 1.05rem;
         color: #0C3A30;
-        border-radius: 8px solid #0C3A30 !important;
+        border-top: 2px solid #9EDD05;
+        border-bottom: 2px solid #9EDD05;
     }
 
     select optgroup + optgroup {
-        margin-top: 35px !important; /* Adds space between groups */
+        margin-bottom: 35px !important;
     }
 
     select option {
-        padding: 8px 10px;
-        margin: 4px 0;
+        padding: 12px 15px !important;
+        margin: 2px 0 !important;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+
+    select option:hover {
+        background-color: #f0f7ed !important;
+    }
+
+    select option:checked {
+        background-color: #9EDD05 !important;
+        color: white !important;
     }
 </style>
+
+                    <span class="text-red-600 text-sm mt-1 block">@error('plan_id'){{ $message }}@enderror</span>
+                </div>
 
                 <!-- Wallet Select -->
                 <div>
@@ -185,7 +234,7 @@
                         <option selected disabled class="text-gray-500 font-medium">Choose Payment Method</option>
                         @foreach($wallets as $wallet)
                         <option value="{{ $wallet->id }}" {{ old('wallet_id') == $wallet->id ? 'selected' : '' }}>
-                            🔗{{ ucfirst($wallet->crypto_name) }}
+                            🔗 {{ ucfirst($wallet->crypto_name) }}
                         </option>
                         @endforeach
                     </select>
@@ -193,41 +242,26 @@
                 </div>
 
                 <!-- Amount -->
-           <!-- Amount -->
-<div class="md:col-span-2">
- <label for="amount" class="block mb-2 font-bold text-neutral-900">
-        Amount <span class="text-red-600">*</span>
-    </label>
- <!-- Input Field -->
-    <input type="text" name="amount" id="amount"
-        class="form-control w-full px-3 py-2"
-        value="{{ old('amount') }}" placeholder="Enter amount">
-    <span class="text-red-600 text-sm mt-1 block">@error('amount'){{ $message }}@enderror</span>
-   
+                <div class="md:col-span-2">
+                    <label for="amount" class="block mb-2 font-bold text-neutral-900">
+                        Amount <span class="text-red-600">*</span>
+                    </label>
+                    <input type="text" name="amount" id="amount"
+                        class="form-control w-full px-3 py-2"
+                        value="{{ old('amount') }}" placeholder="Enter amount">
+                    <span class="text-red-600 text-sm mt-1 block">@error('amount'){{ $message }}@enderror</span>
 
-    <!-- Preset Amount Buttons -->
-    <div class="flex flex-wrap gap-2 mb-3">
-        @foreach([500, 1000, 1500, 2000, 2500, 3000] as $preset)
-            <button type="button"
-                onclick="addToAmount({{ $preset }})"
-                class="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-lg hover:bg-green-100 border border-gray-300 text-sm shadow-sm transition">
-                ₦{{ number_format($preset) }}
-            </button>
-        @endforeach
-    </div>
-
-    
-</div>
-
-<!-- JavaScript to Append Amounts -->
-<script>
-    function addToAmount(value) {
-        const input = document.getElementById('amount');
-        const current = parseInt(input.value.replace(/[^\d]/g, '')) || 0;
-        input.value = current + value;
-    }
-</script>
-
+                    <!-- Preset Amount Buttons -->
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        @foreach([500, 1000, 1500, 2000, 2500, 3000] as $preset)
+                        <button type="button"
+                            onclick="addToAmount({{ $preset }})"
+                            class="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-lg hover:bg-green-100 border border-gray-300 text-sm shadow-sm transition">
+                            ₦{{ number_format($preset) }}
+                        </button>
+                        @endforeach
+                    </div>
+                </div>
 
                 <!-- Buttons -->
                 <div class="md:col-span-2 flex justify-center gap-6 mt-4">
@@ -239,7 +273,6 @@
                         Continue
                     </button>
                 </div>
-
             </div>
         </form>
     </div>
@@ -261,6 +294,12 @@
             shouldSort: false
         });
     });
+
+    function addToAmount(value) {
+        const input = document.getElementById('amount');
+        const current = parseInt(input.value.replace(/[^\d]/g, '')) || 0;
+        input.value = current + value;
+    }
 </script>
 
 @endsection

@@ -246,4 +246,20 @@
         color: #9EDD05 !important;
     }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const updateForm = document.querySelector('form[action="{{ route('profile.update') }}"]');
+        const updateButton = updateForm.querySelector('button[type="submit"]');
+
+        updateForm.addEventListener('submit', function () {
+            // Disable the button to prevent double-click
+            updateButton.disabled = true;
+            updateButton.textContent = 'Updating...';
+            updateButton.style.backgroundColor = '#B2B2B2';
+            updateButton.style.color = '#666';
+        });
+    });
+</script>
+
 @endsection

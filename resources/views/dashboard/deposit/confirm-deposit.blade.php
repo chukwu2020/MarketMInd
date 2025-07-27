@@ -55,10 +55,10 @@
                         <div class="relative overflow-x-auto">
                             <!-- Wallet Address Table -->
                             <table class="table bordered-table sm-table mb-0 border border-[#9EDD05]"  style="background-color:#fff !important;">
-                                <thead class="border border-[#9EDD05]"  style="background-color:#fff !important;">
+                                <thead class="border border-[#9EDD05]"  >
                                     <tr  style="background-color:#fff !important;">
-                                        <th class="border border-[#9EDD05]" scope="col">Name</th>
-                                        <th class="border border-[#9EDD05] text-center" scope="col">Wallet Address</th>
+                                        <th class="border border-[#9EDD05]" scope="col" style="background-color:#fff !important;">Name</th>
+                                        <th class="border border-[#9EDD05] text-center" scope="col"style="background-color:#fff !important;">Wallet Address</th>
                                     </tr>
                                 </thead>
 

@@ -26,9 +26,9 @@
                     <div class="main-banner-content">
                         <span class="sub-t">WELCOME TO MARKETMIND</span>
                         <h1>Secure <span><img src="assets/images/svg/your.svg" alt="image"> Your</span> Financial Future with Intelligent Investing </h1>
-            <h6 >    Zero stress. Maximum profit. Built for modern investors</h6>
-                      
-                   
+                        <h6> Zero stress. Maximum profit. Built for modern investors</h6>
+
+
 
                         <a href="{{route('signup')}}" class="default-btn mt-4 px-5 py-2 mb-2 rounded-pill shadow" style="color:#0C3A30;">
                             Open an account
@@ -36,7 +36,7 @@
                     </div>
                 </div>
 
-                
+
                 <div class="col-xl-7 col-lg-12" data-cues="slideInLeft" data-duration="800">
                     <div class="info">
                         <p class="mb-3 mb-md-4">We are at the forefront of revolutionizing the financial landscape through cutting edge marketMind solutions. Our mission is to bridge the gap between traditional banking and modern technology offering innovative and seamless financial services that cater to the evolving.</p>
@@ -168,42 +168,37 @@
                 <span class="sub-title">PRICING PLAN</span>
                 <h2>Choose The Best <span><img src="assets/images/svg/lines-2.svg" alt="image">Plans</span> Which For You</h2>
             </div>
-            <div class="row g-3 g-md-4 justify-content-center" data-cues="slideInUp" data-duration="800">
-                @foreach($plans as $plan)
-                <div class="col-lg-4 col-md-6">
-                    <div class="pricing-card bg-color-ffffff radius-30">
-                        <div class="title position-relative">
-                            <h3>{{ $plan->name }} Plan</h3>
-                            <h4>{{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}% / <span>Per Term</span></h4>
-                            <img class="about-image-2" src="assets/images/about/about-image-2.png" alt="image">
-                        </div>
-
-                        <div class="pricing-card-body">
-                            <ul class="check">
-                                <li>
-                                    <i class="ri-check-line"></i>
-                                    Duration: {{ $plan->duration }} Days
-                                </li>
-                                <li>
-                                    <i class="ri-check-line"></i>
-                                    Percentage: {{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}% 
-                                </li>
-                                <li>
-                                    <i class="ri-check-line"></i>
-                                    Minimum Deposit:  ${{ number_format($plan->minimum_amount) }}
-                                </li>
-                                <li>
-                                    <i class="ri-check-line"></i>
-                                    Maximum Deposit: ${{ number_format($plan->maximum_amount) }}
-                                </li>
-                            </ul>
-
-                            <a href="/login" class="default-btn two w-100 text-center">Get Started <i class="ri-arrow-right-up-line"></i></a>
-                        </div>
-                    </div>
+          <div class="row g-3 g-md-4 justify-content-center" data-cues="slideInUp" data-duration="800">
+    @foreach($plans->take(3) as $plan)
+        <div class="col-lg-4 col-md-6">
+            <div class="pricing-card bg-color-ffffff radius-30">
+                <div class="title position-relative">
+                    <h3>{{ $plan->name }} Plan</h3>
+                    <h4>{{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}% / <span>Per Term</span></h4>
+                    <img class="about-image-2" src="assets/images/about/about-image-2.png" alt="image">
                 </div>
-                @endforeach
+                <div class="pricing-card-body">
+                    <ul class="check">
+                        <li><i class="ri-check-line"></i> Duration: {{ $plan->duration }} Days</li>
+                        <li><i class="ri-check-line"></i> Percentage: {{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}%</li>
+                        <li class="flex items-start gap-3">
+                            <span class="check-icon"><i class="ri-check-line"></i></span>
+                            <span><strong>Earnings:</strong> {{ $plan->duration < 28 ? 'Daily' : 'Weekly' }}</span>
+                        </li>
+                        <li><i class="ri-check-line"></i> Minimum Deposit: ${{ number_format($plan->minimum_amount) }}</li>
+                        <li><i class="ri-check-line"></i> Maximum Deposit: ${{ number_format($plan->maximum_amount) }}</li>
+                    </ul>
+                    <a href="/login" class="default-btn two w-100 text-center">Get Started <i class="ri-arrow-right-up-line"></i></a>
+                </div>
             </div>
+        </div>
+    @endforeach
+
+    <div class="text-center mt-4">
+        <a href="{{route('plans.header')}}" class="default-btn bg-[#8bc905] text-white px-5 py-3 rounded-xl">🔍 View All Plans</a>
+    </div>
+</div>
+
         </div>
     </div>
     <!-- End Pricing Plan Area -->

@@ -159,25 +159,17 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // dismis id box route
-    // Route::post('/dismiss-id-alert', function (Request $request) {
-    //     if (!auth()->check()) {
-    //         return response()->json(['error' => 'Unauthorized'], 401);
-    //     }
-    //     Cache::put(
-    //         'user_' . auth()->id() . '_id_verification_alert_dismissed',
-    //         true,
-    //         now()->addDays(30)
-    //     );
-    //     return response()->json(['success' => true]);
-    // })->name('id.alert.dismiss');
+ 
+
+// routes/web.php (add this route)
 Route::post('/dismiss-id-alert', function (Request $request) {
-    Cache::put(
+    Cache::forever(
         'user_' . auth()->id() . '_id_verification_alert_dismissed',
-        true,
-        now()->addDays(30) // or Cache::forever() for permanent dismissal
+        true
     );
-    return response()->json(['success' => true]);
-})->name('id.alert.dismiss');
+
+    return response()->json(['dismissed' => true]);
+})->middleware('auth')->name('id.alert.dismiss');
 
     // Admin Routes
     Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
