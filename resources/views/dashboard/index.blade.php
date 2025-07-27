@@ -162,56 +162,87 @@
                 }, 300);
             }
         }">
+
+
+
+
+
+<!-- avoid up -->
+
 @if(session('success'))
-    <div class="bg-green-100 text-green-700 p-4 rounded mb-4">
-        {{ session('success') }}
-    </div>
+<div class="bg-green-100 text-green-700 p-4 rounded mb-4">
+    {{ session('success') }}
+</div>
 @endif
 
 @if(session('error'))
-    <div class="bg-red-100 text-red-700 p-4 rounded mb-4">
-        {{ session('error') }}
-    </div>
+<div class="bg-red-100 text-red-700 p-4 rounded mb-4">
+    {{ session('error') }}
+</div>
 @endif
 
 @php
-use Illuminate\Support\Facades\Cache;
-
-$verification = auth()->user()->idVerification;
-$showAlert = !Cache::has('user_'.auth()->id().'_id_verification_alert_dismissed');
-
-// Show alert if:
-// 1. No verification exists OR
-// 2. Verification was rejected
-$shouldDisplay = (!$verification || $verification->status === 'rejected') && $showAlert;
+$idVerification = auth()->user()->idVerification;
+$status = $idVerification ? $idVerification->status : null;
+$hasMadeDeposit = auth()->user()->deposits()->exists();
+$alertDismissed = Cache::has('user_'.auth()->id().'_id_verification_alert_dismissed');
 @endphp
 
-@if($shouldDisplay)
+@if($hasMadeDeposit && !$alertDismissed)
 <div class="mb-6" id="verificationAlert">
-    @if($verification && $verification->status === 'rejected')
+    @if($status === 'approved')
+        <!-- APPROVED STATE -->
+        <div style="border-left: 4px solid #10B981; background-color: #ECFDF5;" class="p-4 rounded-r-lg relative">
+            <div class="flex items-start">
+                <svg class="h-5 w-5 text-green-500 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div class="text-green-800">
+                    <h4 class="font-semibold">Identity Verified</h4>
+                    <p class="text-sm mt-1">Your identity has been successfully verified.</p>
+                </div>
+            </div>
+            <button onclick="dismissVerificationAlert()" class="absolute top-2 right-2 text-green-600 hover:text-green-800">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+    @elseif($status === 'pending')
+        <!-- PENDING STATE -->
+        <div style="border-left: 4px solid #EF4444; background-color: #FEF3C7;" class="p-4 rounded-r-lg">
+            <div class="flex items-start">
+                <svg class="h-5 w-5 text-yellow-500 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div class="text-yellow-800">
+                    <h4 class="font-semibold">Verification Pending</h4>
+                    <p class="text-sm mt-1">Your documents are under review. Please wait for approval.</p>
+                </div>
+            </div>
+        </div>
+
+    @elseif($status === 'rejected')
         <!-- REJECTED STATE -->
-        <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-r-lg relative">
+        <div style="border-left: 4px solid #DC2626; background-color: #FEE2E2;" class="p-4 rounded-r-lg">
             <div class="flex items-start">
                 <svg class="h-5 w-5 text-red-500 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
                 <div class="text-red-800">
                     <h4 class="font-semibold">Verification Rejected</h4>
-                    <p class="text-sm mt-1">Please resubmit your documents.</p>
+                    <p class="text-sm mt-1">Please check your email for details and resubmit your documents.</p>
                     <a href="{{ route('id.verification.create') }}" class="inline-block mt-2 text-sm font-medium text-red-700 hover:text-red-900">
                         Resubmit Documents →
                     </a>
                 </div>
             </div>
-            <button onclick="dismissVerificationAlert()" class="absolute top-2 right-2 text-red-600 hover:text-red-800">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
         </div>
+
     @else
         <!-- NOT VERIFIED STATE -->
-        <div class="border-l-4 border-red-500 bg-red-50 p-4 rounded-r-lg relative">
+        <div style="border-left: 4px solid #EF4444; background-color: #FEE2E2;" class="p-4 rounded-r-lg">
             <div class="flex items-start justify-between">
                 <div class="flex items-start">
                     <svg class="h-5 w-5 text-red-500 mt-0.5 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -219,15 +250,10 @@ $shouldDisplay = (!$verification || $verification->status === 'rejected') && $sh
                     </svg>
                     <div class="text-red-800">
                         <h4 class="font-semibold">Identity Verification Required</h4>
-                        <p class="text-sm mt-1">Please verify your identity to continue.</p>
+                        <p class="text-sm mt-1">Please verify your identity to continue using your account.</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 pl-4">
-                    <button onclick="dismissVerificationAlert()" class="text-red-600 hover:text-red-800 mr-2">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
                     <a href="{{ route('id.verification.create') }}" class="bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600">
                         Verify Now
                     </a>
@@ -248,6 +274,7 @@ $shouldDisplay = (!$verification || $verification->status === 'rejected') && $sh
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             }
         })
+        .then(response => response.json())
         .then(() => setTimeout(() => alert.remove(), 300))
         .catch(error => {
             console.error('Error:', error);
@@ -256,9 +283,6 @@ $shouldDisplay = (!$verification || $verification->status === 'rejected') && $sh
     }
 </script>
 @endif
-
-
- 
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- Available Balance Card -->
@@ -307,6 +331,8 @@ $shouldDisplay = (!$verification || $verification->status === 'rejected') && $sh
     </div>
 </div>
 
+
+<!-- profit table -->
                 @php
                 use Carbon\Carbon;
 
@@ -330,7 +356,21 @@ $shouldDisplay = (!$verification || $verification->status === 'rejected') && $sh
                         <div class="flex justify-between items-start mb-4">
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-800">PROFIT PERFORMANCE</h3>
-                                <h6 class="text-xs text-gray-500 mt-1">Live Updates • {{ now()->format('M j, g:i a') }}</h6>
+                                <h6 class="text-xs text-gray-500 mt-1">Live Updates • <span id="user-time"></span>
+
+<script>
+    const options = {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    };
+
+    const userTime = new Date().toLocaleString('en-US', options);
+    document.getElementById('user-time').textContent = userTime;
+</script>
+</h6>
                             </div>
                         </div>
 
@@ -541,7 +581,7 @@ $shouldDisplay = (!$verification || $verification->status === 'rejected') && $sh
                                 });
                         };
 
-                        setInterval(refreshInvestments, 1); // Changed to 15 seconds
+                        setInterval(refreshInvestments, 1000); // Changed to 15 seconds
 
                         document.addEventListener('visibilitychange', () => {
                             if (!document.hidden) refreshInvestments();

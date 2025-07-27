@@ -48,17 +48,7 @@
     <link rel="stylesheet" href="admin_assets/css/style.css">
 
    
-<style>
-                html,
-                body {
-                    color: #0C3A30 !important;
-                }
 
-                div,
-                * {
-                    color: #0C3A30 !important;
-                }
-            </style>
 </head>
 
 

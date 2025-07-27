@@ -153,30 +153,20 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // user very identity
-    Route::middleware(['auth', 'verified'])->group(function () {
-        Route::get('/id-verification', [IdController::class, 'create'])->name('id.verification.create');
-        Route::post('/id-verification', [IdController::class, 'store'])->name('id.verification.store');
-    });
+   Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/id-verification', [IdController::class, 'create'])->name('id.verification.create');
+   
+    Route::post('id-verification', [IdController::class, 'store'])->name('id.verification.store');
+});
 
-    // dismis id box route
- 
+Route::post('/id-alert-dismiss', [IdController::class, 'dismissAlert'])->name('id.alert.dismiss');
 
-// routes/web.php (add this route)
-Route::post('/dismiss-id-alert', function (Request $request) {
-    Cache::forever(
-        'user_' . auth()->id() . '_id_verification_alert_dismissed',
-        true
-    );
+Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
+    Route::get('/id-verifications', [IdController::class, 'index'])->name('admin.verifications.index');
+    Route::post('/id-verifications/{id}/approve', [IdController::class, 'approve'])->name('admin.verifications.approve'); 
+    Route::post('/id-verifications/{id}/reject', [IdController::class, 'reject'])->name('admin.verifications.reject');
+});
 
-    return response()->json(['dismissed' => true]);
-})->middleware('auth')->name('id.alert.dismiss');
-
-    // Admin Routes
-    Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
-        Route::get('/id-verifications', [IdController::class, 'index'])->name('admin.verifications.index');
-        Route::post('/id-verifications/{id}/approve', [IdController::class, 'approve'])->name('admin.verifications.approve');
-        Route::post('/id-verifications/{id}/reject', [IdController::class, 'reject'])->name('admin.verifications.reject');
-    });
 
     // Shared Routes (Dashboard investments & withdrawals)
     Route::post('/user/investments/{id}/withdraw', [InvestmentController::class, 'withdraw'])->name('investments.withdraw');

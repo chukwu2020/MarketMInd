@@ -130,7 +130,7 @@
         modal.classList.remove('flex');
     }
 </script>
-
+<style></style>
 @endsection
 
 

@@ -29,16 +29,16 @@
                     <div class="table-responsive scroll-sm">
                         <table class="table bordered-table sm-table mb-0">
                             <thead style="background: #fff !important;">
-                                <tr style="background-color: #fff; color:aliceblue;">
-                                    <th scope="col" style="background-color: #fff; color:aliceblue;">Profile</th>
-                                    <th scope="col" style="background-color: #fff; color:aliceblue;">Name</th>
-                                      <th scope="col" style="background-color: #fff; color:aliceblue;">Phone</th>
+                                <tr style="background-color: #fff !important; color:aliceblue;">
+                                    <th scope="col"style="background-color: #0C3A30; color:aliceblue;">Profile</th>
+                                    <th scope="col" style="background-color: #0C3A30; color:aliceblue;">Name</th>
+                                      <th scope="col" style="background-color: #0C3A30; color:aliceblue;">Phone</th>
                                         <th style="background-color: #0C3A30; color:aliceblue;">Country</th>
-                                    <th scope="col">Email</th>
-                                    <th scope="col">Join Date</th>
+                                    <th scope="col"style="background-color: #0C3A30; color:aliceblue;">Email</th>
+                                    <th scope="col" style="background-color: #0C3A30; color:aliceblue;">Join Date</th>
                                     <!-- <th scope="col">Card PIN</th> -->
-                                    <th scope="col"> Amount Invested</th>
-                                    <th scope="col"> Available balance</th>
+                                    <th scope="col"style="background-color: #0C3A30; color:aliceblue;"> Amount Invested</th>
+                                    <th scope="col"style="background-color: #0C3A30; color:aliceblue;"> Available balance</th>
 
 
 
@@ -122,5 +122,5 @@
         </div>
     </div>
 </div>
-
+<style></style>
 @endsection

@@ -1,399 +1,5218 @@
-@php
-use Carbon\Carbon;
-
-$allInvestments = auth()->user()->investments()
-    ->where('status','active')
-    ->with('plan')
-    ->orderBy('created_at', 'desc')
-    ->get();
-
-$totalEarnedAll = 0;
-$displayCount = min(2, count($allInvestments));
-
-// Load daily earnings from cache or default to empty array
-$dailyEarnings = Cache::remember('user_'.auth()->id().'_daily_earnings', now()->addDay(), fn() => []);
-@endphp
-
-<div class="investment-performance-card bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden w-full max-w-md mx-auto"
-    style="border-top: 4px solid #8bc905; background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
-    <div class="p-5">
-        <!-- Header -->
-        <div class="flex justify-between items-start mb-4">
-            <div>
-                <h3 class="text-lg font-semibold text-gray-800">INVESTMENT PERFORMANCE</h3>
-                <h6 class="text-xs text-gray-500 mt-1">Live Updates • {{ now()->format('M j, g:i a') }}</h6>
-            </div>
-        </div>
-
-        <div id="investmentContainer" class="space-y-3">
-            @foreach($allInvestments->take($displayCount) as $investment)
-                @php
-                    $startDate = $investment->created_at;
-                    $now = now();
-
-                    $duration = $investment->plan->duration;
-                    $rate = $investment->plan->interest_rate;
-                    $amount = $investment->amount_invested;
-
-                    $projectedTotal = $amount * (1 + $rate / 100);
-                    $projectedProfit = $amount * $rate / 100;
-
-                    $daysCompleted = max(0, $now->diffInDays($startDate));
-                    $currentDay = min($daysCompleted + 1, $duration);
-
-                    $isLongTerm = $duration > 28;
-
-                    $progressKey = 'investment_' . $investment->id . '_progress_' . now()->format($isLongTerm ? 'Y_W' : 'Y_m_d');
-                    $previousEarned = $dailyEarnings[$investment->id] ?? 0;
-
-                    // Fluctuation color and icons - keep unchanged per your instructions
-                    $fluctuation = mt_rand(-100, 100);
-                    $isPositive = $fluctuation >= 0;
-                    $fluctuationDisplay = abs($fluctuation);
-                    $trendColor = $isPositive ? 'text-green-600' : 'text-red-600';
-                    $borderLeftColor = $isPositive ? 'border-green-500' : 'border-red-500';
-                    $progressBarColor = $isPositive ? 'bg-green-500' : 'bg-red-500';
-
-                    // -------------------------
-                    // Earnings calculation:
-                    // For duration <= 28 days: daily earnings with 10% guaranteed day 1 + daily fluctuation ±10%
-                    // For duration > 28 days: weekly earnings with 10% guaranteed first week + weekly fluctuation ±10%
-                    // -------------------------
-
-                    $totalEarned = 0;
-
-                    if (!$isLongTerm) {
-                        // Short term - daily earnings
-                        $baseDaily = $projectedProfit / $duration;
-                        $minimumFirstDay = $projectedProfit * 0.10; // 10% guaranteed first day
-                        $earnedSoFar = 0;
-
-                        if ($currentDay === 1) {
-                            $earnedSoFar = $minimumFirstDay;
-                        } else {
-                            $earnedSoFar = $minimumFirstDay;
-
-                            for ($i = 2; $i <= $currentDay; $i++) {
-                                $dailyFluct = mt_rand(-10, 10); // +/- 10%
-                                $dailyEarning = $baseDaily * (1 + $dailyFluct / 100);
-                                $earnedSoFar += $dailyEarning;
-                            }
-
-                            $earnedSoFar = min($earnedSoFar, $projectedProfit);
-                        }
-
-                        $totalEarned = round($earnedSoFar, 2);
-                    } else {
-                        // Long term - weekly earnings
-                        $weeksCompleted = floor($daysCompleted / 7) + 1; // count current week
-                        $totalWeeks = ceil($duration / 7);
-                        $baseWeekly = $projectedProfit / $totalWeeks;
-                        $minimumFirstWeek = $projectedProfit * 0.10; // 10% guaranteed first week
-                        $earnedSoFar = 0;
-
-                        if ($weeksCompleted === 1) {
-                            $earnedSoFar = $minimumFirstWeek;
-                        } else {
-                            $earnedSoFar = $minimumFirstWeek;
-
-                            for ($w = 2; $w <= $weeksCompleted; $w++) {
-                                $weeklyFluct = mt_rand(-10, 10); // +/- 10%
-                                $weeklyEarning = $baseWeekly * (1 + $weeklyFluct / 100);
-                                $earnedSoFar += $weeklyEarning;
-                            }
-
-                            $earnedSoFar = min($earnedSoFar, $projectedProfit);
-                        }
-
-                        $totalEarned = round($earnedSoFar, 2);
-
-                        // For display, we show day as weeks*7 capped to duration days
-                        $currentDay = min($weeksCompleted * 7, $duration);
-                    }
-
-                    $dailyEarnings[$investment->id] = $totalEarned;
-                    $totalEarnedAll += $totalEarned;
-
-                    $progressPercentage = min(100, round(($totalEarned / $projectedProfit) * 100));
-                @endphp
-
-                <!-- Single Investment Card -->
-                <div class="investment-item bg-white rounded-lg p-3 border-l-4 {{ $borderLeftColor }} shadow-sm hover:shadow-md transition-shadow">
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm font-medium text-gray-800">{{ strtoupper($investment->plan->name) }}</span>
-                        <span class="text-xs font-bold {{ $trendColor }} flex items-center animate-fluctuation-{{ $isPositive ? 'up' : 'down' }}">
-                            @if($isPositive)
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                            </svg>
-                            @else
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                            </svg>
-                            @endif
-                            {{ $fluctuationDisplay }}%
-                        </span>
-                    </div>
-
-                    <div class="flex justify-between items-center mt-2">
-                        <span class="text-xs text-gray-500">
-                            Day {{ $currentDay }} of {{ $duration }}
-                        </span>
-                        <span class="text-xs font-medium">
-                            <span class="{{ $totalEarned > 0 ? 'text-gray-800' : 'text-gray-500' }}">
-                                ${{ number_format($totalEarned, 2) }}
-                            </span>
-                            <span class="mx-1 text-gray-300">/</span>
-                            <span class="text-gray-700">${{ number_format($projectedProfit, 2) }}</span>
-                        </span>
-                    </div>
-
-                    <!-- Progress Bar -->
-                    <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2">
-                        <div class="h-1.5 rounded-full {{ $progressBarColor }}" style="width: {{ $progressPercentage }}%"></div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-
-        @php
-            Cache::put('user_'.auth()->id().'_daily_earnings', $dailyEarnings, now()->addDay());
-        @endphp
-
-        <!-- Summary -->
-        @php
-            $totalProjectedAll = $allInvestments->sum(fn($inv) => ($inv->amount_invested * $inv->plan->interest_rate) / 100);
-        @endphp
-
-        <div class="mt-4 pt-4 border-t border-gray-200">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium text-gray-600">Total Earned</span>
-                <span class="text-sm font-bold text-gray-800">${{ number_format($totalEarnedAll, 2) }}</span>
-            </div>
-            <div class="flex justify-between items-center">
-                <span class="text-sm font-medium text-gray-600">Projected Total</span>
-                <span class="text-xl font-bold text-green-600">${{ number_format($totalProjectedAll, 2) }}</span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-    @keyframes fluctuationUp {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-2px); }
-    }
-
-    @keyframes fluctuationDown {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(2px); }
-    }
-
-    .animate-fluctuation-up {
-        animation: fluctuationUp 1.5s ease-in-out infinite;
-    }
-
-    .animate-fluctuation-down {
-        animation: fluctuationDown 1.5s ease-in-out infinite;
-    }
-
-    .text-green-600 {
-        color: #16a34a !important;
-    }
-
-    .text-red-600 {
-        color: #dc2626 !important;
-    }
-
-    .investment-performance-card {
-        border-top-width: 4px;
-        border-top-color: #8bc905;
-    }
-
-    .investment-item {
-        transition: all 0.2s ease;
-    }
-
-    .investment-item:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    }
-</style>
-
-<script>
-    // Auto-refresh every 15 seconds
-    document.addEventListener('DOMContentLoaded', function() {
-        const refreshInvestments = () => {
-            fetch(window.location.href + '?refresh=' + new Date().getTime(), {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                cache: 'no-store'
-            })
-            .then(response => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const newComponent = doc.querySelector('.investment-performance-card');
-                if (newComponent) {
-                    document.querySelector('.investment-performance-card').outerHTML = newComponent.outerHTML;
-                }
-            });
-        };
-
-        setInterval(refreshInvestments, 1200);
-
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) refreshInvestments();
-        });
-    });
-</script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            <!-- id verification  -->
-
-
-            @if(session('success'))
-    <div class="bg-green-100 text-green-700 p-4 rounded mb-4">
-        {{ session('success') }}
-    </div>
-@endif
-
-@if(session('error'))
-    <div class="bg-red-100 text-red-700 p-4 rounded mb-4">
-        {{ session('error') }}
-    </div>
-@endif
-
-@php
-$idVerification = auth()->user()->idVerification;
-$status = $idVerification ? $idVerification->status : null;
-$hasMadeDeposit = auth()->user()->deposits()->exists(); // Check if user has any deposits
-@endphp
-
-@if($hasMadeDeposit)
-<!-- Verification Status Display - ONLY SHOWS AFTER FIRST DEPOSIT -->
-<div class="mb-6">
-    @if($status === 'approved')
-        <!-- APPROVED STATE - GREEN BORDER AND BACKGROUND -->
-        <div style="border-left: 4px solid #10B981 !important; background-color: #ECFDF5 !important;" class="p-4 rounded-r-lg relative">
-            <div class="flex items-start">
-                <svg class="h-5 w-5 flex-shrink-0 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="#10B981">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <div>
-                    <h4 class="font-semibold" style="color: #065F46 !important;">Identity Verified</h4>
-                    <p class="text-sm mt-1" style="color: #065F46 !important;">Your identity has been successfully verified.</p>
-                </div>
-            </div>
-            <!-- CLOSE BUTTON -->
-            
-                <button onclick="this.closest('div').style.transition='opacity 0.3s'; this.closest('div').style.opacity='0'; setTimeout(() => this.closest('div').style.display='none', 300)">
-
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
-    
-    @elseif($status === 'pending')
-        <!-- PENDING STATE - YELLOW BACKGROUND AND RED BORDER -->
-        <div style="border-left: 4px solid #EF4444 !important; background-color: #FEF3C7 !important;" class="p-4 rounded-r-lg">
-            <div class="flex items-start">
-                <svg class="h-5 w-5 flex-shrink-0 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="#D97706">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <div>
-                    <h4 class="font-semibold" style="color: #92400E !important;">Verification Pending</h4>
-                    <p class="text-sm mt-1" style="color: #92400E !important;">Your documents are under review. Please wait for admin approval.</p>
-                </div>
-            </div>
-        </div>
-    
-    @elseif($status === 'rejected')
-        <!-- REJECTED STATE - RED BORDER AND BACKGROUND -->
-        <div style="border-left: 4px solid #DC2626 !important; background-color: #FEE2E2 !important;" class="p-4 rounded-r-lg">
-            <div class="flex items-start">
-                <svg class="h-5 w-5 flex-shrink-0 mt-0.5 mr-3" fill="none" viewBox="0 0 24 24" stroke="#DC2626">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <div>
-                    <h4 class="font-semibold" style="color: #991B1B !important;">Verification Rejected</h4>
-                    <p class="text-sm mt-1" style="color: #991B1B !important;">Please check your email for details and resubmit your documents.</p>
-                    <a href="{{ route('id.form') }}" class="inline-block mt-2 text-sm font-medium" style="color: #B91C1C !important;">
-                        Resubmit Documents →
-                    </a>
-                </div>
-            </div>
-        </div>
-    
-    @else
-        <!-- NOT SUBMITTED STATE - SHOW VERIFICATION ALERT (ONLY AFTER DEPOSIT) -->
-        <div style="border-left: 4px solid #EF4444 !important; background-color: #FEE2E2 !important;" class="p-4 rounded-r-lg">
-            <div class="flex items-start justify-between">
-                <div class="flex items-start">
-                    <svg class="h-5 w-5 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" style="color: #DC2626 !important;">
-                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                    </svg>
-                    <div>
-                        <h4 class="font-semibold" style="color: #991B1B !important;">Identity Verification Required</h4>
-                        <p class="text-sm mt-1" style="color: #991B1B !important;">Please verify your identity to continue using your account.</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2 pl-4">
-                    <a href="{{ route('id.form') }}" class="text-white px-3 py-1 rounded-md text-sm font-medium" style="background-color: #EF4444 !important;">
-                        Verify Now
-                    </a>
-                </div>
-            </div>
-        </div>
-    @endif
-</div>
-@endif
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Load The Cached Routes
+|--------------------------------------------------------------------------
+|
+| Here we will decode and unserialize the RouteCollection instance that
+| holds all of the route information for an application. This allows
+| us to instantaneously load the entire route map into the router.
+|
+*/
+
+app('router')->setCompiledRoutes(
+    array (
+  'compiled' => 
+  array (
+    0 => false,
+    1 => 
+    array (
+      '/sanctum/csrf-cookie' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'sanctum.csrf-cookie',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/_ignition/health-check' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'ignition.healthCheck',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/_ignition/execute-solution' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'ignition.executeSolution',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/_ignition/update-config' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'ignition.updateConfig',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/api/user' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'generated::Al4qwTyeCuiH8JZ8',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'generated::Dngpw6exjrlxbhap',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/login' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'login',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+        1 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'generated::6nMTvDG4nBl7pe62',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/logout' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'logout',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/register' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'register',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+        1 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'generated::DlUb2YNWOF4v3wED',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/password/reset' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'password.request',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+        1 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'password.update',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/password/email' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'password.email',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/password/confirm' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'password.confirm',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+        1 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'generated::Z89nOYrbzT6fqw7l',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/auth/signup' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'signup',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/auth/planlists' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'plans.header',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/auth/about-us' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'about.us',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/auth/OurServices' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'our.services',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/auth/ContactUs' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'contact.us',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/auth/contact/send' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'user.contact.send',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/set-language' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'generated::M0LNttqO9uF8HUC2',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/certificate-shown' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'generated::eRwtvQadIh8IwZA6',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/password/forgot' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'password.otp.request',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/password/otp-send' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'password.otp.send',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/password/otp-verify' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'password.otp.verify.form',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+        1 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'password.otp.verify',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/password/verify-otp' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'password.otp.form',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/user/notifications' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'user.notifications',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/create-user' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'user.create',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/user/take-profit' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'generated::6wzaxfH7OuQwGSt3',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/verify-otp' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'otp.submit',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/resend-otp' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'otp.resend',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/home' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'home',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/signout' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'signout',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/profile' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'profile.show',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+        1 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'profile.update',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'PUT' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/profile/password' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'profile.password.update',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/id-verification' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'id.verification.create',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+        1 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'id.verification.store',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/dismiss-id-alert' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'id.alert.dismiss',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/admin/id-verifications' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'admin.verifications.index',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/dashboard/withdraw' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'user.balance.withdraw',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/investments' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'user.investments',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/withdrawn-investments' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'user.withdrawn.investments',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/user/dashboard' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'user_dashboard',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/user/deposit' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'user.deposit',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/user/make-deposit' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'user.make-deposit',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/user/confirm-deposit' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'deposit.confirm',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/user/submit-deposit' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'deposit.submit',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/user/deposit-history' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'user.deposit-history',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/user/planlist' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'plan.dashboard',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/user/withdraw/form' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'user.withdraw.form',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/user/withdraw/request' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'balance.withdraw.request',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/user/withdrawals/list' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'user.withdrawals.list',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/user/withdrawals' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'withdrawals.index',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/user/withdrawals/generate-card' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'withdrawals.generateCard',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/user/withdrawals/view-card' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'withdrawals.view-card',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/admin/dashboard' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'admin_dashboard',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/admin/messages' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'admin.messages.index',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/admin/admin/profile' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'admin.profile',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/admin/profile/update' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'admin.profile.update',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/plans' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'plan.list',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/plans/create' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'create_plan',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/plans/store' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'plans.store',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/wallets' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'wallet.index',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/wallets/create' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'create_wallet',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/wallets/store' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'wallet.create',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/users' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'user.index',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/deposits/pending' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'admin.deposits.pending',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/deposits/approved' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'admin.deposits.approved',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/withdrawals/pending' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'withdrawals.pending',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      '/withdrawals/approved' => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'admin.withdrawals.approved',
+          ),
+          1 => NULL,
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+    ),
+    2 => 
+    array (
+      0 => '{^(?|/p(?|assword/reset/([^/]++)(*:34)|lans/(?|edit/([^/]++)(*:62)|update/([^/]++)(*:84)|delete/([^/]++)(*:106)))|/verify\\-otp/([^/]++)(*:137)|/admin/(?|id\\-verifications/([^/]++)/(?|approve(*:192)|reject(*:206))|admin/messages/([^/]++)(*:238))|/user(?|/investments/([^/]++)/withdraw(*:285)|s/([^/]++)(?|/(?|edit(*:314)|update\\-balance(*:337))|(*:346)))|/w(?|allets/([^/]++)(*:376)|ithdrawals/([^/]++)(?|/approve(*:414)|(*:422)))|/deposits/approve/([^/]++)(*:458))/?$}sDu',
+    ),
+    3 => 
+    array (
+      34 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'password.reset',
+          ),
+          1 => 
+          array (
+            0 => 'token',
+          ),
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      62 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'plan.edit',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      84 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'plan.update',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      106 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'plan.delete',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      137 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'verify.otp',
+          ),
+          1 => 
+          array (
+            0 => 'token',
+          ),
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      192 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'admin.verifications.approve',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      206 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'admin.verifications.reject',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      238 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'admin.messages.destroy',
+          ),
+          1 => 
+          array (
+            0 => 'message',
+          ),
+          2 => 
+          array (
+            'DELETE' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      285 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'investments.withdraw',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      314 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'user.edit',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'GET' => 0,
+            'HEAD' => 1,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      337 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'admin.users.updateBalance',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'PUT' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      346 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'user.destroy',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'DELETE' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      376 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'wallet.delete',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'DELETE' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      414 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'admin.approve.withdrawal',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => NULL,
+        ),
+      ),
+      422 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'withdraw.delete',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'DELETE' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+      ),
+      458 => 
+      array (
+        0 => 
+        array (
+          0 => 
+          array (
+            '_route' => 'admin.approve.deposit',
+          ),
+          1 => 
+          array (
+            0 => 'id',
+          ),
+          2 => 
+          array (
+            'POST' => 0,
+          ),
+          3 => NULL,
+          4 => false,
+          5 => true,
+          6 => NULL,
+        ),
+        1 => 
+        array (
+          0 => NULL,
+          1 => NULL,
+          2 => NULL,
+          3 => NULL,
+          4 => false,
+          5 => false,
+          6 => 0,
+        ),
+      ),
+    ),
+    4 => NULL,
+  ),
+  'attributes' => 
+  array (
+    'sanctum.csrf-cookie' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'sanctum/csrf-cookie',
+      'action' => 
+      array (
+        'uses' => 'Laravel\\Sanctum\\Http\\Controllers\\CsrfCookieController@show',
+        'controller' => 'Laravel\\Sanctum\\Http\\Controllers\\CsrfCookieController@show',
+        'namespace' => NULL,
+        'prefix' => 'sanctum',
+        'where' => 
+        array (
+        ),
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'as' => 'sanctum.csrf-cookie',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'ignition.healthCheck' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => '_ignition/health-check',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'Spatie\\LaravelIgnition\\Http\\Middleware\\RunnableSolutionsEnabled',
+        ),
+        'uses' => 'Spatie\\LaravelIgnition\\Http\\Controllers\\HealthCheckController@__invoke',
+        'controller' => 'Spatie\\LaravelIgnition\\Http\\Controllers\\HealthCheckController',
+        'as' => 'ignition.healthCheck',
+        'namespace' => NULL,
+        'prefix' => '_ignition',
+        'where' => 
+        array (
+        ),
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'ignition.executeSolution' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => '_ignition/execute-solution',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'Spatie\\LaravelIgnition\\Http\\Middleware\\RunnableSolutionsEnabled',
+        ),
+        'uses' => 'Spatie\\LaravelIgnition\\Http\\Controllers\\ExecuteSolutionController@__invoke',
+        'controller' => 'Spatie\\LaravelIgnition\\Http\\Controllers\\ExecuteSolutionController',
+        'as' => 'ignition.executeSolution',
+        'namespace' => NULL,
+        'prefix' => '_ignition',
+        'where' => 
+        array (
+        ),
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'ignition.updateConfig' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => '_ignition/update-config',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'Spatie\\LaravelIgnition\\Http\\Middleware\\RunnableSolutionsEnabled',
+        ),
+        'uses' => 'Spatie\\LaravelIgnition\\Http\\Controllers\\UpdateConfigController@__invoke',
+        'controller' => 'Spatie\\LaravelIgnition\\Http\\Controllers\\UpdateConfigController',
+        'as' => 'ignition.updateConfig',
+        'namespace' => NULL,
+        'prefix' => '_ignition',
+        'where' => 
+        array (
+        ),
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'generated::Al4qwTyeCuiH8JZ8' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'api/user',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'api',
+          1 => 'auth:sanctum',
+        ),
+        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:77:"function (\\Illuminate\\Http\\Request $request) {
+    return $request->user();
+}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000005fa0000000000000000";}}',
+        'namespace' => NULL,
+        'prefix' => 'api',
+        'where' => 
+        array (
+        ),
+        'as' => 'generated::Al4qwTyeCuiH8JZ8',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'generated::Dngpw6exjrlxbhap' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => '/',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:132:"function () {
+    $plans = \\App\\Models\\Plan::orderBy(\'created_at\', \'DESC\')->get();
+    return \\view(\'welcome\', \\compact(\'plans\'));
+}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000005fc0000000000000000";}}',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'generated::Dngpw6exjrlxbhap',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'login' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'login',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Auth\\LoginController@showLoginForm',
+        'controller' => 'App\\Http\\Controllers\\Auth\\LoginController@showLoginForm',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'login',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'generated::6nMTvDG4nBl7pe62' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'login',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Auth\\LoginController@login',
+        'controller' => 'App\\Http\\Controllers\\Auth\\LoginController@login',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'generated::6nMTvDG4nBl7pe62',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'logout' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'logout',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Auth\\LoginController@logout',
+        'controller' => 'App\\Http\\Controllers\\Auth\\LoginController@logout',
+        'namespace' => 'App\\Http\\Controllers',
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'logout',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'register' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'register',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Auth\\RegisterController@showRegistrationForm',
+        'controller' => 'App\\Http\\Controllers\\Auth\\RegisterController@showRegistrationForm',
+        'namespace' => 'App\\Http\\Controllers',
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'register',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'generated::DlUb2YNWOF4v3wED' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'register',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Auth\\RegisterController@register',
+        'controller' => 'App\\Http\\Controllers\\Auth\\RegisterController@register',
+        'namespace' => 'App\\Http\\Controllers',
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'generated::DlUb2YNWOF4v3wED',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'password.request' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'password/reset',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Auth\\ForgotPasswordController@showLinkRequestForm',
+        'controller' => 'App\\Http\\Controllers\\Auth\\ForgotPasswordController@showLinkRequestForm',
+        'namespace' => 'App\\Http\\Controllers',
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'password.request',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'password.email' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'password/email',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Auth\\ForgotPasswordController@sendResetLinkEmail',
+        'controller' => 'App\\Http\\Controllers\\Auth\\ForgotPasswordController@sendResetLinkEmail',
+        'namespace' => 'App\\Http\\Controllers',
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'password.email',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'password.reset' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'password/reset/{token}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Auth\\ResetPasswordController@showResetForm',
+        'controller' => 'App\\Http\\Controllers\\Auth\\ResetPasswordController@showResetForm',
+        'namespace' => 'App\\Http\\Controllers',
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'password.reset',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'password.update' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'password/reset',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Auth\\ResetPasswordController@reset',
+        'controller' => 'App\\Http\\Controllers\\Auth\\ResetPasswordController@reset',
+        'namespace' => 'App\\Http\\Controllers',
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'password.update',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'password.confirm' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'password/confirm',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Auth\\ConfirmPasswordController@showConfirmForm',
+        'controller' => 'App\\Http\\Controllers\\Auth\\ConfirmPasswordController@showConfirmForm',
+        'namespace' => 'App\\Http\\Controllers',
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'password.confirm',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'generated::Z89nOYrbzT6fqw7l' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'password/confirm',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Auth\\ConfirmPasswordController@confirm',
+        'controller' => 'App\\Http\\Controllers\\Auth\\ConfirmPasswordController@confirm',
+        'namespace' => 'App\\Http\\Controllers',
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'generated::Z89nOYrbzT6fqw7l',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'signup' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'auth/signup',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\UserController@signup',
+        'controller' => 'App\\Http\\Controllers\\UserController@signup',
+        'namespace' => NULL,
+        'prefix' => '/auth',
+        'where' => 
+        array (
+        ),
+        'as' => 'signup',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'plans.header' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'auth/planlists',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\UserController@plans_header',
+        'controller' => 'App\\Http\\Controllers\\UserController@plans_header',
+        'namespace' => NULL,
+        'prefix' => '/auth',
+        'where' => 
+        array (
+        ),
+        'as' => 'plans.header',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'about.us' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'auth/about-us',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\UserController@About_Us',
+        'controller' => 'App\\Http\\Controllers\\UserController@About_Us',
+        'namespace' => NULL,
+        'prefix' => '/auth',
+        'where' => 
+        array (
+        ),
+        'as' => 'about.us',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'our.services' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'auth/OurServices',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\UserController@services',
+        'controller' => 'App\\Http\\Controllers\\UserController@services',
+        'namespace' => NULL,
+        'prefix' => '/auth',
+        'where' => 
+        array (
+        ),
+        'as' => 'our.services',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'contact.us' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'auth/ContactUs',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\UserController@contactus',
+        'controller' => 'App\\Http\\Controllers\\UserController@contactus',
+        'namespace' => NULL,
+        'prefix' => '/auth',
+        'where' => 
+        array (
+        ),
+        'as' => 'contact.us',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'user.contact.send' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'auth/contact/send',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\UserController@send',
+        'controller' => 'App\\Http\\Controllers\\UserController@send',
+        'namespace' => NULL,
+        'prefix' => '/auth',
+        'where' => 
+        array (
+        ),
+        'as' => 'user.contact.send',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'generated::M0LNttqO9uF8HUC2' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'set-language',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:142:"function (\\Illuminate\\Http\\Request $request) {
+    \\session([\'locale\' => $request->lang]);
+    return \\response()->json([\'status\' => \'ok\']);
+}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000005fe0000000000000000";}}',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'generated::M0LNttqO9uF8HUC2',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'generated::eRwtvQadIh8IwZA6' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'certificate-shown',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:163:"function () {
+    // Clear the showAt timestamp so it doesn\'t show again
+    \\session()->forget(\'certShowAt\');
+    return \\response()->json([\'success\' => true]);
+}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"000000000000061b0000000000000000";}}',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'generated::eRwtvQadIh8IwZA6',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'password.otp.request' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'password/forgot',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Auth\\ForgotPasswordController@showOtpRequestForm',
+        'controller' => 'App\\Http\\Controllers\\Auth\\ForgotPasswordController@showOtpRequestForm',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'password.otp.request',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'password.otp.send' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'password/otp-send',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Auth\\ForgotPasswordController@sendOtp',
+        'controller' => 'App\\Http\\Controllers\\Auth\\ForgotPasswordController@sendOtp',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'password.otp.send',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'password.otp.verify.form' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'password/otp-verify',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Auth\\ForgotPasswordController@showOtpVerifyForm',
+        'controller' => 'App\\Http\\Controllers\\Auth\\ForgotPasswordController@showOtpVerifyForm',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'password.otp.verify.form',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'password.otp.verify' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'password/otp-verify',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\Auth\\ForgotPasswordController@verifyOtpAndReset',
+        'controller' => 'App\\Http\\Controllers\\Auth\\ForgotPasswordController@verifyOtpAndReset',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'password.otp.verify',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'password.otp.form' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'password/verify-otp',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:62:"function () {
+    return \\view(\'auth.passwords.otp_verify\');
+}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000006170000000000000000";}}',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'password.otp.form',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'user.notifications' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'user/notifications',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'verified',
+        ),
+        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:65:"function () {
+    return \\view(\'dashboard.user.notifications\');
+}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000006190000000000000000";}}',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'user.notifications',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'user.create' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'create-user',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\UserController@createUser',
+        'controller' => 'App\\Http\\Controllers\\UserController@createUser',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'user.create',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'generated::6wzaxfH7OuQwGSt3' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'user/take-profit',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\UserController@takeProfit',
+        'controller' => 'App\\Http\\Controllers\\UserController@takeProfit',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'generated::6wzaxfH7OuQwGSt3',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'verify.otp' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'verify-otp/{token}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\UserController@showVerifyOtpForm',
+        'controller' => 'App\\Http\\Controllers\\UserController@showVerifyOtpForm',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'verify.otp',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'otp.submit' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'verify-otp',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\UserController@submitOtp',
+        'controller' => 'App\\Http\\Controllers\\UserController@submitOtp',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'otp.submit',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'otp.resend' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'resend-otp',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+        ),
+        'uses' => 'App\\Http\\Controllers\\UserController@resendOtp',
+        'controller' => 'App\\Http\\Controllers\\UserController@resendOtp',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'otp.resend',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'home' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'home',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\HomeController@index',
+        'controller' => 'App\\Http\\Controllers\\HomeController@index',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'home',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'signout' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'signout',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\HomeController@signout',
+        'controller' => 'App\\Http\\Controllers\\HomeController@signout',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'signout',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'profile.show' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'profile',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\ProfileController@userProfile',
+        'controller' => 'App\\Http\\Controllers\\ProfileController@userProfile',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'profile.show',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'profile.update' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'PUT',
+      ),
+      'uri' => 'profile',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\ProfileController@updateProfile',
+        'controller' => 'App\\Http\\Controllers\\ProfileController@updateProfile',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'profile.update',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'profile.password.update' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'profile/password',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\ProfileController@updatePassword',
+        'controller' => 'App\\Http\\Controllers\\ProfileController@updatePassword',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'profile.password.update',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'id.verification.create' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'id-verification',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'auth',
+          3 => 'verified',
+        ),
+        'uses' => 'App\\Http\\Controllers\\IdController@create',
+        'controller' => 'App\\Http\\Controllers\\IdController@create',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'id.verification.create',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'id.verification.store' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'id-verification',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'auth',
+          3 => 'verified',
+        ),
+        'uses' => 'App\\Http\\Controllers\\IdController@store',
+        'controller' => 'App\\Http\\Controllers\\IdController@store',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'id.verification.store',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'id.alert.dismiss' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'dismiss-id-alert',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'auth',
+        ),
+        'uses' => 'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure":1:{s:12:"serializable";O:46:"Laravel\\SerializableClosure\\Serializers\\Native":5:{s:3:"use";a:0:{}s:8:"function";s:240:"function (\\Illuminate\\Http\\Request $request) {
+    \\Illuminate\\Support\\Facades\\Cache::forever(
+        \'user_\' . \\auth()->id() . \'_id_verification_alert_dismissed\',
+        true
+    );
+
+    return \\response()->json([\'dismissed\' => true]);
+}";s:5:"scope";s:37:"Illuminate\\Routing\\RouteFileRegistrar";s:4:"this";N;s:4:"self";s:32:"00000000000006240000000000000000";}}',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'id.alert.dismiss',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'admin.verifications.index' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'admin/id-verifications',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'auth',
+          3 => 'isAdmin',
+        ),
+        'uses' => 'App\\Http\\Controllers\\IdController@index',
+        'controller' => 'App\\Http\\Controllers\\IdController@index',
+        'namespace' => NULL,
+        'prefix' => '/admin',
+        'where' => 
+        array (
+        ),
+        'as' => 'admin.verifications.index',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'admin.verifications.approve' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'admin/id-verifications/{id}/approve',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'auth',
+          3 => 'isAdmin',
+        ),
+        'uses' => 'App\\Http\\Controllers\\IdController@approve',
+        'controller' => 'App\\Http\\Controllers\\IdController@approve',
+        'namespace' => NULL,
+        'prefix' => '/admin',
+        'where' => 
+        array (
+        ),
+        'as' => 'admin.verifications.approve',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'admin.verifications.reject' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'admin/id-verifications/{id}/reject',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'auth',
+          3 => 'isAdmin',
+        ),
+        'uses' => 'App\\Http\\Controllers\\IdController@reject',
+        'controller' => 'App\\Http\\Controllers\\IdController@reject',
+        'namespace' => NULL,
+        'prefix' => '/admin',
+        'where' => 
+        array (
+        ),
+        'as' => 'admin.verifications.reject',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'investments.withdraw' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'user/investments/{id}/withdraw',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\InvestmentController@withdraw',
+        'controller' => 'App\\Http\\Controllers\\InvestmentController@withdraw',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'investments.withdraw',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'user.balance.withdraw' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'dashboard/withdraw',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\WithdrawalController@withdrawFromBalance',
+        'controller' => 'App\\Http\\Controllers\\WithdrawalController@withdrawFromBalance',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'user.balance.withdraw',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'user.investments' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'investments',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\InvestmentController@index',
+        'controller' => 'App\\Http\\Controllers\\InvestmentController@index',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'user.investments',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'user.withdrawn.investments' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'withdrawn-investments',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\InvestmentController@withdrawnInvestments',
+        'controller' => 'App\\Http\\Controllers\\InvestmentController@withdrawnInvestments',
+        'namespace' => NULL,
+        'prefix' => '',
+        'where' => 
+        array (
+        ),
+        'as' => 'user.withdrawn.investments',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'user_dashboard' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'user/dashboard',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\UserController@user_dashboard',
+        'controller' => 'App\\Http\\Controllers\\UserController@user_dashboard',
+        'namespace' => NULL,
+        'prefix' => '/user',
+        'where' => 
+        array (
+        ),
+        'as' => 'user_dashboard',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'user.deposit' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'user/deposit',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\DepositController@userDeposit',
+        'controller' => 'App\\Http\\Controllers\\DepositController@userDeposit',
+        'namespace' => NULL,
+        'prefix' => '/user',
+        'where' => 
+        array (
+        ),
+        'as' => 'user.deposit',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'user.make-deposit' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'user/make-deposit',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\DepositController@userMakeDeposit',
+        'controller' => 'App\\Http\\Controllers\\DepositController@userMakeDeposit',
+        'namespace' => NULL,
+        'prefix' => '/user',
+        'where' => 
+        array (
+        ),
+        'as' => 'user.make-deposit',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'deposit.confirm' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'user/confirm-deposit',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\DepositController@confirmDeposit',
+        'controller' => 'App\\Http\\Controllers\\DepositController@confirmDeposit',
+        'namespace' => NULL,
+        'prefix' => '/user',
+        'where' => 
+        array (
+        ),
+        'as' => 'deposit.confirm',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'deposit.submit' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'user/submit-deposit',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\DepositController@submitDeposit',
+        'controller' => 'App\\Http\\Controllers\\DepositController@submitDeposit',
+        'namespace' => NULL,
+        'prefix' => '/user',
+        'where' => 
+        array (
+        ),
+        'as' => 'deposit.submit',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'user.deposit-history' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'user/deposit-history',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\DepositController@depositHistory',
+        'controller' => 'App\\Http\\Controllers\\DepositController@depositHistory',
+        'namespace' => NULL,
+        'prefix' => '/user',
+        'where' => 
+        array (
+        ),
+        'as' => 'user.deposit-history',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'plan.dashboard' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'user/planlist',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\PlanController@plan_dashboard',
+        'controller' => 'App\\Http\\Controllers\\PlanController@plan_dashboard',
+        'namespace' => NULL,
+        'prefix' => '/user',
+        'where' => 
+        array (
+        ),
+        'as' => 'plan.dashboard',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'user.withdraw.form' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'user/withdraw/form',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\WithdrawalController@showWithdrawForm',
+        'controller' => 'App\\Http\\Controllers\\WithdrawalController@showWithdrawForm',
+        'namespace' => NULL,
+        'prefix' => '/user',
+        'where' => 
+        array (
+        ),
+        'as' => 'user.withdraw.form',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'balance.withdraw.request' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'user/withdraw/request',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\WithdrawalController@submitWithdrawRequest',
+        'controller' => 'App\\Http\\Controllers\\WithdrawalController@submitWithdrawRequest',
+        'namespace' => NULL,
+        'prefix' => '/user',
+        'where' => 
+        array (
+        ),
+        'as' => 'balance.withdraw.request',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'user.withdrawals.list' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'user/withdrawals/list',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\WithdrawalController@withdrawalList',
+        'controller' => 'App\\Http\\Controllers\\WithdrawalController@withdrawalList',
+        'namespace' => NULL,
+        'prefix' => '/user',
+        'where' => 
+        array (
+        ),
+        'as' => 'user.withdrawals.list',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'withdrawals.index' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'user/withdrawals',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\WithdrawalController@index',
+        'controller' => 'App\\Http\\Controllers\\WithdrawalController@index',
+        'namespace' => NULL,
+        'prefix' => 'user/withdrawals',
+        'where' => 
+        array (
+        ),
+        'as' => 'withdrawals.index',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'withdrawals.generateCard' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'user/withdrawals/generate-card',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\WithdrawalController@generateCard',
+        'controller' => 'App\\Http\\Controllers\\WithdrawalController@generateCard',
+        'namespace' => NULL,
+        'prefix' => 'user/withdrawals',
+        'where' => 
+        array (
+        ),
+        'as' => 'withdrawals.generateCard',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'withdrawals.view-card' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'user/withdrawals/view-card',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\WithdrawalController@viewCard',
+        'controller' => 'App\\Http\\Controllers\\WithdrawalController@viewCard',
+        'namespace' => NULL,
+        'prefix' => 'user/withdrawals',
+        'where' => 
+        array (
+        ),
+        'as' => 'withdrawals.view-card',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'admin_dashboard' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'admin/dashboard',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'isAdmin',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@admin_dashboard',
+        'controller' => 'App\\Http\\Controllers\\AdminController@admin_dashboard',
+        'namespace' => NULL,
+        'prefix' => '/admin',
+        'where' => 
+        array (
+        ),
+        'as' => 'admin_dashboard',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'admin.messages.index' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'admin/messages',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'isAdmin',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@index',
+        'controller' => 'App\\Http\\Controllers\\AdminController@index',
+        'namespace' => NULL,
+        'prefix' => '/admin',
+        'where' => 
+        array (
+        ),
+        'as' => 'admin.messages.index',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'admin.messages.destroy' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'DELETE',
+      ),
+      'uri' => 'admin/admin/messages/{message}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'isAdmin',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@destroy',
+        'controller' => 'App\\Http\\Controllers\\AdminController@destroy',
+        'namespace' => NULL,
+        'prefix' => '/admin',
+        'where' => 
+        array (
+        ),
+        'as' => 'admin.messages.destroy',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'admin.profile' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'admin/admin/profile',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'isAdmin',
+          3 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@profile',
+        'controller' => 'App\\Http\\Controllers\\AdminController@profile',
+        'namespace' => NULL,
+        'prefix' => '/admin',
+        'where' => 
+        array (
+        ),
+        'as' => 'admin.profile',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'admin.profile.update' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'admin/profile/update',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+          2 => 'isAdmin',
+          3 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@updateProfile',
+        'controller' => 'App\\Http\\Controllers\\AdminController@updateProfile',
+        'namespace' => NULL,
+        'prefix' => '/admin',
+        'where' => 
+        array (
+        ),
+        'as' => 'admin.profile.update',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'plan.list' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'plans',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\PlanController@planList',
+        'controller' => 'App\\Http\\Controllers\\PlanController@planList',
+        'namespace' => NULL,
+        'prefix' => '/plans',
+        'where' => 
+        array (
+        ),
+        'as' => 'plan.list',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'create_plan' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'plans/create',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\PlanController@addPlan',
+        'controller' => 'App\\Http\\Controllers\\PlanController@addPlan',
+        'namespace' => NULL,
+        'prefix' => '/plans',
+        'where' => 
+        array (
+        ),
+        'as' => 'create_plan',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'plans.store' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'plans/store',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\PlanController@store',
+        'controller' => 'App\\Http\\Controllers\\PlanController@store',
+        'namespace' => NULL,
+        'prefix' => '/plans',
+        'where' => 
+        array (
+        ),
+        'as' => 'plans.store',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'plan.edit' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'plans/edit/{id}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\PlanController@editPlan',
+        'controller' => 'App\\Http\\Controllers\\PlanController@editPlan',
+        'namespace' => NULL,
+        'prefix' => '/plans',
+        'where' => 
+        array (
+        ),
+        'as' => 'plan.edit',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'plan.update' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'plans/update/{id}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\PlanController@updatePlan',
+        'controller' => 'App\\Http\\Controllers\\PlanController@updatePlan',
+        'namespace' => NULL,
+        'prefix' => '/plans',
+        'where' => 
+        array (
+        ),
+        'as' => 'plan.update',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'plan.delete' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'plans/delete/{id}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\PlanController@deletePlan',
+        'controller' => 'App\\Http\\Controllers\\PlanController@deletePlan',
+        'namespace' => NULL,
+        'prefix' => '/plans',
+        'where' => 
+        array (
+        ),
+        'as' => 'plan.delete',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'wallet.index' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'wallets',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\WalletController@index',
+        'controller' => 'App\\Http\\Controllers\\WalletController@index',
+        'namespace' => NULL,
+        'prefix' => '/wallets',
+        'where' => 
+        array (
+        ),
+        'as' => 'wallet.index',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'create_wallet' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'wallets/create',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\WalletController@addWallet',
+        'controller' => 'App\\Http\\Controllers\\WalletController@addWallet',
+        'namespace' => NULL,
+        'prefix' => '/wallets',
+        'where' => 
+        array (
+        ),
+        'as' => 'create_wallet',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'wallet.create' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'wallets/store',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\WalletController@storeWallet',
+        'controller' => 'App\\Http\\Controllers\\WalletController@storeWallet',
+        'namespace' => NULL,
+        'prefix' => '/wallets',
+        'where' => 
+        array (
+        ),
+        'as' => 'wallet.create',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'wallet.delete' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'DELETE',
+      ),
+      'uri' => 'wallets/{id}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\WalletController@destroy',
+        'controller' => 'App\\Http\\Controllers\\WalletController@destroy',
+        'namespace' => NULL,
+        'prefix' => '/wallets',
+        'where' => 
+        array (
+        ),
+        'as' => 'wallet.delete',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'user.index' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'users',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@userIndex',
+        'controller' => 'App\\Http\\Controllers\\AdminController@userIndex',
+        'namespace' => NULL,
+        'prefix' => '/users',
+        'where' => 
+        array (
+        ),
+        'as' => 'user.index',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'user.edit' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'users/{id}/edit',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@edit',
+        'controller' => 'App\\Http\\Controllers\\AdminController@edit',
+        'namespace' => NULL,
+        'prefix' => '/users',
+        'where' => 
+        array (
+        ),
+        'as' => 'user.edit',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'admin.users.updateBalance' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'PUT',
+      ),
+      'uri' => 'users/{id}/update-balance',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@updateBalance',
+        'controller' => 'App\\Http\\Controllers\\AdminController@updateBalance',
+        'namespace' => NULL,
+        'prefix' => '/users',
+        'where' => 
+        array (
+        ),
+        'as' => 'admin.users.updateBalance',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'user.destroy' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'DELETE',
+      ),
+      'uri' => 'users/{id}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@userDestroy',
+        'controller' => 'App\\Http\\Controllers\\AdminController@userDestroy',
+        'namespace' => NULL,
+        'prefix' => '/users',
+        'where' => 
+        array (
+        ),
+        'as' => 'user.destroy',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'admin.deposits.pending' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'deposits/pending',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@pendingDeposits',
+        'controller' => 'App\\Http\\Controllers\\AdminController@pendingDeposits',
+        'namespace' => NULL,
+        'prefix' => '/deposits',
+        'where' => 
+        array (
+        ),
+        'as' => 'admin.deposits.pending',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'admin.deposits.approved' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'deposits/approved',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@approvedDeposits',
+        'controller' => 'App\\Http\\Controllers\\AdminController@approvedDeposits',
+        'namespace' => NULL,
+        'prefix' => '/deposits',
+        'where' => 
+        array (
+        ),
+        'as' => 'admin.deposits.approved',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'admin.approve.deposit' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'deposits/approve/{id}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@approveDeposit',
+        'controller' => 'App\\Http\\Controllers\\AdminController@approveDeposit',
+        'namespace' => NULL,
+        'prefix' => '/deposits',
+        'where' => 
+        array (
+        ),
+        'as' => 'admin.approve.deposit',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'withdrawals.pending' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'withdrawals/pending',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@adminViewWithdrawals',
+        'controller' => 'App\\Http\\Controllers\\AdminController@adminViewWithdrawals',
+        'namespace' => NULL,
+        'prefix' => '/withdrawals',
+        'where' => 
+        array (
+        ),
+        'as' => 'withdrawals.pending',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'admin.withdrawals.approved' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'GET',
+        1 => 'HEAD',
+      ),
+      'uri' => 'withdrawals/approved',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@showApprovedWithdrawals',
+        'controller' => 'App\\Http\\Controllers\\AdminController@showApprovedWithdrawals',
+        'namespace' => NULL,
+        'prefix' => '/withdrawals',
+        'where' => 
+        array (
+        ),
+        'as' => 'admin.withdrawals.approved',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'admin.approve.withdrawal' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'POST',
+      ),
+      'uri' => 'withdrawals/{id}/approve',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@approveBalanceWithdrawal',
+        'controller' => 'App\\Http\\Controllers\\AdminController@approveBalanceWithdrawal',
+        'namespace' => NULL,
+        'prefix' => '/withdrawals',
+        'where' => 
+        array (
+        ),
+        'as' => 'admin.approve.withdrawal',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+    'withdraw.delete' => 
+    array (
+      'methods' => 
+      array (
+        0 => 'DELETE',
+      ),
+      'uri' => 'withdrawals/{id}',
+      'action' => 
+      array (
+        'middleware' => 
+        array (
+          0 => 'web',
+          1 => 'auth',
+        ),
+        'uses' => 'App\\Http\\Controllers\\AdminController@withdrawaldestroy',
+        'controller' => 'App\\Http\\Controllers\\AdminController@withdrawaldestroy',
+        'namespace' => NULL,
+        'prefix' => '/withdrawals',
+        'where' => 
+        array (
+        ),
+        'as' => 'withdraw.delete',
+      ),
+      'fallback' => false,
+      'defaults' => 
+      array (
+      ),
+      'wheres' => 
+      array (
+      ),
+      'bindingFields' => 
+      array (
+      ),
+      'lockSeconds' => NULL,
+      'waitSeconds' => NULL,
+      'withTrashed' => false,
+    ),
+  ),
+)
+);
+*
+!.gitignore

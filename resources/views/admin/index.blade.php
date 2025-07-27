@@ -88,7 +88,7 @@
                     <a href="{{ route('admin.deposits.pending') }}" class="text-sm text-yellow-700 hover:underline">
                         Pending Deposits
                         @if(isset($pendingDepositsCount) && $pendingDepositsCount > 0)
-                            <span class="ml-2 inline-block bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                            <span class="ml-2 inline-block bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full" style="background-color: red !important;">
                                 {{ $pendingDepositsCount }}
                             </span>
                         @endif
@@ -113,7 +113,7 @@
                     <a href="{{ route('withdrawals.pending') }}" class="text-sm text-yellow-700 hover:underline">
                         Pending Withdrawals
                         @if(isset($pendingWithdrawalsCount) && $pendingWithdrawalsCount > 0)
-                            <span class="ml-2 inline-block bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                            <span class="ml-2 inline-block bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full" style="background-color: red !important;">
                                 {{ $pendingWithdrawalsCount }}
                             </span>
                         @endif
