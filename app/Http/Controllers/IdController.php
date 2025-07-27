@@ -114,6 +114,10 @@ public function dismissAlert(Request $request)
 
         return view('admin.admin_approve_id_verification', compact('verifications'));
     }
+
+
+
+    
     public function approve($id)
     {
         $verification = IdVerification::findOrFail($id);
