@@ -108,11 +108,11 @@ public function dismissAlert(Request $request)
     // Admin: list all verifications
     public function index()
     {
-        $verifications = IdVerification   ::with(['user:id,name,email'])
+        
+        $verifications = IdVerification::with('user:id,name,email')->latest()->paginate(10);
+
        
 
-            ->latest()
-            ->paginate(10);
 
         return view('admin.admin_approve_id_verification', compact('verifications'));
     }
