@@ -316,4 +316,9 @@ class UserController extends Controller
 
         return back()->with('success', 'Message sent successfully!');
     }
+
+
+
+
+ 
 }

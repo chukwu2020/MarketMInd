@@ -62,5 +62,9 @@ class Investment extends Model
         return $this->status === self::STATUS_WITHDRAWN || $this->status === self::STATUS_COMPLETED;
     }
 
-    
+    public function getTakenProfitAttribute()
+{
+    return $this->withdrawals->sum('amount');
+}
+
 }

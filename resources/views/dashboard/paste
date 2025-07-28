@@ -1,22 +1,289 @@
+Now, I'm going to reason something. Even, I've been trying several times to even... Um... From the user side, I've been trying several times to even upload... To even upload an... A verification email stuff, but it's not... It's not even... Updating. It's not updating. I tried several times, it's not updating. I'm thinking these sort of things with my IDE controller. That's what I'm beginning to think now. That the whole setup is not working. But it's working locally. It's working locally, yeah. So let me send you all the full code. So you can see and check out with the issue.<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\IdVerification;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Notifications\IDVerificationSubmitted;
+use Illuminate\Support\Facades\Cache;
+
+class IdController extends Controller
+{
+    public function create()
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        // Eager load the idVerification relationship to avoid N+1 queries
+        $user->load('idVerification');
+
+        if ($user->idVerification) {
+            return match ($user->idVerification->status) {
+                'approved' => redirect()->route('user_dashboard')
+                    ->with('info', '✅ Your ID has already been verified.'),
+                'pending' => redirect()->route('user_dashboard')
+                    ->with('warning', '⏳ Your verification is pending. Please wait for approval.'),
+                default => redirect()->route('user_dashboard')
+                    ->with('warning', 'Your verification status is unknown. Please contact support.'),
+            };
+        }
+
+        return view('dashboard.id_verification');
+    }
+
+   public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'country' => 'required|string',
+            'document' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'selfie' => 'required|image|mimes:jpg,jpeg,png|max:5120|dimensions:min_width=300',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $user = Auth::user();
+
+            // Delete existing files if they exist
+            if ($user->idVerification) {
+                Storage::disk('public')->delete([
+                    $user->idVerification->document,
+                    $user->idVerification->selfie
+                ]);
+                $user->idVerification()->delete();
+            }
+
+            // Store new files - this will automatically go to storage/app/public/id_verifications
+            $documentPath = $request->file('document')->store('id_verifications', 'public');
+            $selfiePath = $request->file('selfie')->store('id_verifications/selfies', 'public');
+
+            // Create record
+            $user->idVerification()->create([
+                'country' => $validated['country'],
+                'document' => $documentPath,
+                'selfie' => $selfiePath,
+                'status' => 'pending'
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => 'ID verification submitted successfully!',
+                'redirect' => route('user_dashboard')
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("ID Verification Error: {$e->getMessage()}");
+            
+            return response()->json([
+                'error' => 'Verification submission failed. Please try again.'
+            ], 500);
+        }
+    }
+
+    public function dismissAlert(Request $request)
+    {
+        try {
+            Cache::forever('user_' . auth()->id() . '_id_verification_alert_dismissed', true);
+            return response()->json(['status' => 'success']);
+        } catch (\Exception $e) {
+            Log::error('Failed to dismiss alert: ' . $e->getMessage());
+            return response()->json(['status' => 'error'], 500);
+        }
+    }
+
+    public function index()
+    {
+        // Eager load the user relationship to avoid N+1 queries
+      
+
+        $verifications = \App\Models\IdVerification::with('user')->latest()->take(1)->get();
+
+
+
+        return view('admin.admin_approve_id_verification', compact('verifications'));
+    }
+
+    public function approve($id)
+    {
+        $verification = IdVerification::findOrFail($id);
+
+        if ($verification->status === 'approved') {
+            return back()->with('info', '✅ Already approved.');
+        }
+
+        $verification->update(['status' => 'approved']);
+
+        return back()->with('success', 'Verification approved.');
+    }
+
+    public function reject(Request $request, $id)
+    {
+        $verification = IdVerification::findOrFail($id);
+
+        if ($verification->status === 'rejected') {
+            return back()->with('info', '❌ Already rejected.');
+        }
+
+        $verification->update(['status' => 'rejected']);
+
+        return back()->with('success', 'Verification rejected.');
+    }
+}
+
+public function idVerification()
+{
+    return $this->hasOne(IdVerification::class);
+}
 <?php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User; // Import User model
+use App\Models\User;
 
 class IdVerification extends Model
 {
     use HasFactory;
-
+    
     protected $guarded = [];
-
     protected $table = 'id_verifications';
 
-    // This defines the relation to User model
+    // Define the inverse of the hasOne relationship in User model
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
+}
+/ user very identity
+   Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/id-verification', [IdController::class, 'create'])->name('id.verification.create');
+   
+    Route::post('id-verification', [IdController::class, 'store'])->name('id.verification.store');
+});
+
+Route::post('/id-alert-dismiss', [IdController::class, 'dismissAlert'])->name('id.alert.dismiss');
+
+Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
+    Route::get('/id-verifications', [IdController::class, 'index'])->name('admin.verifications.index');
+    Route::post('/id-verifications/{id}/approve', [IdController::class, 'approve'])->name('admin.verifications.approve'); 
+    Route::post('/id-verifications/{id}/reject', [IdController::class, 'reject'])->name('admin.verifications.reject');
+});
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('id_verifications', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        $table->string('country');
+        $table->string('document');
+        $table->string('selfie')->nullable();
+        $table->string('status')->default('pending');
+        $table->timestamps();
+    });
+    }
+
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('id_verifications');
+    }
+};
+the user is getting this error if the try to submit id {"error":"Verification submission failed. Please try again."}
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Investment;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+
+class InvestmentController extends Controller
+{
+    public function index()
+    {
+        $investments = Investment::with('withdrawals', 'plan')
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
+        return view('dashboard.investments.index', compact('investments'));
+    }
+
+    public function withdraw($id)
+    {
+        $investment = Investment::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        // Check if the investment is due and not already withdrawn
+        if (!$investment->is_withdrawable || $investment->isWithdrawn()) {
+            return back()->with('error', 'Not eligible for withdrawal.');
+        }
+
+        // Get current user (Eloquent model)
+        $user = User::findOrFail(auth()->id());
+
+        // Add investment + profit to user balance
+        $total = $investment->amount_invested + $investment->total_profit;
+
+        $user->available_balance += $total;
+        $user->total_income += $total;
+        $user->save(); // ✅ will now work
+
+        $investment->status = Investment::STATUS_WITHDRAWN;
+        $investment->save();
+
+        return redirect()->route('user.withdrawn.investments')->with('success', 'Withdrawal successful.');
+    }
+
+    public function withdrawnInvestments()
+    {
+        $withdrawnInvestments = Investment::with('plan')
+            ->where('user_id', auth()->id())
+            ->where('status', Investment::STATUS_WITHDRAWN)
+            ->latest()
+            ->get();
+
+        return view('dashboard.investments.investmentList', compact('withdrawnInvestments'));
+    }
+
+
+
+
+
+
+    
 }

@@ -221,11 +221,11 @@ class AdminController extends Controller
         $withdrawal->status = 'approved';
         $withdrawal->save();
 
-        $user = $withdrawal->user;
-        $user->notify(new TransactionNotification(
-            '🎉 Congratulations!',
-            'Your withdrawal of $' . number_format($withdrawal->amount, 2) . ' has been approved successfully!'
-        ));
+        // $user = $withdrawal->user;
+        // $user->notify(new TransactionNotification(
+        //     '🎉 Congratulations!',
+        //     'Your withdrawal of $' . number_format($withdrawal->amount, 2) . ' has been approved successfully!'
+        // ));
 
         return back()->with('success', 'Withdrawal approved successfully.');
     }

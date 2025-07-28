@@ -170,6 +170,10 @@ Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
 
     // Shared Routes (Dashboard investments & withdrawals)
     Route::post('/user/investments/{id}/withdraw', [InvestmentController::class, 'withdraw'])->name('investments.withdraw');
+// take profit 
+
+
+    Route::post('/investments/{id}/take-profit', [InvestmentController::class, 'takeProfit'])->name('investments.takeProfit');
 
 
     Route::post('/dashboard/withdraw', [WithdrawalController::class, 'withdrawFromBalance'])->name('user.balance.withdraw');
