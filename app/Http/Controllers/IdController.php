@@ -101,9 +101,11 @@ class IdController extends Controller
     public function index()
     {
         // Eager load the user relationship to avoid N+1 queries
-        $verifications = IdVerification::with(['user' => function($query) {
-            $query->select('id', 'name', 'email'); // Only select necessary columns
-        }])->latest()->paginate(10);
+      
+
+        $verifications = \App\Models\IdVerification::with('user')->latest()->take(1)->get();
+
+
 
         return view('admin.admin_approve_id_verification', compact('verifications'));
     }
