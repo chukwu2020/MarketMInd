@@ -253,9 +253,9 @@ $alertDismissed = Cache::has('user_'.auth()->id().'_id_verification_alert_dismis
                         <p class="text-sm mt-1">Please verify your identity to continue using your account.</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 pl-4">
+                <div class="flex items-center gap-2 pl-4" style="border: 2px solid #EF4444; padding:7px;">
                     <a href="{{ route('id.verification.create') }}" class="bg-red-500 text-white px-3 py-1 rounded-md text-sm font-medium hover:bg-red-600">
-                        Verify Now
+                        Verify
                     </a>
                 </div>
             </div>

@@ -78,19 +78,22 @@ public function store(Request $request)
             Log::info("Notification sent successfully for user {$user->id}");
         } catch (\Exception $e) {
             Log::error("Failed to send notification: {$e->getMessage()}");
-            // Continue with redirect even if notification fails
         }
 
-        return redirect()->route('user_dashboard')
-            ->with('success', 'ID verification submitted successfully!');
+        return response()->json([
+            'success' => 'ID verification submitted successfully!',
+            'redirect' => route('user_dashboard')
+        ]);
 
     } catch (\Exception $e) {
         DB::rollBack();
         Log::error("ID Verification Error: {$e->getMessage()}");
-        return back()->withInput()->with('error', 'Verification submission failed. Please try again.');
+        
+        return response()->json([
+            'error' => 'Verification submission failed. Please try again.'
+        ], 500);
     }
 }
-
 // Controller (IdController.php)
 public function dismissAlert(Request $request)
 {
@@ -108,8 +111,8 @@ public function dismissAlert(Request $request)
     // Admin: list all verifications
     public function index()
     {
-        
-        $verifications = IdVerification::with('user:id,name,email')->latest()->paginate(10);
+       
+$verifications = IdVerification::with('user')->latest()->paginate(10);
 
        
 

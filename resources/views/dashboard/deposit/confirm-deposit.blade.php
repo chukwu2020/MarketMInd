@@ -58,7 +58,7 @@
                                 <thead class="border border-[#9EDD05]"  >
                                     <tr  style="background-color:#fff !important;">
                                         <th class="border border-[#9EDD05]" scope="col" style="background-color:#fff !important;">Name</th>
-                                        <th class="border border-[#9EDD05] text-center" scope="col"style="background-color:#fff !important;">Wallet Address</th>
+                                        <th class="border border-[#9EDD05] text-center" scope="col"style="background-color:#fff !important;">Wallet Address you choosed</th>
                                     </tr>
                                 </thead>
 

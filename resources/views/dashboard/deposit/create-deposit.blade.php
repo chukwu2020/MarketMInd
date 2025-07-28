@@ -228,10 +228,10 @@
                 <!-- Wallet Select -->
                 <div>
                     <label for="wallet_id" class="block mb-2 font-bold text-neutral-900">
-                        Select Cryptocurrency <span class="text-red-600">*</span>
+                        Select Wallet To Deposit  <span class="text-red-600">*</span>
                     </label>
                     <select name="wallet_id" id="wallet_id" class="form-control">
-                        <option selected disabled class="text-gray-500 font-medium">Choose Payment Method</option>
+                        <option selected disabled class="text-gray-500 font-medium">Choose Wallet   </option>
                         @foreach($wallets as $wallet)
                         <option value="{{ $wallet->id }}" {{ old('wallet_id') == $wallet->id ? 'selected' : '' }}>
                             🔗 {{ ucfirst($wallet->crypto_name) }}
