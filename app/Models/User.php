@@ -116,6 +116,9 @@ public function getTotalInterestEarnedAttribute()
         return $this->withdrawals()->sum('amount');
     }
 
+
+
+
 public function idVerification()
 {
     return $this->hasOne(IdVerification::class);

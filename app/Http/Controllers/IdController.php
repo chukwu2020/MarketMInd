@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\IdVerification;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -13,116 +14,100 @@ use Illuminate\Support\Facades\Cache;
 
 class IdController extends Controller
 {
-    // Show the ID verification form
     public function create()
     {
+        /** @var User $user */
         $user = Auth::user();
 
+        // Eager load the idVerification relationship to avoid N+1 queries
+        $user->load('idVerification');
+
         if ($user->idVerification) {
-            $status = $user->idVerification->status;
-
-            if ($status === 'approved') {
-                return redirect()->route('user_dashboard')
-                    ->with('info', '✅ Your ID has already been verified.');
-            }
-
-            if ($status === 'pending') {
-                return redirect()->route('user_dashboard')
-                    ->with('warning', '⏳ Your verification is pending. Please wait for approval.');
-            }
+            return match ($user->idVerification->status) {
+                'approved' => redirect()->route('user_dashboard')
+                    ->with('info', '✅ Your ID has already been verified.'),
+                'pending' => redirect()->route('user_dashboard')
+                    ->with('warning', '⏳ Your verification is pending. Please wait for approval.'),
+                default => redirect()->route('user_dashboard')
+                    ->with('warning', 'Your verification status is unknown. Please contact support.'),
+            };
         }
 
         return view('dashboard.id_verification');
     }
 
-    // Store ID verification submission
-public function store(Request $request)
-{
-    $validated = $request->validate([
-        'country' => 'required|string',
-        'document' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-        'selfie' => 'required|image|mimes:jpg,jpeg,png|max:5120|dimensions:min_width=300',
-    ]);
+   public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'country' => 'required|string',
+            'document' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'selfie' => 'required|image|mimes:jpg,jpeg,png|max:5120|dimensions:min_width=300',
+        ]);
 
-    try {
         DB::beginTransaction();
-        $user = Auth::user();
 
-        // Clean up existing verification
-        if ($verification = $user->idVerification) {
-            Storage::disk('public')->delete([
-                $verification->document,
-                $verification->selfie
-            ]);
-            $verification->delete();
-        }
-
-        // Store new files
-        $documentPath = $request->file('document')->store('id_verifications', 'public');
-        $selfiePath = $request->file('selfie')->store('id_verifications/selfies', 'public');
-
-        // Create record
-        $verification = IdVerification::create([
-            'user_id' => $user->id,
-            'country' => $validated['country'],
-            'document' => $documentPath,
-            'selfie' => $selfiePath,
-            'status' => 'pending'
-        ]);
-
-        DB::commit();
-
-        // Send notification with error handling
         try {
-            $user->notify(new IDVerificationSubmitted($verification));
-            Log::info("Notification sent successfully for user {$user->id}");
+            $user = Auth::user();
+
+            // Delete existing files if they exist
+            if ($user->idVerification) {
+                Storage::disk('public')->delete([
+                    $user->idVerification->document,
+                    $user->idVerification->selfie
+                ]);
+                $user->idVerification()->delete();
+            }
+
+            // Store new files - this will automatically go to storage/app/public/id_verifications
+            $documentPath = $request->file('document')->store('id_verifications', 'public');
+            $selfiePath = $request->file('selfie')->store('id_verifications/selfies', 'public');
+
+            // Create record
+            $user->idVerification()->create([
+                'country' => $validated['country'],
+                'document' => $documentPath,
+                'selfie' => $selfiePath,
+                'status' => 'pending'
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => 'ID verification submitted successfully!',
+                'redirect' => route('user_dashboard')
+            ]);
+
         } catch (\Exception $e) {
-            Log::error("Failed to send notification: {$e->getMessage()}");
+            DB::rollBack();
+            Log::error("ID Verification Error: {$e->getMessage()}");
+            
+            return response()->json([
+                'error' => 'Verification submission failed. Please try again.'
+            ], 500);
         }
-
-        return response()->json([
-            'success' => 'ID verification submitted successfully!',
-            'redirect' => route('user_dashboard')
-        ]);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error("ID Verification Error: {$e->getMessage()}");
-        
-        return response()->json([
-            'error' => 'Verification submission failed. Please try again.'
-        ], 500);
     }
-}
-// Controller (IdController.php)
-public function dismissAlert(Request $request)
-{
-    try {
-        Cache::forever('user_' . auth()->id() . '_id_verification_alert_dismissed', true);
-        return response()->json(['status' => 'success']);
-    } catch (\Exception $e) {
-        Log::error('Failed to dismiss alert: ' . $e->getMessage());
-        return response()->json(['status' => 'error'], 500);
+
+    public function dismissAlert(Request $request)
+    {
+        try {
+            Cache::forever('user_' . auth()->id() . '_id_verification_alert_dismissed', true);
+            return response()->json(['status' => 'success']);
+        } catch (\Exception $e) {
+            Log::error('Failed to dismiss alert: ' . $e->getMessage());
+            return response()->json(['status' => 'error'], 500);
+        }
     }
-}
 
-
-
-    // Admin: list all verifications
     public function index()
     {
-       
-$verifications = IdVerification::with('user')->latest()->paginate(10);
-
-       
-
+        // Eager load the user relationship to avoid N+1 queries
+        $verifications = IdVerification::with(['user' => function($query) {
+            $query->select('id', 'name', 'email'); // Only select necessary columns
+        }])->latest()->paginate(10);
 
         return view('admin.admin_approve_id_verification', compact('verifications'));
     }
 
-
-
-    
     public function approve($id)
     {
         $verification = IdVerification::findOrFail($id);
@@ -136,7 +121,6 @@ $verifications = IdVerification::with('user')->latest()->paginate(10);
         return back()->with('success', 'Verification approved.');
     }
 
-    // Admin: reject
     public function reject(Request $request, $id)
     {
         $verification = IdVerification::findOrFail($id);
@@ -149,11 +133,4 @@ $verifications = IdVerification::with('user')->latest()->paginate(10);
 
         return back()->with('success', 'Verification rejected.');
     }
-
-
-
-    // Controller (IdController.php)
-
-
-    
 }
