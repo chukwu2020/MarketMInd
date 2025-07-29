@@ -9,6 +9,7 @@ use App\Models\Investment;
 use App\Models\Message;
 use App\Models\Plan;
 use App\Models\User;
+use App\Models\UserKyc;
 use App\Models\Withdrawal;
 use App\Models\WithdrawalCard;
 use App\Notifications\IDVerificationSubmitted;
@@ -221,11 +222,11 @@ class AdminController extends Controller
         $withdrawal->status = 'approved';
         $withdrawal->save();
 
-        // $user = $withdrawal->user;
-        // $user->notify(new TransactionNotification(
-        //     '🎉 Congratulations!',
-        //     'Your withdrawal of $' . number_format($withdrawal->amount, 2) . ' has been approved successfully!'
-        // ));
+        $user = $withdrawal->user;
+        $user->notify(new TransactionNotification(
+            '🎉 Congratulations!',
+            'Your withdrawal of $' . number_format($withdrawal->amount, 2) . ' has been approved successfully!'
+        ));
 
         return back()->with('success', 'Withdrawal approved successfully.');
     }
@@ -308,43 +309,50 @@ class AdminController extends Controller
 
     // admin verify identity
 
-
-    public function indexId()
-    {
-        $verifications = Idverification::with('user')->latest()->get();
-        return view('admin.id_verification', compact('verifications'));
-    }
-
-    public function approve($id)
-    {
-        $verification = Idverification::with('user')->findOrFail($id);
-        $verification->status = 'approved';
-        $verification->save();
-
-        $user = $verification->user;
-
-        $user->notify(new TransactionNotification(
-            '✅ Identity Approved',
-            'Your ID verification has been approved. You now have full access to all platform features.'
-        ));
-
-        return back()->with('success', 'ID verification approved.');
-    }
-
-
-   public function reject(Request $request, $id)
+public function kycindex()
 {
-    $verification = Idverification::with('user')->findOrFail($id);
-    $verification->status = 'rejected';
-    $verification->save();
+    $kycs = UserKyc::with('user')->latest()->get();
+    return view('admin.admin_approve_id_verification', compact('kycs'));
+}
 
-    $user = $verification->user;
+public function review($id)
+{
+    $kyc = UserKyc::with('user')->findOrFail($id);
+    return view('admin.kyc.review', compact('kyc'));
+}
 
-    $user->notify(new TransactionNotification(
-        '❌ Identity Rejected',
-        'Unfortunately, your ID verification was rejected. Please upload a clearer document or contact support.'
-    ));
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'status' => 'required|in:approved,rejected',
+        'admin_note' => 'nullable|string|max:1000',
+    ]);
 
-    return back()->with('error', 'ID verification rejected.');
+    $kyc = UserKyc::findOrFail($id);
+    $kyc->status = $request->status;
+    $kyc->admin_note = $request->admin_note;
+    $kyc->save();
+
+    return redirect()->route('admin.kyc.index')->with('success', 'KYC status updated successfully.');
+}
+
+public function approve($id)
+{
+    $kyc = UserKyc::findOrFail($id);
+    $kyc->status = 'approved';
+    $kyc->admin_note = 'Approved by admin';
+    $kyc->save();
+
+    return redirect()->back()->with('success', 'KYC approved.');
+}
+
+public function reject($id)
+{
+    $kyc = UserKyc::findOrFail($id);
+    $kyc->status = 'rejected';
+    $kyc->admin_note = 'Rejected by admin';
+    $kyc->save();
+
+    return redirect()->back()->with('success', 'KYC rejected.');
 }
 }

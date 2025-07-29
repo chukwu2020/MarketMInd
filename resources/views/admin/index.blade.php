@@ -52,7 +52,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <p class="font-medium text-neutral-900 mb-1">User Id Verification</p>
-                       <a href="{{route('admin.verifications.index')}}"> click here</a>
+                       <a href="{{route('admin.kyc.index')}}"> click here</a>
                     </div>
                     <div class="w-[50px] h-[50px] bg-green-600 rounded-full flex justify-center items-center">
                         <iconify-icon icon="solar:wallet-bold" class="text-white text-2xl"></iconify-icon>

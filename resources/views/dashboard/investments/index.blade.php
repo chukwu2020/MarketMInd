@@ -71,7 +71,7 @@
                                         <form method="POST" action="{{ route('investments.takeProfit', $investment->id) }}">
                                             @csrf
                                             <button type="submit" class="px-3 py-1 rounded-md text-black bg-yellow-400 hover:bg-yellow-500 text-sm font-semibold">
-                                                Take Profit ($50 max)
+                                                Take Profit ($50 max) or wait till due date
                                             </button>
                                         </form>
                                     @else

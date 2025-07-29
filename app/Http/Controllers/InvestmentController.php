@@ -75,7 +75,7 @@ class InvestmentController extends Controller
         $available = $investment->available_profit;
 
         if ($alreadyTaken >= $maxAllowed) {
-            return back()->with('error', 'You have already taken the maximum allowed profit of $50.');
+            return back()->with('error', 'You have already taken the maximum allowed profit of $50. wait till due date');
         }
 
         $remainingLimit = $maxAllowed - $alreadyTaken;

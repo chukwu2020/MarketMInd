@@ -3,13 +3,12 @@
 
 <head>
 
-    <!-- <script>
-    document.documentElement.classList.remove('dark');
-    document.body.classList.remove('dark');
-</script> -->
+ 
 
     <base href="/public">
     <meta charset="UTF-8">
+      <meta charset="utf-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Title -->
     <!-- Title -->

@@ -20,8 +20,9 @@ use App\Http\Controllers\{
     Auth\LoginController,
     Auth\ResetPasswordController,
     Auth\ForgotPasswordController,
-    IdController,
     MessageController,
+    UserAuthController,
+    UserKycController,
     WithdrawalController
 };
 use Illuminate\Http\Request;
@@ -152,20 +153,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
     });
 
-    // user very identity
-   Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/id-verification', [IdController::class, 'create'])->name('id.verification.create');
-   
-    Route::post('id-verification', [IdController::class, 'store'])->name('id.verification.store');
-});
-
-Route::post('/id-alert-dismiss', [IdController::class, 'dismissAlert'])->name('id.alert.dismiss');
-
-Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
-    Route::get('/id-verifications', [IdController::class, 'index'])->name('admin.verifications.index');
-    Route::post('/id-verifications/{id}/approve', [IdController::class, 'approve'])->name('admin.verifications.approve'); 
-    Route::post('/id-verifications/{id}/reject', [IdController::class, 'reject'])->name('admin.verifications.reject');
-});
+ 
 
 
     // Shared Routes (Dashboard investments & withdrawals)
@@ -281,4 +269,35 @@ Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
         Route::post('/{id}/approve', [AdminController::class, 'approveBalanceWithdrawal'])->name('admin.approve.withdrawal');
         Route::delete('/{id}', [AdminController::class, 'withdrawaldestroy'])->name('withdraw.delete');
     });
+
+
+
+
+ 
+
+// ✅ User Routes - Document Verification (Upload & View)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/user/kyc', [UserKycController::class, 'create'])->name('user.kyc.upload');
+    Route::post('/user/kyc', [UserKycController::class, 'store'])->name('user.kyc.submit');
+});
+
+
+
+// Route::post('/id-verification/alert-dismiss', function () {
+//     Cache::forever('user_'.auth()->id().'_id_verification_alert_dismissed', true);
+//     return response()->json(['dismissed' => true]);
+// })->middleware(['auth'])->name('user.kyc.dismiss-alert'); // Or 'id.alert.dismiss'
+
+Route::post('/id-verification/alert-dismiss', [userController::class, 'dismissAlert'])
+    ->middleware(['auth'])
+    ->name('user.kyc.dismiss-alert');
+
+
+Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
+    Route::get('kyc', [AdminController::class, 'kycindex'])->name('admin.kyc.index');
+   Route::patch('/admin/kyc/{id}/approve', [AdminController::class, 'approve'])->name('admin.kyc.approve');
+Route::patch('/admin/kyc/{id}/reject', [AdminController::class, 'reject'])->name('admin.kyc.reject');
+
+});
+
 });

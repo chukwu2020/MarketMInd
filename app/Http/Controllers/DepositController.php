@@ -132,11 +132,11 @@ public function submitDeposit(Request $request)
 
         Session::forget('deposit_details');
 
-        // $user = User::find($deposit->user_id);
-        // $user->notify(new \App\Notifications\TransactionNotification(
-        //     'Deposit Submitted',
-        //     'Your deposit of $' . number_format($deposit->amount_deposited, 2) . ' has been received and is awaiting approval.'
-        // ));
+        $user = User::find($deposit->user_id);
+        $user->notify(new \App\Notifications\TransactionNotification(
+            'Deposit Submitted',
+            'Your deposit of $' . number_format($deposit->amount_deposited, 2) . ' has been received and is awaiting approval.'
+        ));
 
         return redirect()->route('user.deposit-history')->with('success', 'Deposit submitted successfully. Awaiting approval.');
     } catch (\Exception $e) {
