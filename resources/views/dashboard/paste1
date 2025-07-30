@@ -107,48 +107,48 @@
                 </div>
 
 
-               <div>
-    @php
-        $idVerification = auth()->user()->userKyc;
-    @endphp
+                <div>
+                    @php
+                    $idVerification = auth()->user()->userKyc;
+                    @endphp
 
-    <div class="flex items-center gap-2 flex-wrap">
-        <h1 class="text-lg font-semibold" style="color: #0C3A30;">
-            Hi, {{ auth()->user()->name ?? 'Guest' }}
-        </h1>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h1 class="text-lg font-semibold" style="color: #0C3A30;">
+                            Hi, {{ auth()->user()->name ?? 'Guest' }}
+                        </h1>
 
-        @if($idVerification && $idVerification->status === 'approved')
-            <!-- Verification Icon + Success Message -->
-            <div class="verified-icon" title="Identity Verified">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     viewBox="0 0 20 20"
-                     fill="#8bc905"
-                     style="width: 24px; height: 24px;">
-                    <path fill-rule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707
+                        @if($idVerification && $idVerification->status === 'approved')
+                        <!-- Verification Icon + Success Message -->
+                        <div class="verified-icon" title="Identity Verified">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="#8bc905"
+                                style="width: 24px; height: 24px;">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707
                              a1 1 0 00-1.414-1.414L9 10.586
                              7.707 9.293a1 1 0 00-1.414 1.414l2 2
                              a1 1 0 001.414 0l4-4z"
-                          clip-rule="evenodd" />
-                </svg>
-            </div>
-            
-        @endif
-    </div>
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </div>
 
-    <style>
-        .verified-icon {
-            display: inline-flex;
-            align-items: center;
-            margin-left: -3px;
-        }
-    </style>
+                        @endif
+                    </div>
 
-    <h2 class="text-sm" style="color: #0C3A30; display: flex; flex-wrap: nowrap;">
-        Here is a summary of your account.
-    </h2>
-    <h2 class="text-sm" style="color: #0C3A30;">Have fun!</h2>
-</div>
+                    <style>
+                        .verified-icon {
+                            display: inline-flex;
+                            align-items: center;
+                            margin-left: -3px;
+                        }
+                    </style>
+
+                    <h2 class="text-sm" style="color: #0C3A30; display: flex; flex-wrap: nowrap;">
+                        Here is a summary of your account.
+                    </h2>
+                    <h2 class="text-sm" style="color: #0C3A30;">Have fun!</h2>
+                </div>
 
             </div>
         </div>
@@ -350,93 +350,103 @@
                         $isLongTerm = $duration > 28;
 
                         // Fluctuation color and icons
-                        $fluctuation = mt_rand(-100, 100);
-                        $isPositive = $fluctuation >= 0;
-                        $fluctuationDisplay = abs($fluctuation);
-                        $trendColor = $isPositive ? 'text-green-600' : 'text-red-600';
-                        $borderLeftColor = $isPositive ? 'border-green-500' : 'border-red-500';
-                        $progressBarColor = $isPositive ? 'bg-green-500' : 'bg-red-500';
+                        // Smooth and realistic fluctuation logic
+                        if (mt_rand(1, 100) <= 90) {
+                            // 90% of the time, show small realistic changes: -0.53% to +1.5%
+                            $fluctuation=round(mt_rand(-53, 150) / 100, 2);
+                            } else {
+                            // 10% of the time, allow bigger surges: +1.51% to +100%
+                            $fluctuation=round(mt_rand(151, 10000) / 100, 2);
+                            }
 
-                        // -------------------------
-                        // CORRECTED Earnings calculation
-                        // -------------------------
-                        $totalEarned = 0;
-                        $minimumFirstDay = $projectedProfit * 0.10; // 10% guaranteed first day
+                            $fluctuation=($fluctuation==0) ? 0.01 : $fluctuation; // avoid exact 0%
+                            $isPositive=$fluctuation>= 0;
+                            $fluctuationDisplay = abs($fluctuation);
 
-                        if ($duration === 1) {
-                        // Single day investment - show full profit immediately
-                        $totalEarned = $projectedProfit;
-                        $currentDay = 1;
-                        } elseif (!$isLongTerm) {
-                        // Short term - daily gradual increase
-                        if ($currentDay === 1) {
-                        $totalEarned = $minimumFirstDay;
-                        } else {
-                        // Linear progression from 10% to 100% over duration
-                        $progressRatio = min(1, ($currentDay - 1) / ($duration - 1));
-                        $totalEarned = $minimumFirstDay + ($projectedProfit - $minimumFirstDay) * $progressRatio;
-                        }
-                        } else {
-                        // Long term - weekly gradual increase
-                        $totalWeeks = ceil($duration / 7);
-                        $weeksCompleted = floor($daysCompleted / 7); // no +1
+                            $trendColor = $isPositive ? 'text-green-600' : 'text-red-600';
+                            $borderLeftColor = $isPositive ? 'border-green-500' : 'border-red-500';
+                            $progressBarColor = $isPositive ? 'bg-green-500' : 'bg-red-500';
 
-                        if ($weeksCompleted === 0) {
-                        $totalEarned = 0; // No profit at all yet
-                        $currentDay = 1; // Day 1 for display
-                        } else {
-                        $progressRatio = min(1, $weeksCompleted / $totalWeeks);
-                        $totalEarned = $projectedProfit * $progressRatio;
-                        $currentDay = min($weeksCompleted * 7 + 1, $duration); // +1 to show user-friendly day count
-                        }
+                            // -------------------------
+                            // CORRECTED Earnings calculation
+                            // -------------------------
+                            $totalEarned = 0;
+                            $minimumFirstDay = $projectedProfit * 0.10; // 10% guaranteed first day
 
-                        }
+                            if ($duration === 1) {
+                            // Single day investment - show full profit immediately
+                            $totalEarned = $projectedProfit;
+                            $currentDay = 1;
+                            } elseif (!$isLongTerm) {
+                            // Short term - daily gradual increase
+                            if ($currentDay === 1) {
+                            $totalEarned = $minimumFirstDay;
+                            } else {
+                            // Linear progression from 10% to 100% over duration
+                            $progressRatio = min(1, ($currentDay - 1) / ($duration - 1));
+                            $totalEarned = $minimumFirstDay + ($projectedProfit - $minimumFirstDay) * $progressRatio;
+                            }
+                            } else {
+                            // Long term - weekly gradual increase
+                            $totalWeeks = ceil($duration / 7);
+                            $weeksCompleted = floor($daysCompleted / 7); // no +1
 
-                        $totalEarned = round($totalEarned, 2);
-                        $dailyEarnings[$investment->id] = $totalEarned;
-                        $totalEarnedAll += $totalEarned;
+                            if ($weeksCompleted === 0) {
+                            $totalEarned = 0; // No profit at all yet
+                            $currentDay = 1; // Day 1 for display
+                            } else {
+                            $progressRatio = min(1, $weeksCompleted / $totalWeeks);
+                            $totalEarned = $projectedProfit * $progressRatio;
+                            $currentDay = min($weeksCompleted * 7 + 1, $duration); // +1 to show user-friendly day count
+                            }
 
-                        // Calculate actual percentage for display (not progress ratio)
-                        $displayPercentage = min(100, round(($totalEarned / $projectedProfit) * 100));
-                        @endphp
+                            }
 
-                        <!-- Single Investment Card -->
-                        <div class="investment-item bg-white rounded-lg p-3 border-l-4 {{ $borderLeftColor }} shadow-sm hover:shadow-md transition-shadow">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-medium text-gray-800">{{ strtoupper($investment->plan->name) }}</span>
-                                <span class="text-xs font-bold {{ $trendColor }} flex items-center animate-fluctuation-{{ $isPositive ? 'up' : 'down' }}">
-                                    @if($isPositive)
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                                    </svg>
-                                    @else
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                                    </svg>
-                                    @endif
-                                    {{ $fluctuationDisplay }}%
-                                </span>
-                            </div>
+                            $totalEarned = round($totalEarned, 2);
+                            $dailyEarnings[$investment->id] = $totalEarned;
+                            $totalEarnedAll += $totalEarned;
 
-                            <div class="flex justify-between items-center mt-2">
-                                <span class="text-xs text-gray-500">
-                                    Day {{ $currentDay }} of {{ $duration }}
-                                </span>
-                                <span class="text-xs font-medium">
-                                    <span class="{{ $totalEarned > 0 ? 'text-gray-800' : 'text-gray-500' }}">
-                                        ${{ number_format($totalEarned, 2) }}
+                            // Calculate actual percentage for display (not progress ratio)
+                            $displayPercentage = min(100, round(($totalEarned / $projectedProfit) * 100));
+                            @endphp
+
+                            <!-- Single Investment Card -->
+                            <div class="investment-item bg-white rounded-lg p-3 border-l-4 {{ $borderLeftColor }} shadow-sm hover:shadow-md transition-shadow">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm font-medium text-gray-800">{{ strtoupper($investment->plan->name) }}</span>
+                                    <span class="text-xs font-bold {{ $trendColor }} flex items-center animate-fluctuation-{{ $isPositive ? 'up' : 'down' }}">
+                                        @if($isPositive)
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                        </svg>
+                                        @else
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                        </svg>
+                                        @endif
+                                        {{ $fluctuationDisplay }}%
                                     </span>
-                                    <span class="mx-1 text-gray-300">/</span>
-                                    <span class="text-gray-700">${{ number_format($projectedProfit, 2) }}</span>
-                                </span>
-                            </div>
+                                </div>
 
-                            <!-- Progress Bar -->
-                            <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2">
-                                <div class="h-1.5 rounded-full {{ $progressBarColor }}" style="width: {{ $displayPercentage }}%"></div>
+                                <div class="flex justify-between items-center mt-2">
+                                    <span class="text-xs text-gray-500">
+                                        Day {{ $currentDay }} of {{ $duration }}
+                                    </span>
+                                    <span class="text-xs font-medium">
+                                        <span class="{{ $totalEarned > 0 ? 'text-gray-800' : 'text-gray-500' }}">
+                                            ${{ number_format($totalEarned, 2) }}
+                                        </span>
+                                        <span class="mx-1 text-gray-300">/</span>
+                                        <span class="text-gray-700">${{ number_format($projectedProfit, 2) }}</span>
+                                    </span>
+                                </div>
+
+                                <!-- Progress Bar -->
+                                <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2">
+                                    <div class="h-1.5 rounded-full {{ $progressBarColor }}" style="width: {{ $displayPercentage }}%"></div>
+                                </div>
                             </div>
-                        </div>
-                        @endforeach
+                            @endforeach
                     </div>
 
                     @php
@@ -539,7 +549,7 @@
                             });
                     };
 
-                    setInterval(refreshInvestments, 1000); // Changed to 15 seconds
+                    setInterval(refreshInvestments, 5000); // Changed to 15 seconds
 
                     document.addEventListener('visibilitychange', () => {
                         if (!document.hidden) refreshInvestments();
