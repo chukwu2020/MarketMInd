@@ -14,18 +14,20 @@ class UserKycController extends Controller
         $user = Auth::user();
         return view('dashboard.id_verification', compact('user'));
     }
-
-    public function store(Request $request)
-    {
+public function store(Request $request)
+{
+    try {
         $request->validate([
-            'id_document' => 'required|file|mimes:jpg,jpeg,png,pdf',
-            'utility_bill' => 'required|file|mimes:jpg,jpeg,png,pdf',
+            'id_document' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'utility_bill' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
-        $idPath = $request->file('id_document')->store('kyc_docs');
-        $billPath = $request->file('utility_bill')->store('kyc_docs');
+        // Store files in public disk
+        $idPath = $request->file('id_document')->store('kyc_docs', 'public');
+        $billPath = $request->file('utility_bill')->store('kyc_docs', 'public');
 
-        UserKyc::updateOrCreate(
+        // Update or create KYC record
+        $kyc = UserKyc::updateOrCreate(
             ['user_id' => Auth::id()],
             [
                 'id_document' => $idPath,
@@ -34,21 +36,30 @@ class UserKycController extends Controller
             ]
         );
 
+        // Notify the user (optional)
+        Auth::user()->notify(new \App\Notifications\TransactionNotification(
+            'KYC Submitted',
+            'Your KYC documents have been received and are pending review.'
+        ));
+
         return redirect()->route('user_dashboard')->with('success', 'KYC submitted successfully. Awaiting approval.');
+    } catch (\Exception $e) {
+        return back()->with('error', 'Submission failed: ' . $e->getMessage());
     }
+}
 
 
 
 
     // KycController.php
-public function dismissAlert()
-{
-    $userId = auth()->id();
+// public function dismissAlert()
+// {
+//     $userId = auth()->id();
     
-    // Persist dismissal for, e.g., 7 days
-    Cache::put('user_'.$userId.'_id_verification_alert_dismissed', true, now()->addDays(7));
+//     // Persist dismissal for, e.g., 7 days
+//     Cache::put('user_'.$userId.'_id_verification_alert_dismissed', true, now()->addDays(7));
 
-    return response()->json(['message' => 'Alert dismissed']);
-}
+//     return response()->json(['message' => 'Alert dismissed']);
+// }
 
 }

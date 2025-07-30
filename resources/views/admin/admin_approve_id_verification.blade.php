@@ -29,6 +29,8 @@
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -62,28 +64,49 @@
                                     <div class="text-sm text-gray-900">{{ $kyc->created_at->format('M j, Y') }}</div>
                                     <div class="text-sm text-gray-500">{{ $kyc->created_at->diffForHumans() }}</div>
                                 </td>
+
+<td class="px-6 py-4 whitespace-nowrap">
+    @if ($kyc->id_document)
+        <img src="{{ Storage::url($kyc->id_document) }}"
+             alt="ID Document"
+             class="w-[60px] h-[60px] cursor-pointer object-cover rounded"
+             onclick="openModal('{{ Storage::url($kyc->id_document) }}')">
+    @else
+        <span class="text-gray-400">No ID</span>
+    @endif
+</td>
+
+
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex items-center gap-5 space-x-4">
-                                        <form method="POST" action="{{ route('admin.kyc.approve', $kyc->id) }}">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class=" btn text-green-600 hover:text-green-800 flex items-center" style="background-color:green !important ; color:white !important;">
-                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                </svg>
-                                                Approve
-                                            </button>
-                                        </form>
-                                        <form method="POST" action="{{ route('admin.kyc.reject', $kyc->id) }}">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="btn text-red-600 hover:text-red-800 flex items-center" style="background-color:red!important ; color:white !important;">
-                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                                Reject
-                                            </button>
-                                        </form>
+                                     @if($kyc->status === 'pending')
+    <form method="POST" action="{{ route('admin.kyc.approve', $kyc->id) }}">
+        @csrf
+        @method('PATCH')
+        <button type="submit" class="btn text-green-600 hover:text-green-800 flex items-center" style="background-color:green !important ; color:white !important;">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Approve
+        </button>
+    </form>
+
+    <form method="POST" action="{{ route('admin.kyc.reject', $kyc->id) }}">
+        @csrf
+        @method('PATCH')
+        <button type="submit" class="btn text-red-600 hover:text-red-800 flex items-center" style="background-color:red!important ; color:white !important;">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Reject
+        </button>
+    </form>
+@else
+    <span class="text-sm text-gray-400 italic">
+        Already {{ $kyc->status }}
+    </span>
+@endif
+
                                     </div>
                                 </td>
                             </tr>

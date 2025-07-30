@@ -315,44 +315,93 @@ public function kycindex()
     return view('admin.admin_approve_id_verification', compact('kycs'));
 }
 
-public function review($id)
-{
-    $kyc = UserKyc::with('user')->findOrFail($id);
-    return view('admin.kyc.review', compact('kyc'));
-}
+// public function approve($id)
+// {
+//     $kyc = UserKyc::findOrFail($id);
 
-public function update(Request $request, $id)
-{
-    $request->validate([
-        'status' => 'required|in:approved,rejected',
-        'admin_note' => 'nullable|string|max:1000',
-    ]);
+//     // Prevent double approval or changing already handled KYC
+//     if ($kyc->status === 'approved') {
+//         return redirect()->back()->with('error', 'This KYC is already approved.');
+//     }
 
-    $kyc = UserKyc::findOrFail($id);
-    $kyc->status = $request->status;
-    $kyc->admin_note = $request->admin_note;
-    $kyc->save();
+//     if ($kyc->status === 'rejected') {
+//         return redirect()->back()->with('error', 'This KYC has already been rejected and cannot be approved.');
+//     }
 
-    return redirect()->route('admin.kyc.index')->with('success', 'KYC status updated successfully.');
-}
+//     $kyc->status = 'approved';
+//     $kyc->admin_note = 'Approved by admin';
+//     $kyc->save();
 
+//     return redirect()->back()->with('success', 'KYC approved.');
+// }
 public function approve($id)
 {
-    $kyc = UserKyc::findOrFail($id);
+    $kyc = UserKyc::with('user')->findOrFail($id);
+
+    if ($kyc->status === 'approved') {
+        return redirect()->back()->with('error', 'This KYC is already approved.');
+    }
+
+    if ($kyc->status === 'rejected') {
+        return redirect()->back()->with('error', 'This KYC has already been rejected and cannot be approved.');
+    }
+
     $kyc->status = 'approved';
     $kyc->admin_note = 'Approved by admin';
     $kyc->save();
 
+    // Send mail notification to user
+    $kyc->user->notify(new \App\Notifications\TransactionNotification(
+        'KYC Approved',
+        'Your KYC verification has been approved. You now have full access.'
+    ));
+
     return redirect()->back()->with('success', 'KYC approved.');
 }
 
+// public function reject($id)
+// {
+//     $kyc = UserKyc::findOrFail($id);
+
+//     // Prevent double rejection or changing already handled KYC
+//     if ($kyc->status === 'rejected') {
+//         return redirect()->back()->with('error', 'This KYC is already rejected.');
+//     }
+
+//     if ($kyc->status === 'approved') {
+//         return redirect()->back()->with('error', 'This KYC has already been approved and cannot be rejected.');
+//     }
+
+//     $kyc->status = 'rejected';
+//     $kyc->admin_note = 'Rejected by admin';
+//     $kyc->save();
+
+//     return redirect()->back()->with('success', 'KYC rejected.');
+// }
 public function reject($id)
 {
-    $kyc = UserKyc::findOrFail($id);
+    $kyc = UserKyc::with('user')->findOrFail($id);
+
+    if ($kyc->status === 'rejected') {
+        return redirect()->back()->with('error', 'This KYC is already rejected.');
+    }
+
+    if ($kyc->status === 'approved') {
+        return redirect()->back()->with('error', 'This KYC has already been approved and cannot be rejected.');
+    }
+
     $kyc->status = 'rejected';
     $kyc->admin_note = 'Rejected by admin';
     $kyc->save();
 
+    // Send mail notification to user
+    $kyc->user->notify(new \App\Notifications\TransactionNotification(
+        'KYC Rejected',
+        'Your KYC verification has been rejected. Please review your documents and try again.'
+    ));
+
     return redirect()->back()->with('success', 'KYC rejected.');
 }
+
+
 }

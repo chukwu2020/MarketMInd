@@ -20,17 +20,18 @@
 <div class="main-banner-area overflow-hidden position-relative " style="background-image: url(assets/images/hero/hero-image-1.svg);padding-top: -20rem; ">
     <div class="main-banner-area overflow-hidden position-relative "
         style="background-image: url(assets/images/hero/hero-image-1.svg); ">
-        <div class="container-fluid side-padding">
+        <img src="/public/assets/images/H" alt="">
+        <div class="container-fluid side-padding" >
             <div class="row align-items-center">
                 <div class="col-xl-5 col-lg-12" data-cues="slideInRight" data-duration="800">
                     <div class="main-banner-content">
                         <span class="sub-t">WELCOME TO MARKETMIND</span>
                         <h1>Secure <span><img src="assets/images/svg/your.svg" alt="image"> Your</span> Financial Future with Intelligent Investing </h1>
-                        <h6> Zero stress. Maximum profit. Built for modern investors</h6>
+                      
 
 
 
-                        <a href="{{route('signup')}}" class="default-btn mt-4 px-5 py-2 mb-2 rounded-pill shadow" style="color:#0C3A30;">
+                        <a href="{{route('signup')}}" class="default-btn mt-2 px-5 py-2 mb-2 rounded-pill shadow" style="color:#0C3A30;">
                             Open an account
                         </a>
                     </div>

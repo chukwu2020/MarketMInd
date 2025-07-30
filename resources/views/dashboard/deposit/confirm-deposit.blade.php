@@ -127,6 +127,7 @@
 </form>
 
 <!-- Prevent double submission script -->
+
 <script>
     const form = document.getElementById('depositForm');
     const submitBtn = document.getElementById('submitBtn');
@@ -134,8 +135,10 @@
     form.addEventListener('submit', function () {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Submitting...';
+        submitBtn.classList.add('hashed-bg'); // 👈 Add the effect here
     });
 </script>
+
 
                         </div>
                     </div>
@@ -170,7 +173,7 @@
         textSpan.textContent = 'Copied!';
         setTimeout(() => {
             textSpan.textContent = originalText;
-        }, 2000);
+        }, 1500);
     });
 
     clipboard.on('error', function(e) {
@@ -184,6 +187,25 @@
         }, 2000);
     });
 </script>
+<style>
+    .hashed-bg {
+        background-image: repeating-linear-gradient(
+            45deg,
+            #9EDD05,
+            #9EDD05 10px,
+            #C4F101 10px,
+            #C4F101 20px
+        );
+        color: #0C3A30 !important;
+        border-color: #9EDD05 !important;
+    }
+
+    .copy-btn {
+        background-color: #9EDD05;
+        color: #0C3A30;
+        transition: background-color 0.3s, color 0.3s;
+    }
+</style>
 
 
 

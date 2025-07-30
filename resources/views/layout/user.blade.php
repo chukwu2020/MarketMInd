@@ -23,6 +23,8 @@
     <link rel="apple-touch-icon" href="{{ asset('assets/images/mymarketmindmainicon.png') }}" sizes="180x180">
 
 
+<!-- Add this to your main Blade layout file -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
