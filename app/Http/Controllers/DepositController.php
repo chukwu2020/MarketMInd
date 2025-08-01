@@ -64,47 +64,7 @@ class DepositController extends Controller
     }
 
     // Submit deposit with proof
-   // Submit deposit with proof
-// public function submitDeposit(Request $request)
-// {
-//     try {
-//         if (!Session::has('deposit_details')) {
-//             return redirect()->route('user.deposit-history')->with('success', 'Deposit not successful!');
-//         }
-
-//         $request->validate([
-//             'proof' => 'required|image|mimes:jpeg,png,jpg|max:5120',
-
-//         ]);
-
-//         $depositDetails = Session::get('deposit_details');
-
-//         // Handle proof image upload using storage
-//         $proofPath = $request->file('proof')->store('proofs', 'public');
-
-//         // Save to DB
-//         $deposit = new Deposit();
-//         $deposit->user_id = $depositDetails['user_id'];
-//         $deposit->plan_id = $depositDetails['plan_id'];
-//         $deposit->wallet_id = $depositDetails['wallet_id'];
-//         $deposit->amount_deposited = $depositDetails['amount_deposited'];
-//         $deposit->status = 0; // pending
-//         $deposit->proof = $proofPath;
-//         $deposit->save();
-
-//         Session::forget('deposit_details');
-
-//         $user = User::find($deposit->user_id);
-//         $user->notify(new \App\Notifications\TransactionNotification(
-//             'Deposit Submitted',
-//             'Your deposit of $' . number_format($deposit->amount_deposited, 2) . ' has been received and is awaiting approval.'
-//         ));
-
-//         return redirect()->route('user.deposit-history')->with('success', 'Deposit submitted successfully. Awaiting approval.');
-//     } catch (\Exception $e) {
-//         return back()->with('error', $e->getMessage());
-//     }
-// }
+   
 public function submitDeposit(Request $request)
 {
     try {

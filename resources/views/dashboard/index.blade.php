@@ -77,63 +77,7 @@
 
     <!-- Main Dashboard Content -->
     <div class="dashboard-main-body space-y-6">
-        <!-- TradingView Ticker Widget -->
-<div class="mt-4 mb-6">
-  <div class="tradingview-widget-container">
-    <div class="tradingview-widget-container__widget"></div>
-    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-    {
-      "symbols": [
-        {
-          "proName": "FOREXCOM:SPXUSD",
-          "title": "S&P 500"
-        },
-        {
-          "proName": "FOREXCOM:NSXUSD",
-          "title": "Nasdaq 100"
-        },
-        {
-          "description": "Bitcoin",
-          "proName": "BINANCE:BTCUSDT"
-        },
-        {
-          "description": "Ethereum",
-          "proName": "BINANCE:ETHUSDT"
-        },
-        {
-          "description": "Solana",
-          "proName": "BINANCE:SOLUSDT"
-        },
-        {
-          "description": "AI Tokens",
-          "proName": "BINANCE:AGIXUSDT"
-        },
-        {
-          "description": "Litecoin",
-          "proName": "BINANCE:LTCUSDT"
-        },
-        {
-          "description": "Cardano",
-          "proName": "BINANCE:ADAUSDT"
-        }
-      ],
-      "colorTheme": "light",
-      "isTransparent": true,
-      "displayMode": "adaptive",
-      "locale": "en",
-      "largeChartUrl": ""
-    }
-    </script>
-  </div>
-</div>
-
-<style>
-.tradingview-widget-container {
-  height: 46px;
-  overflow: hidden;
-}
-</style>
-
+      
 
 
 
@@ -296,57 +240,57 @@
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Available Balance Card -->
-          @php
-    $availableBalance = auth()->user()->available_balance;
-    $totalInvested = auth()->user()->amount_invested;
-@endphp
+            @php
+            $availableBalance = auth()->user()->available_balance;
+            $totalInvested = auth()->user()->amount_invested;
+            @endphp
 
-<!-- Toggle Script -->
-<script>
-    function toggleBalance(id) {
-        const amount = document.getElementById(id);
-        const icon = document.getElementById(id + '-icon');
-        if (amount.dataset.visible === 'true') {
-            amount.textContent = '****';
-            amount.dataset.visible = 'false';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
-        } else {
-            amount.textContent = '$' + amount.dataset.value;
-            amount.dataset.visible = 'true';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-        }
-    }
-</script>
+            <!-- Toggle Script -->
+            <script>
+                function toggleBalance(id) {
+                    const amount = document.getElementById(id);
+                    const icon = document.getElementById(id + '-icon');
+                    if (amount.dataset.visible === 'true') {
+                        amount.textContent = '****';
+                        amount.dataset.visible = 'false';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    } else {
+                        amount.textContent = '$' + amount.dataset.value;
+                        amount.dataset.visible = 'true';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    }
+                }
+            </script>
 
-<!-- Available Balance Card -->
-<div class="rounded-2xl shadow-xl overflow-hidden min-h-[150px]"
-     style="border-top: 4px solid #8bc905; background-image: url('{{ asset('assets/images/hero/hero-image-1.svg') }}'); background-size: cover; background-position: center;">
-    <div class="p-6 bg-white/70 backdrop-blur-md rounded-2xl">
-        <div class="flex justify-between items-start">
-            <div>
-                <p class="text-sm font-semibold text-[#0C3A30]">Available Balance</p>
-                <h3 class="text-2xl font-bold text-[#0C3A30] mt-1">
-                    <span id="availableBalance" data-value="{{ number_format($availableBalance, 2) }}" data-visible="true">
-                        ${{ number_format($availableBalance, 2) }}
-                    </span>
-                    <i id="availableBalance-icon" onclick="toggleBalance('availableBalance')" class="fa fa-eye-slash cursor-pointer text-sm ml-2 text-gray-500"></i>
-                </h3>
+            <!-- Available Balance Card -->
+            <div class="rounded-2xl shadow-xl overflow-hidden min-h-[150px]"
+                style="border-top: 4px solid #8bc905;background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
+                <div class="p-6 bg-white/70 backdrop-blur-md rounded-2xl">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-semibold text-[#0C3A30]">Available Balance</p>
+                            <h3 class="text-2xl font-bold text-[#0C3A30] mt-1">
+                                <span id="availableBalance" data-value="{{ number_format($availableBalance, 2) }}" data-visible="true">
+                                    ${{ number_format($availableBalance, 2) }}
+                                </span>
+                                <i id="availableBalance-icon" onclick="toggleBalance('availableBalance')" class="fa fa-eye-slash cursor-pointer text-sm ml-2 text-gray-500"></i>
+                            </h3>
+                        </div>
+                        <div class="p-2 rounded-xl text-[#0C3A30]">
+                            <i class="fa-solid fa-wallet text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-[#0C3A30]">
+                        <h6 class="text-xs text-[#0C3A30]">Invested + Interest</h6>
+                    </div>
+                </div>
             </div>
-            <div class="p-2 rounded-xl text-[#0C3A30]">
-                <i class="fa-solid fa-wallet text-2xl"></i>
-            </div>
-        </div>
-        <div class="mt-4 pt-4 border-t border-[#0C3A30]">
-            <h6 class="text-xs text-[#0C3A30]">Invested + Interest</h6>
-        </div>
-    </div>
-</div>
 
 
 
-            
+
 
             <!-- profit table -->
             @php
@@ -481,7 +425,7 @@
                             <div class="investment-item bg-white rounded-lg p-3 border-l-4 {{ $borderLeftColor }} shadow-sm hover:shadow-md transition-shadow">
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm font-medium text-gray-800">{{ strtoupper($investment->plan->name) }}</span>
-                                    <span class="text-xs font-bold {{ $trendColor }} flex items-center animate-fluctuation-{{ $isPositive ? 'up' : 'down' }}">
+                                    <span class="text-xs font-bold {{ $trendColor }} flex items-center animate-fluctuation- {{ $isPositive ? 'up' : 'down' }}">
                                         @if($isPositive)
                                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -625,33 +569,33 @@
             </script>
 
 
-<!-- Total Invested Card -->
-<div class="rounded-2xl shadow-xl overflow-hidden border border-emerald-200 min-h-[150px]"
-     style="border-top: 4px solid #8bc905; background-image: url('{{ asset('assets/images/hero/hero-image-1.svg') }}'); background-size: cover; background-position: center;">
-    <div class="p-6 bg-white/70 backdrop-blur-md rounded-2xl">
-        <div class="flex justify-between items-start">
-            <div>
-                <p class="text-sm font-medium text-[#0C3A30]">Total Invested With Us</p>
-                <h3 class="text-2xl font-bold text-[#0C3A30] mt-1">
-                    <span id="totalInvested" data-value="{{ number_format($totalInvested, 2) }}" data-visible="true">
-                        ${{ number_format($totalInvested, 2) }}
-                    </span>
-                    <i id="totalInvested-icon" onclick="toggleBalance('totalInvested')" class="fa fa-eye-slash cursor-pointer text-sm ml-2 text-gray-500"></i>
-                    
-                </h3>
+            <!-- Total Invested Card -->
+            <div class="rounded-2xl shadow-xl overflow-hidden border border-emerald-200 min-h-[150px]"
+                style="border-top: 4px solid #8bc905; background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
+                <div class="p-6 bg-white/70 backdrop-blur-md rounded-2xl">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-medium text-[#0C3A30]">Total Invested With Us</p>
+                            <h3 class="text-2xl font-bold text-[#0C3A30] mt-1">
+                                <span id="totalInvested" data-value="{{ number_format($totalInvested, 2) }}" data-visible="true">
+                                    ${{ number_format($totalInvested, 2) }}
+                                </span>
+                                <i id="totalInvested-icon" onclick="toggleBalance('totalInvested')" class="fa fa-eye-slash cursor-pointer text-sm ml-2 text-gray-500"></i>
+
+                            </h3>
+                        </div>
+                        <div class="p-3 rounded-xl text-[#9EDD05]">
+                            <i class="fa-solid fa-award text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-2 border-t border-[#0C3A30]">
+                        <h6 class="text-xs mt-2 text-[#0C3A30]">Across all investments</h6>
+                    </div>
+                </div>
             </div>
-            <div class="p-3 rounded-xl text-[#9EDD05]">
-                <i class="fa-solid fa-award text-2xl"></i>
-            </div>
-        </div>
-        <div class="mt-6 pt-2 border-t border-[#0C3A30]">
-            <h6 class="text-xs mt-2 text-[#0C3A30]">Across all investments</h6>
-        </div>
-    </div>
-</div>
 
 
-           
+
             <!-- Quick Actions Card -->
             <div class="bg-gradient-to-br from-primary-800 via-primary-700 to-primary-600  rounded-2xl shadow-xl overflow-hidden min-h-[150px]"
                 style="border-top: 4px solid #8bc905; background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">

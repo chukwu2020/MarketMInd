@@ -24,7 +24,7 @@
 </head>
 
 
-    <body class="bg-white text-neutral-900 !dark:bg-white !dark:text-neutral-900">
+<body class="bg-white text-neutral-900 !dark:bg-white !dark:text-neutral-900">
 
 
     <!-- Preloader -->
@@ -51,49 +51,51 @@
             z-index: 9999;
             backdrop-filter: blur(2px);
         }
-.loader-container {
-    position: relative;
-    width: 200px;
-    height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
 
-       .gradient-ring {
-    position: absolute;
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    border: 3px solid transparent;
-    border-top-color: #0C3A30;
-    border-right-color: #9EDD05;
-    animation: rotate 1.5s linear infinite;
-    z-index: 1;
-}
+        .loader-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-     .gradient-ring::before {
-    content: '';
-    position: absolute;
-    inset: 8px;
-    border-radius: 50%;
-    background: white;
-    z-index: 1;
-}
-      
-.logo-pulse {
-    z-index: 2;
-    animation: pulse 2s infinite ease-in-out;
-}
+        .gradient-ring {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: #0C3A30;
+            border-right-color: #9EDD05;
+            animation: rotate 1.5s linear infinite;
+            z-index: 1;
+        }
+
+        .gradient-ring::before {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border-radius: 50%;
+            background: white;
+            z-index: 1;
+        }
+
+        .logo-pulse {
+            z-index: 2;
+            animation: pulse 2s infinite ease-in-out;
+        }
 
 
-     
-.logo-img {
-    width: 120px;
-    height: 120px;
-    object-fit: contain;
-    filter: drop-shadow(0 0 10px rgba(12, 58, 48, 0.1));
-}
+
+        .logo-img {
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(12, 58, 48, 0.1));
+        }
+
         @keyframes rotate {
             0% {
                 transform: rotate(0deg);
@@ -135,7 +137,7 @@
     </style>
 
     <script>
-        window.addEventListener('load', function () {
+        window.addEventListener('load', function() {
             const preloader = document.getElementById('preloader');
             if (preloader) {
                 preloader.style.transition = 'opacity 0.5s ease';
@@ -180,18 +182,20 @@
 
     <!-- WhatsApp Widget -->
     <script type="text/javascript">
-        (function () {
+        (function() {
             var options = {
                 whatsapp: "+44 (774) 266‑3627",
                 call_to_action: "Contact us!",
                 position: "left",
             };
-            var proto = document.location.protocol, host = "getbutton.io", url = proto + "//static." + host;
+            var proto = document.location.protocol,
+                host = "getbutton.io",
+                url = proto + "//static." + host;
             var s = document.createElement("script");
             s.type = "text/javascript";
             s.async = true;
             s.src = url + "/widget-send-button/js/init.js";
-            s.onload = function () {
+            s.onload = function() {
                 WhWidgetSendButton.init(host, proto, options);
             };
             var x = document.getElementsByTagName("script")[0];
@@ -208,28 +212,29 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert/dist/sweetalert.min.js"></script>
     @if (session('message'))
-        <script>
-            swal("Successful!", "{{ session('message') }}!", "success");
-        </script>
+    <script>
+        swal("Successful!", "{{ session('message') }}!", "success");
+    </script>
     @endif
     @if (session('error'))
-        <script>
-            swal("Error!", "{{ session('error') }}!", "warning");
-        </script>
+    <script>
+        swal("Error!", "{{ session('error') }}!", "warning");
+    </script>
     @endif
     @if (Session::has('success'))
-        <script>
-            swal("Successful!", "{{ Session::get('success') }}!", "success");
-        </script>
+    <script>
+        swal("Successful!", "{{ Session::get('success') }}!", "success");
+    </script>
     @endif
     @if (Session::has('error'))
-        <script>
-            swal("Error!", "{{ Session::get('error') }}!", "warning");
-        </script>
+    <script>
+        swal("Error!", "{{ Session::get('error') }}!", "warning");
+    </script>
     @endif
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
 </html>

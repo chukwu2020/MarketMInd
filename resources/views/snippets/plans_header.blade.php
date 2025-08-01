@@ -12,7 +12,7 @@
             <div class="col-lg-4 col-md-6 ">
                 <div class="pricing-card bg-color-ffffff radius-30 ">
                     <div class="title position-relative">
-                        <h3>{{ $plan->name }} Plan</h3>
+                        <h3>{{ $plan->name }} </h3>
                         <h4>{{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}% / <span>Per Term</span></h4>
                         <img class="about-image-2" src="assets/images/about/about-image-2.png" alt="image">
                     </div>

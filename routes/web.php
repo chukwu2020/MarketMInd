@@ -300,4 +300,7 @@ Route::patch('/admin/kyc/{id}/reject', [AdminController::class, 'reject'])->name
 
 });
 
+
+
+
 });

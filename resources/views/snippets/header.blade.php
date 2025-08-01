@@ -1,5 +1,5 @@
 <!-- Navbar - Your Original Navigation -->
-<nav class="navbar navbar-expand-lg bg-white shadow-sm py-3" id="navbar">
+<nav class="navbar navbar-expand-lg bg-white shadow-sm " id="navbar">
     <div class="container-fluid side-padding d-flex justify-content-between align-items-center">
 
 
@@ -135,7 +135,7 @@
 <style>
     /* Desktop nav links */
     .navLinks {
-        padding: 8px 15px;
+        padding: 15px;
         color: #333;
         text-decoration: none;
         transition: 0.3s ease;
