@@ -2,6 +2,50 @@
 
 @section('content')
 
+
+
+
+<!-- Add this near the top of the file, after the breadcrumb -->
+@if(session('reinvestment_mode') && session('reinvestment_expires') > now())
+<div class="alert alert-warning mb-4 px-6" style="background-color:#9EDD05 !important; ">
+    <div class="flex items-center">
+        <iconify-icon icon="solar:refresh-circle-outline" class="mr-2"></iconify-icon>
+        <span>You are in reinvestment mode. available balance (${{ number_format(auth()->user()->available_balance, 2) }}).</span>
+        <button onclick="location.href='{{ route('user_dashboard') }}'" class="ml-auto text-sm underline">Cancel</button>
+    </div>
+</div>
+@endif
+
+<!-- Modify the form opening tag -->
+<form action="{{ route('user.make-deposit') }}" method="POST" class="space-y-6"
+    @if(session('reinvestment_mode') && session('reinvestment_expires')> now()) onsubmit="return validateReinvestment()" @endif>
+    @csrf
+
+    @if(session('reinvestment_mode') && session('reinvestment_expires') > now())
+    <input type="hidden" name="reinvestment" value="1">
+    @endif
+
+    <!-- Rest of the form -->
+</form>
+
+<!-- Add this script at the bottom -->
+<script>
+    function validateReinvestment() {
+        const amount = parseFloat(document.getElementById('amount').value);
+        const availableBalance = parseFloat({
+            {
+                auth() - > user() - > available_balance
+            }
+        });
+
+        if (amount > availableBalance) {
+            alert('Reinvestment amount cannot exceed your available balance of $' + availableBalance.toFixed(2));
+            return false;
+        }
+        return true;
+    }
+</script>
+
 <!-- Choices.js CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
 
@@ -107,26 +151,104 @@
                                 <th style="background-color: #fff; color:black;">Plan Name</th>
                                 <th style="background-color: #fff; color:black;">Min Deposit ($)</th>
                                 <th style="background-color: #fff; color:black;">Max Deposit ($)</th>
-                                   <th style="background-color: #fff; color:black;">Duration</th>
-                              
+                                <th style="background-color: #fff; color:black;">Duration</th>
+
 
                                 <th style="background-color: #fff; color:black;">Interest Rate</th>
                             </tr>
                         </thead>
                         <tbody>
+
+
                             @foreach ($plans as $index => $plan)
-                        <tr class="hover:bg-green-50">
-    <td>{{ $index + 1 }}</td>
-    <td>{{ ucfirst($plan->name) }}</td>
-   
-    <td>{{ number_format($plan->minimum_amount, 2) }}</td>
-    <td>{{ number_format($plan->maximum_amount, 2) }}</td>
- <td>{{ $plan->duration }} Day{{ $plan->duration > 1 ? 's' : '' }}</td> 
-    <td>{{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}%</td>
-</tr>
+                            <tr class="hover:bg-green-50">
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ ucfirst($plan->name) }}</td>
+
+                                <td>{{ number_format($plan->minimum_amount, 2) }}</td>
+                                <td>{{ number_format($plan->maximum_amount, 2) }}</td>
+                                <td>{{ $plan->duration }} Day{{ $plan->duration > 1 ? 's' : '' }}</td>
+                                <td>{{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}%</td>
+                            </tr>
+
+
+
 
                             @endforeach
                         </tbody>
+
+
+
+                        <div class="relative overflow-hidden rounded-xl group bg-gradient-to-r from-amber-50 to-white"
+                            style="box-shadow: 0 4px 24px rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.2) !important;">
+
+                            <!-- Edge fade gradients -->
+                            <div class="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-amber-50 to-transparent z-10 pointer-events-none"></div>
+                            <div class="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-amber-50 to-transparent z-10 pointer-events-none"></div>
+
+                            <!-- Optimized marquee container -->
+                            <div class="py-3 overflow-hidden" style="background-color: white !important;">
+                                <div class="animate-marquee whitespace-nowrap will-change-transform inline-flex items-center">
+                                    <span class="inline-flex items-center px-6 text-base font-medium text-gray-600 tracking-tight">
+                                        <span class="text-amber-500/90 mr-3 text-lg">✦ ✦ ✦ ✦ ✦</span>
+                                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-600 font-semibold">Reinvestment unlocked at $50,000 and above</span>
+                                        <span class="mx-4 text-amber-300">•</span>
+                                        <span> Exclusive Ambassadorship features available</span>
+                                        <span class="ml-4 px-3 py-0.5 rounded-full bg-amber-500/10 text-amber-700 text-xs font-bold border border-amber-400/20" style="background-color: yellow !important;">NEW</span>
+                                    </span>
+                                    <!-- Duplicate for seamless looping -->
+                                    <span class="inline-flex items-center px-6 text-base font-medium text-gray-800 tracking-tight" aria-hidden="true">
+                                        <span class="relative inline-flex items-center mr-3">
+                                            <!-- Glow effect -->
+                                            <span class="absolute inset-0 -m-1 rounded-full bg-yellow-400/10 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+
+                                            <!-- Stars with subtle animation -->
+                                            <span class="relative inline-flex space-x-1 text-lg">
+                                                <span class="inline-block text-yellow-400 drop-shadow-[0_1px_2px_rgba(234,179,8,0.3)] hover:scale-110 transition-transform duration-200" style="color: #cfcc00ff !important;">✧</span>
+                                                <span class="inline-block text-yellow-400 drop-shadow-[0_1px_2px_rgba(234,179,8,0.3)] hover:scale-110 transition-transform duration-200" style="color: #f8f416ff !important;">✧</span>
+                                                <span class="inline-block text-yellow-400 drop-shadow-[0_1px_2px_rgba(234,179,8,0.3)] hover:scale-110 transition-transform duration-200" style="color: #f8f416ff !important;">✧</span>
+                                                <span class="inline-block text-yellow-400 drop-shadow-[0_1px_2px_rgba(234,179,8,0.3)] hover:scale-110 transition-transform duration-200" style="color: #f8f416ff !important;">✧</span>
+                                                <span class="inline-block text-yellow-400 drop-shadow-[0_1px_2px_rgba(234,179,8,0.3)] hover:scale-110 transition-transform duration-200" style="color: #f8f416ff !important;">✧</span>
+                                            </span>
+                                        </span>
+                                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-400 font-semibold">Reinvestment unlocked at $50,000 and above</span>
+                                        <span class="mx-4 text-amber-300">•</span>
+                                        <span>Exclusive Ambassadorship features available</span>
+                                        <span class="ml-4 px-3 py-0.5 rounded-full bg-amber-500/10 text-amber-700 text-xs font-bold border border-amber-400/20">NEW</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <style>
+                            @keyframes marquee {
+                                0% {
+                                    transform: translateX(0);
+                                }
+
+                                100% {
+                                    transform: translateX(-50%);
+                                }
+                            }
+
+                            .animate-marquee {
+                                display: inline-flex;
+                                min-width: max-content;
+                                animation: marquee 10s linear infinite;
+                                will-change: transform;
+                            }
+
+                            .group:hover .animate-marquee {
+                                animation-play-state: paused;
+                            }
+                        </style>
+
+
+
+
+
+
+
                     </table>
                 </div>
             </div>
@@ -158,69 +280,69 @@
                         Select Package <span class="text-red-600">*</span>
                     </label>
 
-                   <select name="plan_id" id="plan_id" class="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all shadow-inner">
-    <option value="" disabled selected class="text-gray-500 font-medium py-3">📦 Choose Investment Package</option>
+                    <select name="plan_id" id="plan_id" class="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all shadow-inner">
+                        <option value="" disabled selected class="text-gray-500 font-medium py-3">📦 Choose Investment Package</option>
 
-    @foreach($plans->groupBy('duration') as $duration => $durationPlans)
-   <optgroup label="⏳ {{ $duration }} Day Plan • {{ $durationPlans->count() }} Options"
+                        @foreach($plans->groupBy('duration') as $duration => $durationPlans)
+                        <optgroup label="⏳ {{ $duration }} Day Plan • {{ $durationPlans->count() }} Options"
 
-        class="text-lg font-bold" style="background-color: #eefdea; padding: 15px 20px; margin: 20px 0; border-bottom: 2px solid #0C3A30;">
-        @foreach($durationPlans as $plan)
-        @php
-        $label = $plan->name . ' → ' . rtrim(rtrim($plan->interest_rate, '0'), '.') . '%';
-        @endphp
+                            class="text-lg font-bold" style="background-color: #eefdea; padding: 15px 20px; margin: 20px 0; border-bottom: 2px solid #0C3A30;">
+                            @foreach($durationPlans as $plan)
+                            @php
+                            $label = $plan->name . ' → ' . rtrim(rtrim($plan->interest_rate, '0'), '.') . '%';
+                            @endphp
 
-        <option value="{{ $plan->id }}"
-            {{ old('plan_id') == $plan->id ? 'selected' : '' }}
-            class="py-3 px-4 my-2 rounded-lg hover:bg-green-50 transition-all duration-200">
-            <div class="flex justify-between items-center">
-                <span class="font-medium">📈 {{ ucfirst($plan->name) }}</span>
-                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold">
-                    {{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}%
-                </span>
-            </div>
-        </option>
-        @endforeach
-    </optgroup>
-    @endforeach
-</select>
+                            <option value="{{ $plan->id }}"
+                                {{ old('plan_id') == $plan->id ? 'selected' : '' }}
+                                class="py-3 px-4 my-2 rounded-lg hover:bg-green-50 transition-all duration-200">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium">📈 {{ ucfirst($plan->name) }}</span>
+                                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold">
+                                        {{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}%
+                                    </span>
+                                </div>
+                            </option>
+                            @endforeach
+                        </optgroup>
+                        @endforeach
+                    </select>
 
-<style>
-    select {
-        border-radius: 12px !important;
-    }
-    
-    select optgroup {
-        padding: 15px 20px;
-        margin: 25px 0 10px 0 !important;
-        background-color: #f8faf7;
-        font-weight: bold;
-        font-size: 1.05rem;
-        color: #0C3A30;
-        border-top: 2px solid #9EDD05;
-        border-bottom: 2px solid #9EDD05;
-    }
+                    <style>
+                        select {
+                            border-radius: 12px !important;
+                        }
 
-    select optgroup + optgroup {
-        margin-bottom: 35px !important;
-    }
+                        select optgroup {
+                            padding: 15px 20px;
+                            margin: 25px 0 10px 0 !important;
+                            background-color: #f8faf7;
+                            font-weight: bold;
+                            font-size: 1.05rem;
+                            color: #0C3A30;
+                            border-top: 2px solid #9EDD05;
+                            border-bottom: 2px solid #9EDD05;
+                        }
 
-    select option {
-        padding: 12px 15px !important;
-        margin: 2px 0 !important;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-    }
+                        select optgroup+optgroup {
+                            margin-bottom: 35px !important;
+                        }
 
-    select option:hover {
-        background-color: #f0f7ed !important;
-    }
+                        select option {
+                            padding: 12px 15px !important;
+                            margin: 2px 0 !important;
+                            border-radius: 8px;
+                            transition: all 0.2s ease;
+                        }
 
-    select option:checked {
-        background-color: #9EDD05 !important;
-        color: white !important;
-    }
-</style>
+                        select option:hover {
+                            background-color: #f0f7ed !important;
+                        }
+
+                        select option:checked {
+                            background-color: #9EDD05 !important;
+                            color: white !important;
+                        }
+                    </style>
 
                     <span class="text-red-600 text-sm mt-1 block">@error('plan_id'){{ $message }}@enderror</span>
                 </div>
@@ -228,10 +350,10 @@
                 <!-- Wallet Select -->
                 <div>
                     <label for="wallet_id" class="block mb-2 font-bold text-neutral-900">
-                        Select Wallet To Deposit  <span class="text-red-600">*</span>
+                        Select Wallet To Deposit <span class="text-red-600">*</span>
                     </label>
                     <select name="wallet_id" id="wallet_id" class="form-control">
-                        <option selected disabled class="text-gray-500 font-medium">Choose Wallet   </option>
+                        <option selected disabled class="text-gray-500 font-medium">Choose Wallet </option>
                         @foreach($wallets as $wallet)
                         <option value="{{ $wallet->id }}" {{ old('wallet_id') == $wallet->id ? 'selected' : '' }}>
                             🔗 {{ ucfirst($wallet->crypto_name) }}

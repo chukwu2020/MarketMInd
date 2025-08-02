@@ -67,7 +67,35 @@
                                                 Withdraw
                                             </button>
                                         </form>
-                                    @elseif (!$investment->is_withdrawable && $investment->available_profit > 0)
+                                  @php
+    $hoursSinceStart = \Carbon\Carbon::parse($investment->start_date)->diffInHours(now());
+    $canTakeProfit = $hoursSinceStart >= 24;
+    $maxTakeProfit = $investment->amount_invested >= 10000 ? 100 : 50;
+@endphp
+
+@if ($investment->is_withdrawable && $investment->status !== 'withdrawn')
+    <form method="POST" action="{{ route('investments.withdraw', $investment->id) }}">
+        @csrf
+        <button type="submit" class="px-3 py-1 rounded-md text-white bg-green-600 hover:bg-green-700 text-sm font-semibold">
+            Withdraw
+        </button>
+    </form>
+
+@elseif ($canTakeProfit && $investment->available_profit > 0)
+    <form method="POST" action="{{ route('investments.takeProfit', $investment->id) }}">
+        @csrf
+        <button type="submit" class="px-3 py-1 rounded-md text-black bg-yellow-400 hover:bg-yellow-500 text-sm font-semibold">
+            Take Profit (max ${{ $maxTakeProfit }})
+        </button>
+    </form>
+
+@elseif (!$canTakeProfit)
+    <span class="text-gray-400 text-sm">Profit available after 24 hours</span>
+
+@else
+    <span class="text-gray-400 text-sm">Not eligible</span>
+@endif
+
                                         <form method="POST" action="{{ route('investments.takeProfit', $investment->id) }}">
                                             @csrf
                                             <button type="submit" class="px-3 py-1 rounded-md text-black bg-yellow-400 hover:bg-yellow-500 text-sm font-semibold">
@@ -99,7 +127,17 @@
                 @php [$statusClass, $statusText] = $statusMap[$investment->status] ?? $statusMap['active']; @endphp
                 <div class="bg-white border border-gray-300 rounded-2xl shadow-lg p-4 transition hover:shadow-xl">
                     <div class="flex justify-between items-center mb-3">
-                        <h4 class="text-base font-semibold" style="color: #0C3A30;">{{ $investment->plan->name ?? 'N/A' }}</h4>
+                        <!-- <h4 class="text-base font-semibold" style="color: #0C3A30;">{{ $investment->plan->name ?? 'N/A' }}</h4> -->
+
+                        <h4 class="text-base font-semibold flex items-center gap-2" style="color: #0C3A30;">
+    {{ $investment->plan->name ?? 'N/A' }}
+    @if ($investment->is_reinvestment)
+        <span class="px-2 py-0.5 text-xs font-semibold bg-purple-100 text-purple-800 rounded-full">
+            Reinvestment
+        </span>
+    @endif
+</h4>
+
                         <span class="px-2 py-1 text-xs font-medium rounded-full {{ $statusClass }}">{{ $statusText }}</span>
                     </div>
                     <table class="w-full text-sm border-t border-gray-100 pt-2">
@@ -110,7 +148,12 @@
                             </tr>
                             <tr>
                                 <th class="py-2 pr-2 font-medium text-gray-500">ROI</th>
-                                <td class="py-2 text-gray-700">{{ $investment->roi ?? '0' }}%</td>
+                                <!-- <td class="py-2 text-gray-700">{{ $investment->roi ?? '0' }}%</td> -->
+                               
+
+                               <td class="px-6 py-4">{{ $investment->plan->interest_rate ?? 0 }}%</td>
+
+
                             </tr>
                             <tr>
                                 <th class="py-2 pr-2 font-medium text-gray-500">Profit</th>
@@ -135,7 +178,35 @@
                                     Withdraw from investment
                                 </button>
                             </form>
-                        @elseif (!$investment->is_withdrawable && $investment->available_profit > 0)
+                      @php
+    $hoursSinceStart = \Carbon\Carbon::parse($investment->start_date)->diffInHours(now());
+    $canTakeProfit = $hoursSinceStart >= 24;
+    $maxTakeProfit = $investment->amount_invested >= 10000 ? 100 : 50;
+@endphp
+
+@if ($investment->is_withdrawable && $investment->status !== 'withdrawn')
+    <form method="POST" action="{{ route('investments.withdraw', $investment->id) }}">
+        @csrf
+        <button type="submit" class="px-3 py-1 rounded-md text-white bg-green-600 hover:bg-green-700 text-sm font-semibold">
+            Withdraw
+        </button>
+    </form>
+
+@elseif ($canTakeProfit && $investment->available_profit > 0)
+    <form method="POST" action="{{ route('investments.takeProfit', $investment->id) }}">
+        @csrf
+        <button type="submit" class="px-3 py-1 rounded-md text-black bg-yellow-400 hover:bg-yellow-500 text-sm font-semibold">
+            Take Profit (max ${{ $maxTakeProfit }})
+        </button>
+    </form>
+
+@elseif (!$canTakeProfit)
+    <span class="text-gray-400 text-sm">Profit available after 24 hours</span>
+
+@else
+    <span class="text-gray-400 text-sm">Not eligible</span>
+@endif
+
                             <form method="POST" action="{{ route('investments.takeProfit', $investment->id) }}">
                                 @csrf
                                 <button type="submit" class="w-full text-sm font-medium px-4 py-2 rounded-md bg-yellow-400 hover:bg-yellow-500 text-black" style="background-color: #9EDD05; color:#0C3A30;">

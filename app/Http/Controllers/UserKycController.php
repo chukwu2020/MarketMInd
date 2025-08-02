@@ -37,10 +37,10 @@ public function store(Request $request)
         );
 
         // Notify the user (optional)
-        Auth::user()->notify(new \App\Notifications\TransactionNotification(
-            'KYC Submitted',
-            'Your KYC documents have been received and are pending review.'
-        ));
+        // Auth::user()->notify(new \App\Notifications\TransactionNotification(
+        //     'KYC Submitted',
+        //     'Your KYC documents have been received and are pending review.'
+        // ));
 
         return redirect()->route('user_dashboard')->with('success', 'KYC submitted successfully. Awaiting approval.');
     } catch (\Exception $e) {

@@ -77,7 +77,7 @@
 
     <!-- Main Dashboard Content -->
     <div class="dashboard-main-body space-y-6">
-      
+
 
 
 
@@ -235,7 +235,32 @@
 
 
 
+<div class="bg-white border-b border-gray-100 py-2 px-4 shadow-sm">
+  <div class="max-w-6xl mx-auto flex items-center overflow-hidden">
+    <span class="text-xs font-medium text-gray-500 mr-3 whitespace-nowrap">Community updates:</span>
+    <div class="relative flex-1 overflow-hidden h-6">
+      <!-- Scrolling activity feed -->
+      <div class="absolute top-0 left-0 animate-scroll-text whitespace-nowrap text-sm text-gray-700">
+        <span class="inline-block mr-8">Sarah K. just deposited $50,000</span>
+        <span class="inline-block mr-8">Michael T. upgraded to VIP</span>
+        <span class="inline-block mr-8">Emma R. earned $1,200 profit</span>
+        <span class="inline-block">David L. withdrew $250,000</span>
+      </div>
+    </div>
+  </div>
+</div>
 
+<style>
+  @keyframes scroll-text {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-scroll-text {
+    animation: scroll-text 25s linear infinite;
+    display: inline-block;
+    padding-right: 100%;
+  }
+</style>
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -266,33 +291,46 @@
 
             <!-- Available Balance Card -->
             <div class="rounded-2xl shadow-xl overflow-hidden min-h-[150px]"
-                style="border-top: 4px solid #8bc905;background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
-                <div class="p-6 bg-white/70 backdrop-blur-md rounded-2xl">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="text-sm font-semibold text-[#0C3A30]">Available Balance</p>
-                            <h3 class="text-2xl font-bold text-[#0C3A30] mt-1">
-                                <span id="availableBalance" data-value="{{ number_format($availableBalance, 2) }}" data-visible="true">
-                                    ${{ number_format($availableBalance, 2) }}
-                                </span>
-                                <i id="availableBalance-icon" onclick="toggleBalance('availableBalance')" class="fa fa-eye-slash cursor-pointer text-sm ml-2 text-gray-500"></i>
-                            </h3>
-                        </div>
-                        <div class="p-2 rounded-xl text-[#0C3A30]">
-                            <i class="fa-solid fa-wallet text-2xl"></i>
-                        </div>
-                    </div>
-                    <div class="mt-4 pt-4 border-t border-[#0C3A30]">
-                        <h6 class="text-xs text-[#0C3A30]">Invested + Interest</h6>
-                    </div>
-                </div>
+    style="border-top: 4px solid #8bc905;background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
+    <div class="p-6 bg-white/70 backdrop-blur-md rounded-2xl">
+        <div class="flex justify-between items-start">
+            <div>
+                <p class="text-sm font-semibold text-[#0C3A30]">Available Balance</p>
+                <h3 class="text-2xl font-bold text-[#0C3A30] mt-1">
+                    <span id="availableBalance" data-value="{{ number_format($availableBalance, 2) }}" data-visible="true">
+                        ${{ number_format($availableBalance, 2) }}
+                    </span>
+                    <i id="availableBalance-icon" onclick="toggleBalance('availableBalance')" class="fa fa-eye-slash cursor-pointer text-sm ml-2 text-gray-500"></i>
+                </h3>
             </div>
+
+            @if($availableBalance >= 70000)
+            <div class="p-2 rounded-xl text-[#0C3A30]">
+                <form action="{{ route('initiate.reinvestment') }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition flex items-center">
+                        <iconify-icon icon="solar:refresh-circle-outline" class="mr-1"></iconify-icon>
+                        Reinvest
+                    </button>
+                </form>
+            </div>
+            @endif
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-[#0C3A30]">
+            <h6 class="text-xs text-[#0C3A30]">Invested + Interest</h6>
+        </div>
+    </div>
+</div>
 
 
 
 
 
             <!-- profit table -->
+
+
+
             @php
             use Carbon\Carbon;
 
@@ -1168,7 +1206,9 @@
                 'pending' => 'badge-pending',
                 'ready to withdraw' => 'badge-warning',
                 'active' => 'badge-active',
-                'completed' => 'badge-approved',
+                'completed', 'approved' => 'badge-completed',
+                'rejected' => 'badge-rejected',
+
                 default => 'badge-default'
                 };
 
@@ -1252,27 +1292,37 @@
         </div>
 
         <style>
-            .badge-approved {
-                background-color: #d1fae5;
-                /* Tailwind's bg-green-100 */
-                color: #065f46;
+            .badge-completed {
+                 background-color: #d1fae5;
+        /* Tailwind's bg-green-100 */
+        color: #065f46;
                 /* Tailwind's text-green-800 */
                 padding: 0.25rem 0.5rem;
                 border-radius: 9999px;
                 font-weight: 500;
                 font-size: 0.75rem;
             }
+             
+  .badge-pending {
+        background-color: #fef3c7;
+        /* Tailwind's bg-yellow-100 */
+        color: #92400e;
+        /* Tailwind's text-yellow-800 */
+        padding: 0.25rem 0.5rem;
+        border-radius: 9999px;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
 
-            .badge-pending {
-                background-color: #fef3c7;
-                /* Tailwind's bg-yellow-100 */
-                color: #92400e;
-                /* Tailwind's text-yellow-800 */
+            .badge-rejected {
+                background-color: #ff6767ff;
+        color: #fff ;
                 padding: 0.25rem 0.5rem;
                 border-radius: 9999px;
                 font-weight: 500;
                 font-size: 0.75rem;
             }
+
 
             .badge-warning {
                 background-color: #fde68a;

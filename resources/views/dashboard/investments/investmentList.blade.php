@@ -62,7 +62,9 @@ style="background-image: url(assets/images/hero/hero-image-1.svg); "            
                                 <th class="px-4 py-2 font-medium" style="color: #0C3A30;">Profit</th>
                                 <td class="px-4 py-2 font-medium text-emerald-600">
                                     ${{ number_format($investment->total_profit, 2) }}
+
                                 </td>
+                                
                             </tr>
                             <tr class="border-b border-gray-200">
                                 <th class="px-4 py-2 font-medium" style="color: #0C3A30;">Total</th>

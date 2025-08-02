@@ -121,11 +121,7 @@ class AdminController extends Controller
         $deposit->status = 1;
         $deposit->save();
 
-        $user = $deposit->user;
-        $user->notify(new TransactionNotification(
-            '🎉 Congratulations! Deposit Approved!',
-            'Your deposit of $' . number_format($deposit->amount_deposited, 2) . ' has been approved and your investment has started.'
-        ));
+       
 
         return redirect()->back()->with('success', 'Deposit approved and investment started');
     }
@@ -222,14 +218,33 @@ class AdminController extends Controller
         $withdrawal->status = 'approved';
         $withdrawal->save();
 
-        $user = $withdrawal->user;
-        $user->notify(new TransactionNotification(
-            '🎉 Congratulations!',
-            'Your withdrawal of $' . number_format($withdrawal->amount, 2) . ' has been approved successfully!'
-        ));
+ 
 
         return back()->with('success', 'Withdrawal approved successfully.');
     }
+
+    public function rejectBalanceWithdrawal($id)
+{
+    $withdrawal = Withdrawal::findOrFail($id);
+
+    if ($withdrawal->status !== 'pending') {
+        return back()->with('error', 'Only pending withdrawals can be rejected.');
+    }
+
+    // Refund the user
+    $user = $withdrawal->user;
+    $user->available_balance += $withdrawal->amount;
+    $user->save();
+
+    // Update withdrawal status
+    $withdrawal->status = 'rejected';
+    $withdrawal->save();
+
+   
+
+    return back()->with('success', 'Withdrawal rejected and amount refunded to user.');
+}
+
 
     // message
 
@@ -350,12 +365,6 @@ public function approve($id)
     $kyc->admin_note = 'Approved by admin';
     $kyc->save();
 
-    // Send mail notification to user
-    $kyc->user->notify(new \App\Notifications\TransactionNotification(
-        'KYC Approved',
-        'Your KYC verification has been approved. You now have full access.'
-    ));
-
     return redirect()->back()->with('success', 'KYC approved.');
 }
 
@@ -394,11 +403,7 @@ public function reject($id)
     $kyc->admin_note = 'Rejected by admin';
     $kyc->save();
 
-    // Send mail notification to user
-    $kyc->user->notify(new \App\Notifications\TransactionNotification(
-        'KYC Rejected',
-        'Your KYC verification has been rejected. Please review your documents and try again.'
-    ));
+   
 
     return redirect()->back()->with('success', 'KYC rejected.');
 }

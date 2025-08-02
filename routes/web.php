@@ -189,6 +189,8 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/deposit-history', 'depositHistory')->name('user.deposit-history');
         });
 
+        // reinvest deposit
+        Route::post('/initiate-reinvestment', [UserController::class, 'initiateReinvestment'])->name('initiate.reinvestment');
         // Plans
         Route::get('/planlist', [PlanController::class, 'plan_dashboard'])->name('plan.dashboard');
 
@@ -196,6 +198,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/withdraw/form', [WithdrawalController::class, 'showWithdrawForm'])->name('user.withdraw.form');
         Route::post('/withdraw/request', [WithdrawalController::class, 'submitWithdrawRequest'])->name('balance.withdraw.request');
         Route::get('/withdrawals/list', [WithdrawalController::class, 'withdrawalList'])->name('user.withdrawals.list');
+        
 
         Route::prefix('withdrawals')->controller(WithdrawalController::class)->group(function () {
             Route::get('/', 'index')->name('withdrawals.index');
@@ -211,6 +214,8 @@ Route::middleware(['auth'])->group(function () {
 
         // Dashboard
         Route::get('/dashboard', [AdminController::class, 'admin_dashboard'])->name('admin_dashboard');
+        Route::post('/admin/withdrawals/{id}/reject', [AdminController::class, 'rejectBalanceWithdrawal'])->name('admin.withdraw.reject');
+
         // 
         // admin contact us
 

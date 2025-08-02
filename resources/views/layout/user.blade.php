@@ -13,6 +13,8 @@
     <!-- Title -->
     <!-- Title -->
     <title>MarketMind Investments</title>
+    <!-- 5star color -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <!-- Favicons for different devices -->
     <link rel="icon" type="image/png" href="{{ asset('assets/images/mymarketmindmainicon.png') }}" sizes="32x32">

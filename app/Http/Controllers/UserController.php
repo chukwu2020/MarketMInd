@@ -199,7 +199,17 @@ class UserController extends Controller
             return [
                 'type' => 'Withdrawal',
                 'amount' => $withdrawal->amount,
-                'status' => $withdrawal->status === 'pending' ? 'Pending' : 'Completed',
+               
+            
+
+                'status' => match ($withdrawal->status) {
+    'pending' => 'Pending',
+    'completed' => 'Completed',
+    'rejected' => 'Rejected',
+    default => ucfirst($withdrawal->status),
+},
+
+
                 'date' => $withdrawal->created_at,
                 'reference' => 'WD-' . $withdrawal->id,
                 'icon' => 'bank-transfer-out',
@@ -320,5 +330,23 @@ class UserController extends Controller
 
 
 
- 
+ //reinvestmet
+public function initiateReinvestment(Request $request)
+{
+    $user = auth()->user();
+    
+    // Validate user has sufficient balance
+    if ($user->available_balance <= 0) {
+        return redirect()->route('user_dashboard')->with('error', 'Insufficient balance for reinvestment');
+    }
+    
+    // Set reinvestment session flag with expiration
+    session([
+        'reinvestment_mode' => true,
+        'reinvestment_expires' => now()->addMinutes(30),
+        'reinvestment_balance' => $user->available_balance
+    ]);
+    
+    return redirect()->route('user.deposit')->with('info', 'You are in reinvestment mode. Your available balance will be used.');
+}
 }

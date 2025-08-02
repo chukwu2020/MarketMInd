@@ -121,10 +121,10 @@ public function withdrawFromBalance(Request $request)
     $user->available_balance -= $request->amount;
     $user->save();
 
-    $user->notify(new \App\Notifications\TransactionNotification(
-        'Withdrawal Submitted',
-        'Your withdrawal request of $' . number_format($request->amount, 2) . ' is pending awaiting approval.'
-    ));
+    // $user->notify(new \App\Notifications\TransactionNotification(
+    //     'Withdrawal Submitted',
+    //     'Your withdrawal request of $' . number_format($request->amount, 2) . ' is pending awaiting approval.'
+    // ));
 
     return redirect()->route('user.withdrawals.list')->with('success', 'Withdrawal request submitted.');
 }
