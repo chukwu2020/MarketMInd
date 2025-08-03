@@ -435,7 +435,7 @@
             document.addEventListener('DOMContentLoaded', function() {
                 // Initial values
                 let forexBalance = 96756842;
-                let cryptoBalance = 124856421;
+                let cryptoBalance = 124856424;
                 let realEstateBalance = 89423156;
 
                 // Store last update date to ensure daily growth
@@ -492,7 +492,7 @@
                 updateMetrics();
 
                 // Update every 5 seconds (for the animated parts)
-                setInterval(updateMetrics, 2000);
+                setInterval(updateMetrics, 1000);
             });
         </script>
 

@@ -60,7 +60,7 @@
 
                         <div class="mb-3 col-md-6">
                             <label for="phone">Phone</label>
-                            <input type="tel" id="phone" name="phone" class="form-control" inputmode="tel" placeholder="+123456789.." value="{{ old('phone') }}">
+                            <input type="tel" id="phone" name="phone" class="form-control" inputmode="tel" placeholder="Phone number" value="{{ old('phone') }}">
                             <span class="text-danger">@error('phone') {{ $message }} @enderror</span>
                         </div>
                         <div class="mb-3 col-md-6 position-relative">
@@ -93,7 +93,7 @@
                         <div class="mb-3 col-md-6">
                             <label for="">Country</label>
                             <select name="country" id="country" class="form-control pe-5" required>
-                                <option style="justify-content:space-between;" value="select country" {{ old('country') == 'selectcountry' ? 'selected' : '' }}>Select country     ▼  </option>
+                                <option style="justify-content:space-between;" value="country" {{ old('country') == 'selectcountry' ? 'selected' : '' }}>Select country     ▼  </option>
  
                                 <option value="Afghanistan">Afghanistan</option>
                                 <option value="Albania">Albania</option>

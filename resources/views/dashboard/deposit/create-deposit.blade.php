@@ -122,6 +122,7 @@
 </style>
 
 <div class="dashboard-main-body">
+
     <!-- Breadcrumb -->
     <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
         <h5 class="font-semibold mb-0" style="color: #0C3A30;">Deposit</h5>
@@ -140,120 +141,159 @@
     </div>
 
     <!-- Plans Table -->
+    <!-- Plans Table -->
     <div class="grid grid-cols-12 mb-8">
         <div class="col-span-12">
-            <div class="card rounded-xl p-6 overflow-x-auto" style=" background-image: url(assets/images/hero/hero-image-1.svg);">
-                <div class="w-full min-w-[600px] sm:min-w-0">
-                    <table class="table w-full whitespace-nowrap text-sm">
-                        <thead style="background: #fff !important;">
-                            <tr class="text-left" style="background-color: #fff; color:black;">
-                                <th style="background-color: #fff; color:black;">#</th>
-                                <th style="background-color: #fff; color:black;">Plan Name</th>
-                                <th style="background-color: #fff; color:black;">Min Deposit ($)</th>
-                                <th style="background-color: #fff; color:black;">Max Deposit ($)</th>
-                                <th style="background-color: #fff; color:black;">Duration</th>
+            <div class="card rounded-xl p-6" style="background-image: url(assets/images/hero/hero-image-1.svg);">
 
+                <!-- ✅ Marquee banner placed OUTSIDE scrollable area -->
+              
 
-                                <th style="background-color: #fff; color:black;">Interest Rate</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+@php
+    $totalInvested = (float) auth()->user()->amount_invested;
+@endphp
 
+<style>
+    @keyframes scrollText {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+    .animate-marquee {
+        animation: scrollText 18s linear infinite !important;
+        white-space: nowrap !important;
+    }
+    .animate-marquee:hover {
+        animation-play-state: paused !important;
+    }
+</style>
 
-                            @foreach ($plans as $index => $plan)
-                            <tr class="hover:bg-green-50">
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ ucfirst($plan->name) }}</td>
-
-                                <td>{{ number_format($plan->minimum_amount, 2) }}</td>
-                                <td>{{ number_format($plan->maximum_amount, 2) }}</td>
-                                <td>{{ $plan->duration }} Day{{ $plan->duration > 1 ? 's' : '' }}</td>
-                                <td>{{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}%</td>
-                            </tr>
-
-
-
-
-                            @endforeach
-                        </tbody>
-
-
-
-                        <div class="relative overflow-hidden rounded-xl group bg-gradient-to-r from-amber-50 to-white"
-                            style="box-shadow: 0 4px 24px rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.2) !important;">
-
-                            <!-- Edge fade gradients -->
-                            <div class="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-amber-50 to-transparent z-10 pointer-events-none"></div>
-                            <div class="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-amber-50 to-transparent z-10 pointer-events-none"></div>
-
-                            <!-- Optimized marquee container -->
-                            <div class="py-3 overflow-hidden" style="background-color: white !important;">
-                                <div class="animate-marquee whitespace-nowrap will-change-transform inline-flex items-center">
-                                    <span class="inline-flex items-center px-6 text-base font-medium text-gray-600 tracking-tight">
-                                        <span class="text-amber-500/90 mr-3 text-lg">✦ ✦ ✦ ✦ ✦</span>
-                                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-600 font-semibold">Reinvestment unlocked at $50,000 and above</span>
-                                        <span class="mx-4 text-amber-300">•</span>
-                                        <span> Exclusive Ambassadorship features available</span>
-                                        <span class="ml-4 px-3 py-0.5 rounded-full bg-amber-500/10 text-amber-700 text-xs font-bold border border-amber-400/20" style="background-color: yellow !important;">NEW</span>
-                                    </span>
-                                    <!-- Duplicate for seamless looping -->
-                                    <span class="inline-flex items-center px-6 text-base font-medium text-gray-800 tracking-tight" aria-hidden="true">
-                                        <span class="relative inline-flex items-center mr-3">
-                                            <!-- Glow effect -->
-                                            <span class="absolute inset-0 -m-1 rounded-full bg-yellow-400/10 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-
-                                            <!-- Stars with subtle animation -->
-                                            <span class="relative inline-flex space-x-1 text-lg">
-                                                <span class="inline-block text-yellow-400 drop-shadow-[0_1px_2px_rgba(234,179,8,0.3)] hover:scale-110 transition-transform duration-200" style="color: #cfcc00ff !important;">✧</span>
-                                                <span class="inline-block text-yellow-400 drop-shadow-[0_1px_2px_rgba(234,179,8,0.3)] hover:scale-110 transition-transform duration-200" style="color: #f8f416ff !important;">✧</span>
-                                                <span class="inline-block text-yellow-400 drop-shadow-[0_1px_2px_rgba(234,179,8,0.3)] hover:scale-110 transition-transform duration-200" style="color: #f8f416ff !important;">✧</span>
-                                                <span class="inline-block text-yellow-400 drop-shadow-[0_1px_2px_rgba(234,179,8,0.3)] hover:scale-110 transition-transform duration-200" style="color: #f8f416ff !important;">✧</span>
-                                                <span class="inline-block text-yellow-400 drop-shadow-[0_1px_2px_rgba(234,179,8,0.3)] hover:scale-110 transition-transform duration-200" style="color: #f8f416ff !important;">✧</span>
-                                            </span>
-                                        </span>
-                                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-400 font-semibold">Reinvestment unlocked at $50,000 and above</span>
-                                        <span class="mx-4 text-amber-300">•</span>
-                                        <span>Exclusive Ambassadorship features available</span>
-                                        <span class="ml-4 px-3 py-0.5 rounded-full bg-amber-500/10 text-amber-700 text-xs font-bold border border-amber-400/20">NEW</span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <style>
-                            @keyframes marquee {
-                                0% {
-                                    transform: translateX(0);
-                                }
-
-                                100% {
-                                    transform: translateX(-50%);
-                                }
-                            }
-
-                            .animate-marquee {
-                                display: inline-flex;
-                                min-width: max-content;
-                                animation: marquee 10s linear infinite;
-                                will-change: transform;
-                            }
-
-                            .group:hover .animate-marquee {
-                                animation-play-state: paused;
-                            }
-                        </style>
-
-
-
-
-
-
-
-                    </table>
-                </div>
+@if($totalInvested == 0)
+    <!-- Banner for users who have not yet invested -->
+    <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-yellow-100 to-white mb-4"
+         style="box-shadow: 0 4px 24px rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.3) !important;">
+        <div class="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-yellow-100 to-transparent z-10 pointer-events-none"></div>
+        <div class="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-yellow-100 to-transparent z-10 pointer-events-none"></div>
+        <div class="py-3 overflow-hidden bg-white">
+            <div class="animate-marquee inline-flex items-center will-change-transform">
+                <span class="inline-flex items-center px-6 text-base font-medium text-yellow-800 tracking-tight">
+                    <span class="text-yellow-500/90 mr-3 text-lg">⚠️</span>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-700 font-semibold" style="background-clip: text !important; -webkit-background-clip: text !important;">
+                        You haven’t started investing yet. Start strong to see strong returns!
+                    </span>
+                    <span class="mx-4 text-yellow-400">•</span>
+                    <span>Top investors began with $20,000+ and earn $10k+ daily!</span>
+                    <span class="ml-4 px-3 py-0.5 rounded-full text-yellow-700 text-xs font-bold border border-yellow-400/20"
+                          style="background-color: rgba(234, 179, 8, 0.1) !important;">
+                        GET STARTED
+                    </span>
+                </span>
             </div>
         </div>
     </div>
+
+@elseif($totalInvested >= 80000)
+    <!-- Premium Banner for users who invested >= 80,000 -->
+    <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-100 to-white mb-4"
+         style="box-shadow: 0 4px 24px rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3) !important;">
+        <div class="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-purple-100 to-transparent z-10 pointer-events-none"></div>
+        <div class="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-purple-100 to-transparent z-10 pointer-events-none"></div>
+        <div class="py-3 overflow-hidden bg-white">
+            <div class="animate-marquee inline-flex items-center will-change-transform">
+                <span class="inline-flex items-center px-6 text-base font-medium text-gray-700 tracking-tight">
+                    <span class="text-purple-600/90 mr-3 text-lg">🌟🌟🌟🌟🌟</span>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-600 font-semibold" style="background-clip: text !important; -webkit-background-clip: text !important;">
+                        You're eligible to become a shareholder — unlock premium investor benefits now!
+                    </span>
+                    <span class="mx-4 text-purple-300">•</span>
+                    <span>Contact us to join the inner circle of investors</span>
+                    <span class="ml-4 px-3 py-0.5 rounded-full text-purple-700 text-xs font-bold border border-purple-400/20"
+                          style="background-color: rgba(139, 92, 246, 0.1) !important;">
+                        PREMIUM
+                    </span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+@else
+    <!-- Mid-tier banner -->
+    <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-amber-50 to-white mb-4"
+         style="box-shadow: 0 4px 24px rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.2) !important;">
+        <div class="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-amber-50 to-transparent z-10 pointer-events-none"></div>
+        <div class="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-amber-50 to-transparent z-10 pointer-events-none"></div>
+        <div class="py-3 overflow-hidden bg-white">
+            <div class="animate-marquee inline-flex items-center will-change-transform">
+                <span class="inline-flex items-center px-6 text-base font-medium text-gray-600 tracking-tight">
+                    <span class="text-amber-500/90 mr-3 text-lg">✦ ✦ ✦ ✦ ✦</span>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-600 font-semibold" style="background-clip: text !important; -webkit-background-clip: text !important;">
+                        Reinvestment unlocked at $50,000 and above
+                    </span>
+                    <span class="mx-4 text-amber-300">•</span>
+                    <span>Exclusive Ambassadorship features available</span>
+                    <span class="ml-4 px-3 py-0.5 rounded-full text-amber-700 text-xs font-bold border border-amber-400/20"
+                          style="background-color: rgba(245, 158, 11, 0.1) !important;">
+                        NEW
+                    </span>
+                </span>
+            </div>
+        </div>
+    </div>
+@endif
+
+
+                <!-- ✅ Scrollable table area -->
+                <div class="overflow-x-auto w-full">
+                    <div class="w-full min-w-[600px] sm:min-w-0">
+                        <table class="table w-full whitespace-nowrap text-sm">
+                            <thead style="background: #fff !important;">
+                                <tr class="text-left" style="background-color: #fff; color:black;">
+                                    <th>#</th>
+                                    <th>Plan Name</th>
+                                    <th>Min Deposit ($)</th>
+                                    <th>Max Deposit ($)</th>
+                                    <th>Duration</th>
+                                    <th>Interest Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($plans as $index => $plan)
+                                <tr class="hover:bg-green-50">
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ ucfirst($plan->name) }}</td>
+                                    <td>{{ number_format($plan->minimum_amount, 2) }}</td>
+                                    <td>{{ number_format($plan->maximum_amount, 2) }}</td>
+                                    <td>{{ $plan->duration }} Day{{ $plan->duration > 1 ? 's' : '' }}</td>
+                                    <td>{{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}%</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <style>
+       
+       @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+    display: inline-flex;
+    min-width: max-content;
+    animation: marquee 7s linear infinite;
+    will-change: transform;
+}
+.group:hover .animate-marquee {
+    animation-play-state: paused !important;
+}
+
+    </style>
+
+    
     <style>
         th,
         td {
@@ -281,7 +321,7 @@
                     </label>
 
                     <select name="plan_id" id="plan_id" class="w-full px-4 py-3 border-0 bg-gray-100 rounded-xl focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all shadow-inner">
-                        <option value="" disabled selected class="text-gray-500 font-medium py-3">📦 Choose Investment Package</option>
+                        <option value="" disabled selected class="text-gray-500 font-medium py-3">📈 Choose Investment Package</option>
 
                         @foreach($plans->groupBy('duration') as $duration => $durationPlans)
                         <optgroup label="⏳ {{ $duration }} Day Plan • {{ $durationPlans->count() }} Options"

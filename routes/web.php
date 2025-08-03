@@ -162,7 +162,11 @@ Route::middleware(['auth'])->group(function () {
 
 
     Route::post('/investments/{id}/take-profit', [InvestmentController::class, 'takeProfit'])->name('investments.takeProfit');
-
+// dismiss 
+Route::post('/dismiss-banner', function() {
+    session(['dismissed_zero_investment_banner' => true]);
+    return response()->json(['success' => true]);
+})->middleware('auth')->name('user.dismiss-banner');
 
     Route::post('/dashboard/withdraw', [WithdrawalController::class, 'withdrawFromBalance'])->name('user.balance.withdraw');
     Route::get('/investments', [InvestmentController::class, 'index'])->name('user.investments');

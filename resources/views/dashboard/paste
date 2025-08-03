@@ -439,115 +439,121 @@ public function reject($id)
 
 
 
+<?php
 
-📈 Early Access to New Plans
+namespace App\Http\Controllers;
 
-🔒 Priority Withdrawal Approvals
+use App\Models\User;
+use App\Models\Deposit;
+use App\Models\Plan;
+use App\Models\Wallet;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
-🪪 "Ambassador" Badge on Profile
+class DepositController extends Controller
+{
+    // Show deposit form
+    public function userDeposit()
+    {
+        $plans = Plan::where('status', 'active')->get();
+        $wallets = Wallet::all();
+        return view('dashboard.deposit.create-deposit', compact('plans', 'wallets'));
+    }
 
-📬 Direct Message Channel to Admin
+    // Handle user deposit input
+    public function userMakeDeposit(Request $request)
+    {
+        try {
+            $request->validate([
+                'plan_id' => 'required|exists:plans,id',
+                'wallet_id' => 'required|exists:wallets,id',
+                'amount' => 'required|numeric|min:1',
+            ]);
 
-🎨 Customizable Dashboard Theme
+            $plan = Plan::findOrFail($request->plan_id);
 
-
-   <p class="text-sm text-gray-800 whitespace-nowrap inline-block">
-        <span class="text-yellow-600 font-semibold mr-2">⭐ 5</span>
-        Reinvestment with your available balance is unlocked when your total invested reaches $50,000 — and many more features await (Ambassadorship).
-    </p>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@foreach($plans as $plan)
-    @php
-        $canReinvest = true;
-        if ($reinvestmentMode) {
-            $alreadyInvested = auth()->user()->investments()->where('plan_id', $plan->id)->where('is_reinvestment', true)->exists();
-            if ($alreadyInvested || $plan->amount > auth()->user()->highest_deposit || $plan->amount > auth()->user()->available_balance) {
-                $canReinvest = false;
+            if ($request->amount < $plan->minimum_amount || $request->amount > $plan->maximum_amount) {
+                return back()->with('error', "Deposit amount must be between {$plan->minimum_amount} and {$plan->maximum_amount}.");
             }
+
+            Session::put('deposit_details', [
+                'user_id' => Auth::id(),
+                'plan_id' => $request->plan_id,
+                'wallet_id' => $request->wallet_id,
+                'amount_deposited' => $request->amount,
+            ]);
+
+            return redirect()->route('deposit.confirm');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
         }
-    @endphp
-
-    <div class="plan-card {{ !$canReinvest ? 'disabled' : '' }}">
-        <h3>{{ $plan->name }}</h3>
-        <p>Amount: ${{ $plan->amount }}</p>
-
-        @if($canReinvest)
-            <form action="{{ route('user.make-deposit') }}" method="POST">
-                @csrf
-                <input type="hidden" name="plan_id" value="{{ $plan->id }}">
-                <input type="hidden" name="wallet_id" value="1"><!-- dummy wallet, won't be used -->
-                <input type="hidden" name="amount" value="{{ $plan->amount }}">
-                <button type="submit">Reinvest</button>
-            </form>
-        @else
-            <p class="text-danger">Not eligible</p>
-        @endif
-    </div>
-@endforeach
-
-if ($reinvestmentMode) {
-    // ✅ Check for duplicate plan reinvestment
-    $alreadyInvested = Investment::where('user_id', $user->id)
-        ->where('plan_id', $plan->id)
-        ->where('is_reinvestment', true)
-        ->exists();
-
-    if ($alreadyInvested) {
-        return back()->with('error', 'You already reinvested in this plan.');
     }
 
-    // ✅ Check if plan is higher than user's highest deposit
-    if ($plan->amount > $user->highest_deposit) {
-        return back()->with('error', 'To access this plan, please deposit fresh funds.');
+    // Confirm deposit step
+    public function confirmDeposit()
+    {
+        if (!Session::has('deposit_details')) {
+            // Redirect to deposit form (GET route)
+            return redirect()->route('user.deposit')->withErrors(['error' => 'No deposit session found.']);
+        }
+
+        $depositDetails = Session::get('deposit_details');
+        $wallet = Wallet::find($depositDetails['wallet_id']);
+
+        return view('dashboard.deposit.confirm-deposit', compact('wallet'));
     }
 
-    // ✅ Validate balance
-    if ($request->amount > $user->available_balance) {
-        return back()->with('error', 'Reinvestment amount exceeds your available balance');
+    // Submit deposit with proof
+   
+public function submitDeposit(Request $request)
+{
+    try {
+        if (!Session::has('deposit_details')) {
+            return redirect()->route('user.deposit-history')->with('error', 'Deposit not successful!');
+        }
+
+        $request->validate([
+            'proof' => 'required|image|mimes:jpeg,png,jpg|max:5120',
+        ]);
+
+        $depositDetails = Session::get('deposit_details');
+
+        // Store proof image
+        $proofPath = $request->file('proof')->store('proofs', 'public');
+
+        $deposit = new Deposit();
+        $deposit->user_id = $depositDetails['user_id'];
+        $deposit->plan_id = $depositDetails['plan_id'];
+        $deposit->wallet_id = $depositDetails['wallet_id'];
+        $deposit->amount_deposited = $depositDetails['amount_deposited'];
+        $deposit->status = 0;
+        $deposit->proof = $proofPath;
+        $deposit->save();
+
+        Session::forget('deposit_details');
+
+        $user = User::find($deposit->user_id);
+        $user->notify(new \App\Notifications\TransactionNotification(
+            'Deposit Submitted',
+            'Your deposit of $' . number_format($deposit->amount_deposited, 2) . ' has been received and is awaiting approval.'
+        ));
+
+        return redirect()->route('user.deposit-history')->with('success', 'Deposit submitted successfully. Awaiting approval.');
+    } catch (\Exception $e) {
+        return back()->with('error', $e->getMessage());
     }
+}
 
-    // ✅ Create investment
-    $investment = Investment::create([
-        'user_id' => $user->id,
-        'plan_id' => $plan->id,
-        'amount_invested' => $request->amount,
-        'expected_profit' => ($request->amount * $plan->interest_rate) / 100,
-        'status' => 'active',
-        'start_date' => now(),
-        'end_date' => now()->addDays($plan->duration),
-        'is_reinvestment' => true,
-    ]);
 
-    // ✅ Deduct balance
-    $user->decrement('available_balance', $request->amount);
+    // Show deposit history
+    public function depositHistory()
+    {
+        $deposits = Deposit::with(['plan', 'wallet'])
+            ->where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-    // ✅ Clear reinvestment session
-    session()->forget(['reinvestment_mode', 'reinvestment_expires', 'reinvestment_balance']);
-
-    return redirect()->route('user_dashboard')->with('success', 'Reinvestment successful!');
+        return view('dashboard.deposit.deposit-history', compact('deposits'));
+    }
 }

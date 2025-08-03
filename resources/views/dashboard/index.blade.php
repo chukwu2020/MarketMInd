@@ -234,33 +234,221 @@
         </script>
 
 
+        <!-- community activity  -->
+        <!-- Minimal Activity Ticker -->
+        <div class="relative overflow-hidden py-1 bg-gray-50/50">
+            <div class="max-w-4xl mx-auto px-4">
+                <div id="activityFeed" class="relative h-8 overflow-hidden"></div>
+            </div>
+        </div>
 
-<div class="bg-white border-b border-gray-100 py-2 px-4 shadow-sm">
-  <div class="max-w-6xl mx-auto flex items-center overflow-hidden">
-    <span class="text-xs font-medium text-gray-500 mr-3 whitespace-nowrap">Community updates:</span>
-    <div class="relative flex-1 overflow-hidden h-6">
-      <!-- Scrolling activity feed -->
-      <div class="absolute top-0 left-0 animate-scroll-text whitespace-nowrap text-sm text-gray-700">
-        <span class="inline-block mr-8">Sarah K. just deposited $50,000</span>
-        <span class="inline-block mr-8">Michael T. upgraded to VIP</span>
-        <span class="inline-block mr-8">Emma R. earned $1,200 profit</span>
-        <span class="inline-block">David L. withdrew $250,000</span>
-      </div>
-    </div>
-  </div>
-</div>
+        <style>
+            .activity-enter {
+                animation: enter 0.8s ease-out forwards;
+            }
 
-<style>
-  @keyframes scroll-text {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-  .animate-scroll-text {
-    animation: scroll-text 25s linear infinite;
-    display: inline-block;
-    padding-right: 100%;
-  }
-</style>
+            .activity-exit {
+                animation: exit 0.6s ease-in forwards;
+            }
+
+            @keyframes enter {
+                0% {
+                    opacity: 0;
+                    transform: translateX(40px);
+                }
+
+                80% {
+                    opacity: 1;
+                    transform: translateX(-2px);
+                }
+
+                100% {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            @keyframes exit {
+                0% {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+
+                100% {
+                    opacity: 0;
+                    transform: translateX(-40px);
+                }
+            }
+        </style>
+
+        <script>
+            const activities = [
+
+                {
+                    name: "Liam",
+                    action: "earned",
+                    amount: "$4,200 profit",
+                    emoji: "📈"
+                },
+                {
+                    name: "Sophie",
+                    action: "deposited",
+                    amount: "$12,000",
+                    emoji: "💰"
+                },
+                {
+                    name: "Chen Wei",
+                    action: "earned",
+                    amount: "$2,800 profit",
+                    emoji: "📈"
+                },
+                {
+                    name: "Isabelle",
+                    action: "deposited",
+                    amount: "$7,500",
+                    emoji: "💰"
+                },
+                {
+                    name: "Yuki Tanaka",
+                    action: "earned",
+                    amount: "$6,100 profit",
+                    emoji: "📈"
+                },
+                {
+                    name: "Ivan Petrov",
+                    action: "deposited",
+                    amount: "$15,000",
+                    emoji: "💰"
+                },
+                {
+                    name: "Olivia",
+                    action: "earned",
+                    amount: "$5,000 profit",
+                    emoji: "📈"
+                },
+                {
+                    name: "Emily",
+                    action: "started",
+                    plan: "Elite Plan",
+                    emoji: "🚀"
+                },
+                {
+                    name: "Thomas Müller",
+                    action: "earned",
+                    amount: "$3,700 profit",
+                    emoji: "📈"
+                },
+                {
+                    name: "Lucas",
+                    action: "deposited",
+                    amount: "$20,000",
+                    emoji: "💰"
+                },
+                {
+                    name: "Charlotte",
+                    action: "upgraded",
+                    tier: "Gold Tier",
+                    emoji: "🌟"
+                },
+                {
+                    name: "Mei Ling",
+                    action: "earned",
+                    amount: "$2,500 profit",
+                    emoji: "📈"
+                },
+                {
+                    name: "Dmitri",
+                    action: "deposited",
+                    amount: "$10,500",
+                    emoji: "💰"
+                },
+                {
+                    name: "Arthur",
+                    action: "earned",
+                    amount: "$6,400 profit",
+                    emoji: "📈"
+                },
+                {
+                    name: "Sophia Dubois",
+                    action: "deposited",
+                    amount: "$18,000",
+                    emoji: "💰"
+                },
+                {
+                    name: "Elena Ivanova",
+                    action: "earned",
+                    amount: "$3,200 profit",
+                    emoji: "📈"
+                },
+                {
+                    name: "Mateo",
+                    action: "deposited",
+                    amount: "$9,000",
+                    emoji: "💰"
+                },
+                {
+                    name: "Amélie",
+                    action: "earned",
+                    amount: "$4,800 profit",
+                    emoji: "📈"
+                },
+                {
+                    name: "Sebastian",
+                    action: "started",
+                    plan: "Premium Plan",
+                    emoji: "✨"
+                },
+                {
+                    name: "Victor",
+                    action: "deposited",
+                    amount: "$11,700",
+                    emoji: "💰"
+                }
+            ];
+
+            function getWeightedRandomActivity() {
+                // 70% deposits, 25% profits, 5% milestones
+                const rand = Math.random();
+                const filtered = activities.filter(a =>
+                    rand < 0.7 ? a.action === "deposited" :
+                    rand < 0.95 ? a.action === "earned" :
+                    a.action !== "deposited" && a.action !== "earned"
+                );
+                return filtered[Math.floor(Math.random() * filtered.length)];
+            }
+
+            function showActivity() {
+                const feed = document.getElementById('activityFeed');
+                const activity = getWeightedRandomActivity();
+
+                const element = document.createElement('div');
+                element.className = 'absolute top-0 left-0 w-full activity-enter text-sm text-gray-700';
+
+                let content = '';
+                if (activity.action === 'deposited') {
+                    content = `${activity.emoji} ${activity.name} deposited <span class="font-medium ${activity.color}">${activity.amount}</span>`;
+                } else if (activity.action === 'earned') {
+                    content = `${activity.emoji} ${activity.name} earned <span class="font-medium ${activity.color}">${activity.amount}</span>`;
+                } else {
+                    content = `${activity.emoji} ${activity.name} ${activity.action} <span class="font-medium ${activity.color}">${activity.milestone || activity.benefit}</span>`;
+                }
+
+                element.innerHTML = content;
+                feed.appendChild(element);
+
+                setTimeout(() => {
+                    element.classList.remove('activity-enter');
+                    element.classList.add('activity-exit');
+                    setTimeout(() => element.remove(), 600);
+                }, 3500);
+            }
+
+            // Initial activity
+            showActivity();
+
+            // Show new activity every 4-6 seconds
+            setInterval(showActivity, Math.random() * 2000 + 4000);
+        </script>
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -291,37 +479,39 @@
 
             <!-- Available Balance Card -->
             <div class="rounded-2xl shadow-xl overflow-hidden min-h-[150px]"
-    style="border-top: 4px solid #8bc905;background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
-    <div class="p-6 bg-white/70 backdrop-blur-md rounded-2xl">
-        <div class="flex justify-between items-start">
-            <div>
-                <p class="text-sm font-semibold text-[#0C3A30]">Available Balance</p>
-                <h3 class="text-2xl font-bold text-[#0C3A30] mt-1">
-                    <span id="availableBalance" data-value="{{ number_format($availableBalance, 2) }}" data-visible="true">
-                        ${{ number_format($availableBalance, 2) }}
-                    </span>
-                    <i id="availableBalance-icon" onclick="toggleBalance('availableBalance')" class="fa fa-eye-slash cursor-pointer text-sm ml-2 text-gray-500"></i>
-                </h3>
-            </div>
+                style="border-top: 4px solid #8bc905;background-image: url('assets/images/hero/hero-image-1.svg'); background-size: cover; background-position: center;">
+                <div class="p-6 bg-white/70 backdrop-blur-md rounded-2xl">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-semibold text-[#0C3A30]">Available Balance</p>
+                            <h3 class="text-2xl font-bold text-[#0C3A30] mt-1">
+                                <span id="availableBalance" data-value="{{ number_format($availableBalance, 2) }}" data-visible="true">
+                                    ${{ number_format($availableBalance, 2) }}
+                                </span>
+                                <i id="availableBalance-icon" onclick="toggleBalance('availableBalance')" class="fa fa-eye-slash cursor-pointer text-sm ml-2 text-gray-500"></i>
+                            </h3>
+                        </div>
 
-            @if($availableBalance >= 70000)
-            <div class="p-2 rounded-xl text-[#0C3A30]">
-                <form action="{{ route('initiate.reinvestment') }}" method="POST" class="inline">
-                    @csrf
-                    <button type="submit" class="px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition flex items-center">
-                        <iconify-icon icon="solar:refresh-circle-outline" class="mr-1"></iconify-icon>
-                        Reinvest
-                    </button>
-                </form>
-            </div>
-            @endif
-        </div>
+                   @if($totalInvested >= 70000)
 
-        <div class="mt-4 pt-4 border-t border-[#0C3A30]">
-            <h6 class="text-xs text-[#0C3A30]">Invested + Interest</h6>
-        </div>
-    </div>
-</div>
+
+                        <div class="p-2 rounded-xl text-[#0C3A30]">
+                            <form action="{{ route('initiate.reinvestment') }}" method="POST" class="inline">
+                                @csrf
+                                <button type="submit" class="px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition flex items-center">
+                                    <iconify-icon icon="solar:refresh-circle-outline" class="mr-1"></iconify-icon>
+                                    Reinvest
+                                </button>
+                            </form>
+                        </div>
+                        @endif
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t border-[#0C3A30]">
+                        <h6 class="text-xs text-[#0C3A30]">Invested + Interest</h6>
+                    </div>
+                </div>
+            </div>
 
 
 
@@ -1293,30 +1483,30 @@
 
         <style>
             .badge-completed {
-                 background-color: #d1fae5;
-        /* Tailwind's bg-green-100 */
-        color: #065f46;
+                background-color: #d1fae5;
+                /* Tailwind's bg-green-100 */
+                color: #065f46;
                 /* Tailwind's text-green-800 */
                 padding: 0.25rem 0.5rem;
                 border-radius: 9999px;
                 font-weight: 500;
                 font-size: 0.75rem;
             }
-             
-  .badge-pending {
-        background-color: #fef3c7;
-        /* Tailwind's bg-yellow-100 */
-        color: #92400e;
-        /* Tailwind's text-yellow-800 */
-        padding: 0.25rem 0.5rem;
-        border-radius: 9999px;
-        font-weight: 500;
-        font-size: 0.75rem;
-    }
+
+            .badge-pending {
+                background-color: #fef3c7;
+                /* Tailwind's bg-yellow-100 */
+                color: #92400e;
+                /* Tailwind's text-yellow-800 */
+                padding: 0.25rem 0.5rem;
+                border-radius: 9999px;
+                font-weight: 500;
+                font-size: 0.75rem;
+            }
 
             .badge-rejected {
                 background-color: #ff6767ff;
-        color: #fff ;
+                color: #fff;
                 padding: 0.25rem 0.5rem;
                 border-radius: 9999px;
                 font-weight: 500;
