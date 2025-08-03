@@ -498,8 +498,11 @@
                         <div class="p-2 rounded-xl text-[#0C3A30]">
                             <form action="{{ route('initiate.reinvestment') }}" method="POST" class="inline">
                                 @csrf
-                                <button type="submit" class="px-4 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition flex items-center">
-                                    <iconify-icon icon="solar:refresh-circle-outline" class="mr-1"></iconify-icon>
+                                <button type="submit" class="px-2 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition flex items-center">
+                                    <iconify-icon icon="solar:refresh-circle-outline"class="mr-1 " style="color:#8bc905 !important ; font-size:1.4rem;"></iconify-icon>
+
+                                 
+
                                     Reinvest
                                 </button>
                             </form>

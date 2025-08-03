@@ -11,7 +11,12 @@
     <div class="flex items-center">
         <iconify-icon icon="solar:refresh-circle-outline" class="mr-2"></iconify-icon>
         <span>You are in reinvestment mode. available balance (${{ number_format(auth()->user()->available_balance, 2) }}).</span>
-        <button onclick="location.href='{{ route('user_dashboard') }}'" class="ml-auto text-sm underline">Cancel</button>
+         <button 
+        onclick="location.href='{{ route('user_dashboard') }}'" 
+        class="ml-4 text-sm underline font-semibold hover:text-red-600 transition-colors duration-200"
+        style="color: #000000;">
+        Cancel
+    </button>
     </div>
 </div>
 @endif
@@ -159,7 +164,7 @@
         100% { transform: translateX(-100%); }
     }
     .animate-marquee {
-        animation: scrollText 18s linear infinite !important;
+        animation: scrollText 10s linear infinite !important;
         white-space: nowrap !important;
     }
     .animate-marquee:hover {
@@ -275,23 +280,7 @@
         </div>
     </div>
 
-    <style>
-       
-       @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-}
-.animate-marquee {
-    display: inline-flex;
-    min-width: max-content;
-    animation: marquee 7s linear infinite;
-    will-change: transform;
-}
-.group:hover .animate-marquee {
-    animation-play-state: paused !important;
-}
-
-    </style>
+    
 
     
     <style>
