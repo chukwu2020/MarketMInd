@@ -271,6 +271,10 @@
                                     <td>{{ rtrim(rtrim($plan->interest_rate, '0'), '.') }}%</td>
                                 </tr>
                                 @endforeach
+
+
+
+                                
                             </tbody>
                         </table>
                     </div>

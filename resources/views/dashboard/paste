@@ -1,251 +1,478 @@
 @extends('layout.user')
 
 @section('content')
+<style>
+    .atm-card {
+        position: relative;
+        width: 100%;
+        max-width: 420px;
+        height: 250px;
+        border-radius: 1.5rem;
+        color: #fff !important;
+        overflow: hidden;
+        background: linear-gradient(135deg, #1D4ED8, #A3E635, #4ADE80);
+        background-size: 400% 400%;
+        animation: gradientMove 10s ease infinite;
 
-<!-- Main Container with fixed background -->
-<div class="w-full min-h-screen bg-cover bg-center bg-no-repeat">
-    {{-- Optional overlay --}}
-    {{-- <div class="absolute inset-0 bg-black opacity-30 z-0"></div> --}}
+        font-family: 'Segoe UI', sans-serif;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 1.5rem 2rem;
+        margin: 0 auto;
+        transition: transform 0.5s ease;
+    }
 
-    <div class="max-w-7xl mx-auto px-4 md:px-6 py-10 relative z-10" style="background-image: url(assets/images/hero/hero-image-1.svg); background-repeat: no-repeat; background-size: cover; background-position:center;">
-        <!-- Header -->
+    @keyframes gradientMove {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .card-brand {
+        font-size: 1.5rem;
+        font-weight: bold;
+        letter-spacing: 1.5px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        flex: 1;
+    }
+
+    .card-logo-wrapper {
+        margin-left: 15px;
+        display: flex;
+        align-items: center;
+    }
+
+    .card-logo {
+        height: 50px;
+        width: auto;
+        max-width: 120px;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+    }
+
+    .card-logo:hover {
+        transform: scale(1.05);
+    }
+
+    .card-number {
+        font-size: 1.7rem;
+        font-weight: 500;
+        text-align: center;
+        letter-spacing: 2px;
+        margin: 1rem 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        width: 100%;
+    }
+
+    .card-footer-item {
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+    }
+
+    .card-label {
+        font-size: 0.75rem;
+        opacity: 0.85;
+        margin-bottom: 0.25rem;
+    }
+
+    .card-value {
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .info-text {
+        margin-top: 2.5rem;
+        font-size: 15px;
+        font-weight: 400;
+        color: #0C3A30;
+        max-width: 420px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
+
+    .atm-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 1.5rem;
+        box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.1);
+        pointer-events: none;
+    }
+
+    /* .card-wrapper {
+        perspective: 1000px;
+        max-width: 420px;
+        margin: 0 auto;
+    } */
+    .card-wrapper {
+        perspective: 1000px;
+        max-width: 420px;
+        height: 250px;
+        /* match the card height */
+        margin: 0 auto 2rem;
+        /* adds space below the card */
+        position: relative;
+    }
+
+
+    .card-flip {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.8s ease;
+    }
+
+    .card-wrapper:hover .card-flip {
+        transform: rotateY(180deg);
+    }
+
+    .card-front,
+    .card-back {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+    }
+
+    .card-back {
+        transform: rotateY(180deg);
+    }
+
+    @media (max-width: 640px) {
+        .atm-card {
+            height: 220px;
+            padding: 1.25rem;
+        }
+
+        .card-brand {
+            font-size: 1.3rem;
+            margin-top: 2rem;
+        }
+
+        .card-logo {
+            height: 40px;
+            max-width: 100px;
+            margin-top: 2rem;
+        }
+
+        .card-number {
+            font-size: 1.1rem;
+            margin: 0.75rem 0;
+        }
+
+        .card-value {
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .atm-card {
+            height: 200px;
+            padding: 1rem;
+        }
+
+        .card-brand {
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+        }
+
+        .card-logo {
+            height: 35px;
+            max-width: 90px;
+            margin-top: 1.5rem;
+        }
+
+        .card-number {
+            font-size: 1rem;
+            margin-top: 1.5rem;
+        }
+    }
+</style>
+
+<div class=" min-h-screen">
+    <!-- <div 
+    class="min-h-screen container mx-auto px-4 py-10" 
+    style="background-image: url('/assets/images/hero/hero-image-1.svg'); background-repeat: no-repeat; background-size: cover; background-position: center;"> -->
+
+
+    <div class="container mx-auto px-4 py-10 text-center" style=" padding-bottom: 100px; background-image: url('assets/images/hero/hero-image-1.svg');
+            min-height: 100vh;
+            background-repeat: no-repeat;
+            background-size: cover;">
+
         <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
-            <h5 class="font-semibold text-lg md:text-xl" style="color: #0C3A30;">Investment</h5>
+            <h6 class="font-semibold mb-0" style="color: #0C3A30;">MY Virtual Card</h6>
             <ul class="flex items-center gap-[6px]">
                 <li class="font-medium">
-                    <a href="{{ route('user_dashboard') }}"
-                       class="flex items-center gap-2"
-                       onmouseover="this.style.color='#9EDD05';"
-                       onmouseout="this.style.color='#0C3A30';">
+                    <a href="{{ route('user_dashboard') }}" class="flex items-center gap-2 hover:text-primary-600 "
+                        onmouseover="this.style.color='#9EDD05';"
+                        onmouseout="this.style.color='#0C3A30';">
                         <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
                         Dashboard
                     </a>
                 </li>
                 <li>-</li>
-                <li class="font-medium">Investment</li>
+                <li class="font-medium ">Card</li>
             </ul>
         </div>
 
+        @if ($card)
         @php
-            $statusMap = [
-                'withdrawn' => ['bg-red-100 text-red-800 ', 'Withdrawn'],
-                'completed' => ['bg-blue-100 text-blue-800 ', 'Completed'],
-                'active' => ['bg-green-100 text-green-800 ', 'Active'],
-            ];
-            $activeInvestments = $investments->reject(fn($inv) => $inv->is_fully_withdrawn);
+        $expiry = now()->addYears(4)->format('m/Y');
+        $cvv = str_pad(rand(100, 999), 3, '0', STR_PAD_LEFT);
         @endphp
 
-        <!-- Desktop Table -->
-        <section class="hidden md:block min-h-[60vh] flex flex-col justify-start">
-            <div class="overflow-x-auto flex-1">
-                <table class="w-full text-sm text-left border-t-4" style="border-color: #9EDD05;">
-                    <thead class="bg-gray-100 text-xs uppercase text-gray-600">
-                        <tr>
-                            @foreach (['Plan', 'Amount', 'ROI', 'Profit', 'Start Date', 'End Date', 'Status', 'Action'] as $head)
-                                <th class="px-6 py-3" style="color: #0C3A30;">{{ $head }}</th>
-                            @endforeach
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        @forelse ($activeInvestments as $investment)
-                            @php [$statusClass, $statusText] = $statusMap[$investment->status] ?? $statusMap['active']; @endphp
-                            <tr>
-                                <td class="px-6 py-4">{{ $investment->plan->name ?? 'N/A' }}</td>
-                                <td class="px-6 py-4">${{ number_format($investment->amount_invested, 2) }}</td>
-                                <td class="px-6 py-4">{{ $investment->roi ?? '0' }}%</td>
-                                <td class="px-6 py-4">${{ number_format($investment->total_profit, 2) }}</td>
-                                <td class="px-6 py-4">{{ \Carbon\Carbon::parse($investment->start_date)->format('M d, Y') }}</td>
-                                <td class="px-6 py-4">{{ \Carbon\Carbon::parse($investment->end_date)->format('M d, Y') }}</td>
-                                <td class="px-6 py-4">
-                                    <span class="px-2 py-1 text-xs font-medium rounded-full {{ $statusClass }}">{{ $statusText }}</span>
-                                </td>
-                                <td class="px-6 py-4 space-y-2">
-                                    @if ($investment->is_withdrawable && $investment->status !== 'withdrawn')
-                                        <form method="POST" action="{{ route('investments.withdraw', $investment->id) }}">
-                                            @csrf
-                                            <button type="submit" class="px-3 py-1 rounded-md text-white bg-green-600 hover:bg-green-700 text-sm font-semibold">
-                                                Withdraw
-                                            </button>
-                                        </form>
-                                  @php
-    $hoursSinceStart = \Carbon\Carbon::parse($investment->start_date)->diffInHours(now());
-    $canTakeProfit = $hoursSinceStart >= 24;
-    $maxTakeProfit = $investment->amount_invested >= 10000 ? 100 : 50;
-@endphp
 
-@if ($investment->is_withdrawable && $investment->status !== 'withdrawn')
-    <form method="POST" action="{{ route('investments.withdraw', $investment->id) }}">
-        @csrf
-        <button type="submit" class="px-3 py-1 rounded-md text-white bg-green-600 hover:bg-green-700 text-sm font-semibold">
-            Withdraw
-        </button>
-    </form>
+        <div class="relative z-10">
+            <div class="card-wrapper">
+                <div class="card-flip">
+                    <!-- Front of card -->
+                    <div class="card-front">
+                        <div class="atm-card">
+                            <div class="card-header" style="margin-top: -3.5rem;">
+                                <div class="card-brand" style="color:#fff !important;">MARKETMIND</div>
+                                <div class="card-logo-wrapper">
+                                    <img src="{{ asset('assets/images/mymarketmindmainlogo.png') }}"
+                                        alt="MarketMind Logo"
+                                        class="card-logo" style="width: 120px; height:auto;" />
+                                </div>
+                            </div>
 
-@elseif ($canTakeProfit && $investment->available_profit > 0)
-    <form method="POST" action="{{ route('investments.takeProfit', $investment->id) }}">
-        @csrf
-        <button type="submit" class="px-3 py-1 rounded-md text-black bg-yellow-400 hover:bg-yellow-500 text-sm font-semibold">
-            Take Profit (max ${{ $maxTakeProfit }})
-        </button>
-    </form>
+                            <div class="card-number" style="margin-top: -1.3rem; color:#fff !important;">{{ chunk_split($card->card_number, 4, ' ') }}</div>
 
-@elseif (!$canTakeProfit)
-    <span class="text-gray-400 text-sm">Profit available after 24 hours</span>
-
-@else
-    <span class="text-gray-400 text-sm">Not eligible</span>
-@endif
-
-                                        <form method="POST" action="{{ route('investments.takeProfit', $investment->id) }}">
-                                            @csrf
-                                            <button type="submit" class="px-3 py-1 rounded-md text-black bg-yellow-400 hover:bg-yellow-500 text-sm font-semibold">
-                                                Take Profit ($50 max) or wait till due date
-                                            </button>
-                                        </form>
-                                    @else
-                                        <span class="text-gray-400 text-sm">Not eligible</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8">
-                                    <div class="flex justify-center items-center h-[50vh]">
-                                        <p class="text-gray-400 text-lg text-center">No active investments found.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Mobile Cards -->
-        <section class="block md:hidden space-y-4 mt-4">
-            @forelse ($activeInvestments as $investment)
-                @php [$statusClass, $statusText] = $statusMap[$investment->status] ?? $statusMap['active']; @endphp
-                <div class="bg-white border border-gray-300 rounded-2xl shadow-lg p-4 transition hover:shadow-xl">
-                    <div class="flex justify-between items-center mb-3">
-                        <!-- <h4 class="text-base font-semibold" style="color: #0C3A30;">{{ $investment->plan->name ?? 'N/A' }}</h4> -->
-
-                        <h4 class="text-base font-semibold flex items-center gap-2" style="color: #0C3A30;">
-    {{ $investment->plan->name ?? 'N/A' }}
-    @if ($investment->is_reinvestment)
-        <span class="px-2 py-0.5 text-xs font-semibold bg-purple-100 text-purple-800 rounded-full">
-            Reinvestment
-        </span>
-    @endif
-</h4>
-
-                        <span class="px-2 py-1 text-xs font-medium rounded-full {{ $statusClass }}">{{ $statusText }}</span>
+                            <div class="card-footer">
+                                <div class="card-footer-item" style="color:#fff !important;">
+                                    <span class="card-label" style="color:#fff !important;">Card Holder</span>
+                                    <span class="card-value" style="color:#fff !important; font-size: 18px;">{{ $card->name_on_card }}</span>
+                                </div>
+                                <div class="card-footer-item">
+                                    <span class="card-label" style="color:#fff !important;">PIN</span>
+                                    <span class="card-value" style="font-size: 18px; color:#fff !important;">( {{ $card->pin }} )</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <table class="w-full text-sm border-t border-gray-100 pt-2">
-                        <tbody class="divide-y divide-gray-100">
-                            <tr>
-                                <th class="py-2 pr-2 font-medium text-gray-500">Amount</th>
-                                <td class="py-2 text-gray-700">${{ number_format($investment->amount_invested, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <th class="py-2 pr-2 font-medium text-gray-500">ROI</th>
-                                <!-- <td class="py-2 text-gray-700">{{ $investment->roi ?? '0' }}%</td> -->
-                               
 
-                               <td class="px-6 py-4">{{ $investment->plan->interest_rate ?? 0 }}%</td>
+                    <!-- Back of card -->
+                    <div class="card-back">
+                        <div class="atm-card" style="background: linear-gradient(135deg, #0C3A30, #1E3A8A); padding-top: 2rem;">
 
+                            {{-- Magnetic Strip --}}
+                            <div style="
+            height: 40px;
+            width: 100%;
+            background-color: #111;
+            margin-bottom: 2rem;
+            border-radius: 6px;
+        "></div>
 
-                            </tr>
-                            <tr>
-                                <th class="py-2 pr-2 font-medium text-gray-500">Profit</th>
-                                <td class="py-2 text-gray-700">${{ number_format($investment->total_profit, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <th class="py-2 pr-2 font-medium text-gray-500">Start Date</th>
-                                <td class="py-2 text-gray-700">{{ \Carbon\Carbon::parse($investment->start_date)->format('M d, Y') }}</td>
-                            </tr>
-                            <tr>
-                                <th class="py-2 pr-2 font-medium text-gray-500">End Date</th>
-                                <td class="py-2 text-gray-700">{{ \Carbon\Carbon::parse($investment->end_date)->format('M d, Y') }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div class="pt-3">
-                        @if ($investment->is_withdrawable && $investment->status !== 'withdrawn')
-                            <form method="POST" action="{{ route('investments.withdraw', $investment->id) }}">
-                                @csrf
-                                <button type="submit" class="w-full text-sm font-medium px-4 py-2 rounded-md" style="background-color: #9EDD05; color:#0C3A30;">
-                                    Withdraw from investment
-                                </button>
-                            </form>
-                      @php
-    $hoursSinceStart = \Carbon\Carbon::parse($investment->start_date)->diffInHours(now());
-    $canTakeProfit = $hoursSinceStart >= 24;
-    $maxTakeProfit = $investment->amount_invested >= 10000 ? 100 : 50;
-@endphp
-
-@if ($investment->is_withdrawable && $investment->status !== 'withdrawn')
-    <form method="POST" action="{{ route('investments.withdraw', $investment->id) }}">
-        @csrf
-        <button type="submit" class="px-3 py-1 rounded-md text-white bg-green-600 hover:bg-green-700 text-sm font-semibold">
-            Withdraw
-        </button>
-    </form>
-
-@elseif ($canTakeProfit && $investment->available_profit > 0)
-    <form method="POST" action="{{ route('investments.takeProfit', $investment->id) }}">
-        @csrf
-        <button type="submit" class="px-3 py-1 rounded-md text-black bg-yellow-400 hover:bg-yellow-500 text-sm font-semibold">
-            Take Profit (max ${{ $maxTakeProfit }})
-        </button>
-    </form>
-
-@elseif (!$canTakeProfit)
-    <span class="text-gray-400 text-sm">Profit available after 24 hours</span>
-
-@else
-    <span class="text-gray-400 text-sm">Not eligible</span>
-@endif
-
-                            <form method="POST" action="{{ route('investments.takeProfit', $investment->id) }}">
-                                @csrf
-                                <button type="submit" class="w-full text-sm font-medium px-4 py-2 rounded-md bg-yellow-400 hover:bg-yellow-500 text-black" style="background-color: #9EDD05; color:#0C3A30;">
-                                    Take Profit ($50 max ) 
-                                </button>
-                            </form>
-                        @else
-                            <p class="text-sm text-center text-gray-500 bg-gray-100 px-4 py-2 rounded-md">
-                                Not yet due for withdrawal
-                            </p>
-                        @endif
+                            {{-- Signature Strip + CVV and Expiry --}}
+                            <div class="card-footer" style="margin-bottom:3rem ;">
+                                <div class="card-footer-item">
+                                    <span class="card-label" style=" color:#fff !important;">Expires</span>
+                                    <span class="card-value" style="background:#fff; color:#111; padding:5px 10px; border-radius:4px;">{{ $expiry }}</span>
+                                </div>
+                                <div class="card-footer-item">
+                                    <span class="card-label" style=" color:#fff !important;">CVV</span>
+                                    <span class="card-value" style="background:#fff; color:#111; padding:5px 10px; border-radius:4px;">
+                                        {{ $cvv }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+
                 </div>
-            @empty
-                <p class="text-center text-gray-500">No active investments found.</p>
-            @endforelse
-        </section>
-
-        <!-- Withdrawn Link -->
-        <div class="mt-6 flex justify-end">
-            <a href="{{ route('user.withdrawn.investments') }}" class="inline-flex items-center gap-1 text-sm" style="color: #0C3A30;">
-                View withdrawn
-                <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
-            </a>
+            </div>
         </div>
+
+        @else
+        <p class="text-gray-600  mt-12">No card has been generated yet.</p>
+        @endif
+
+        <p class="info-text text-sm">
+            Your Virtual Card is Worth an amount and can be used for online purchases and payment
+        </p>
     </div>
 </div>
 @endsection
-  @else
-                                        <span class="text-xs text-gray-400" title="Available in {{ $timeLeft }}h">
-                                            ⏳ {{ $timeLeft }}h left
-                                        </span>
-                                         @forelse ($activeInvestments as $investment)
-                        @php
-                            $plan = $investment->plan;
-                            $hoursSinceStart = Carbon::parse($investment->start_date)->diffInHours(now());
-                            $canTakeProfit = $hoursSinceStart >= 24;
-                            $maxTakeProfit = $investment->amount_invested >= 10000 ? 100 : 50;
-                            $timeLeft = 24 - $hoursSinceStart;
-                            $statusColor = $statusMap[$investment->status][0];
-                            $statusText = $statusMap[$investment->status][1];
-                        @endphp
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Investment;
+use App\Models\User;
+use App\Models\Withdrawal;
+use App\Models\WithdrawalCard;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class WithdrawalController extends Controller
+{
+    public function index()
+    {
+        $user = Auth::user();
+
+        // Include investment and plan eager loading
+        $withdrawals = Withdrawal::with(['investment.plan'])
+            ->where('user_id', $user->id)
+            ->latest()
+            ->get();
+
+        return view('dashboard.withdrawal.index', compact('withdrawals'));
+    }
+
+    public function generateCard(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->withdrawalCard) {
+            return back()->with('error', 'Card already generated.');
+        }
+
+        WithdrawalCard::create([
+            'user_id' => $user->id,
+            'card_number' => str_pad(mt_rand(0, 9999999999999999), 16, '0', STR_PAD_LEFT),
+            'pin' => rand(1000, 9999),
+            'name_on_card' => $user->name,
+        ]);
+
+        return back()->with('success', 'Withdrawal card generated!');
+    }
+
+    public function viewCard()
+    {
+        $user = Auth::user();
+        $card = WithdrawalCard::where('user_id', $user->id)->first();
+
+        if (!$card) {
+            return redirect()->route('withdrawals.generateCard')->with('error', 'No card found. Please generate one first.');
+        }
+
+        return view('dashboard.user.card', compact('card'));
+    }
+
+    public function showWithdrawForm()
+    {
+        $user = Auth::user();
+
+        if (!$user->withdrawalCard) {
+            return back()->with('error', 'Please generate your withdrawal card before proceeding.');
+        }
+
+        return view('dashboard.withdrawal.withdrawer');
+    }
+
+    public function withdrawalList()
+    {
+        $withdrawals = auth()->user()->withdrawals()->latest()->get();
+        return view('dashboard.withdrawal.index', compact('withdrawals'));
+    }
+
+ 
+
+public function withdrawFromBalance(Request $request)
+{
+    $cardPin = $request->input('digit1') . $request->input('digit2') . $request->input('digit3') . $request->input('digit4');
+    $request->merge(['card_pin' => $cardPin]);
+
+    $request->validate([
+        'amount' => 'required|numeric|min:1',
+        'payment_method' => 'required|string',
+        'card_pin' => 'required|string|size:4',
+        'wallet_choice' => 'required|string|in:bitcoin,etherium,usdt',
+    ]);
+
+    $user = User::find(Auth::id());
+    $card = WithdrawalCard::where('user_id', $user->id)->first();
+
+    if (!$card || (string) $card->pin !== (string) $request->card_pin) {
+        return back()->with('error', 'Incorrect card PIN.')->withInput();
+    }
+
+    if ($request->amount > $user->available_balance) {
+        return back()->with('error', 'Insufficient total income to withdraw.');
+    }
+
+    // ✅ Check for recent duplicate withdrawals within 1 minute
+    $recent = Withdrawal::where('user_id', $user->id)
+        ->where('status', 'pending')
+        ->where('created_at', '>=', Carbon::now()->subMinutes(1))
+        ->first();
+
+    if ($recent) {
+        return back()->with('error', 'You already submitted a withdrawal recently. Please wait.');
+    }
+
+    // ✅ Create withdrawal
+    Withdrawal::create([
+        'user_id' => $user->id,
+        'amount' => $request->amount,
+        'payment_method' => $request->payment_method,
+        'wallet_choice' => $request->wallet_choice,
+        'status' => 'pending',
+        'investment_id' => null,
+        'type' => 'balance',
+    ]);
+
+    $user->available_balance -= $request->amount;
+    $user->save();
+
+    $user->notify(new \App\Notifications\TransactionNotification(
+        'Withdrawal Submitted',
+        'Your withdrawal request of $' . number_format($request->amount, 2) . ' is pending awaiting approval.'
+    ));
+
+    return redirect()->route('user.withdrawals.list')->with('success', 'Withdrawal request submitted.');
+}
+
+}
