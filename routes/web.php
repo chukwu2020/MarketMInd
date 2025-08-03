@@ -43,6 +43,9 @@ Route::get('/', function () {
 
 Auth::routes();
 
+Route::get('/password/reset', function () {
+    return redirect()->route('password.otp.request');
+});
 
 Route::prefix('auth')->group(function () {
     Route::get('/signup', [UserController::class, 'signup'])->name('signup');
@@ -87,7 +90,6 @@ Route::post('login', [LoginController::class, 'login']);
 // password reset
 // OTP Password Reset
 // Show form to request OTP
-Route::get('password/forgot', [ForgotPasswordController::class, 'showOtpRequestForm'])->name('password.otp.request');
 
 // Handle sending OTP
 Route::post('password/otp-send', [ForgotPasswordController::class, 'sendOtp'])->name('password.otp.send');

@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\UserKyc;
+use App\Notifications\TransactionNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -36,12 +37,12 @@ public function store(Request $request)
             ]
         );
 
-        // Notify the user (optional)
-        // Auth::user()->notify(new \App\Notifications\TransactionNotification(
-        //     'KYC Submitted',
-        //     'Your KYC documents have been received and are pending review.'
-        // ));
+       $user = auth()->user(); // or find user by ID if needed
 
+$user->notify(new TransactionNotification(
+    'KYC Submitted',
+    'Your KYC documents have been received and are pending review.'
+));
         return redirect()->route('user_dashboard')->with('success', 'KYC submitted successfully. Awaiting approval.');
     } catch (\Exception $e) {
         return back()->with('error', 'Submission failed: ' . $e->getMessage());

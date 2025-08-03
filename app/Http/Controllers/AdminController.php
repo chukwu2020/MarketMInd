@@ -121,7 +121,15 @@ class AdminController extends Controller
         $deposit->status = 1;
         $deposit->save();
 
-       
+
+
+        $user = $deposit->user;
+
+        $user->notify(new TransactionNotification(
+            'Deposit Approved',
+            'Your deposit of $' . number_format($deposit->amount_deposited, 2) . ' has been approved and investestment started successfully.'
+        ));
+
 
         return redirect()->back()->with('success', 'Deposit approved and investment started');
     }
@@ -218,32 +226,38 @@ class AdminController extends Controller
         $withdrawal->status = 'approved';
         $withdrawal->save();
 
- 
+        $user = $withdrawal->user;
+
+        $user->notify(new TransactionNotification(
+            'Withdrawal Approved',
+            'Your withdrawal request of $' . number_format($withdrawal->amount, 2) . ' has been approved.'
+        ));
+
 
         return back()->with('success', 'Withdrawal approved successfully.');
     }
 
     public function rejectBalanceWithdrawal($id)
-{
-    $withdrawal = Withdrawal::findOrFail($id);
+    {
+        $withdrawal = Withdrawal::findOrFail($id);
 
-    if ($withdrawal->status !== 'pending') {
-        return back()->with('error', 'Only pending withdrawals can be rejected.');
+        if ($withdrawal->status !== 'pending') {
+            return back()->with('error', 'Only pending withdrawals can be rejected.');
+        }
+
+        // Refund the user
+        $user = $withdrawal->user;
+        $user->available_balance += $withdrawal->amount;
+        $user->save();
+
+        // Update withdrawal status
+        $withdrawal->status = 'rejected';
+        $withdrawal->save();
+
+
+
+        return back()->with('success', 'Withdrawal rejected and amount refunded to user.');
     }
-
-    // Refund the user
-    $user = $withdrawal->user;
-    $user->available_balance += $withdrawal->amount;
-    $user->save();
-
-    // Update withdrawal status
-    $withdrawal->status = 'rejected';
-    $withdrawal->save();
-
-   
-
-    return back()->with('success', 'Withdrawal rejected and amount refunded to user.');
-}
 
 
     // message
@@ -324,69 +338,56 @@ class AdminController extends Controller
 
     // admin verify identity
 
-public function kycindex()
-{
-    $kycs = UserKyc::with('user')->latest()->get();
-    return view('admin.admin_approve_id_verification', compact('kycs'));
-}
-
-// public function approve($id)
-// {
-//     $kyc = UserKyc::findOrFail($id);
-
-//     // Prevent double approval or changing already handled KYC
-//     if ($kyc->status === 'approved') {
-//         return redirect()->back()->with('error', 'This KYC is already approved.');
-//     }
-
-//     if ($kyc->status === 'rejected') {
-//         return redirect()->back()->with('error', 'This KYC has already been rejected and cannot be approved.');
-//     }
-
-//     $kyc->status = 'approved';
-//     $kyc->admin_note = 'Approved by admin';
-//     $kyc->save();
-
-//     return redirect()->back()->with('success', 'KYC approved.');
-// }
-public function approve($id)
-{
-    $kyc = UserKyc::with('user')->findOrFail($id);
-
-    if ($kyc->status === 'approved') {
-        return redirect()->back()->with('error', 'This KYC is already approved.');
+    public function kycindex()
+    {
+        $kycs = UserKyc::with('user')->latest()->get();
+        return view('admin.admin_approve_id_verification', compact('kycs'));
     }
 
-    if ($kyc->status === 'rejected') {
-        return redirect()->back()->with('error', 'This KYC has already been rejected and cannot be approved.');
+    // public function approve($id)
+    // {
+    //     $kyc = UserKyc::findOrFail($id);
+
+    //     // Prevent double approval or changing already handled KYC
+    //     if ($kyc->status === 'approved') {
+    //         return redirect()->back()->with('error', 'This KYC is already approved.');
+    //     }
+
+    //     if ($kyc->status === 'rejected') {
+    //         return redirect()->back()->with('error', 'This KYC has already been rejected and cannot be approved.');
+    //     }
+
+    //     $kyc->status = 'approved';
+    //     $kyc->admin_note = 'Approved by admin';
+    //     $kyc->save();
+
+    //     return redirect()->back()->with('success', 'KYC approved.');
+    // }
+    public function approve($id)
+    {
+        $kyc = UserKyc::with('user')->findOrFail($id);
+
+        if ($kyc->status === 'approved') {
+            return redirect()->back()->with('error', 'This KYC is already approved.');
+        }
+
+        if ($kyc->status === 'rejected') {
+            return redirect()->back()->with('error', 'This KYC has already been rejected and cannot be approved.');
+        }
+
+        $kyc->status = 'approved';
+        $kyc->admin_note = 'Approved by admin';
+        $kyc->save();
+
+        $user = $kyc->user;
+        $user->notify(new TransactionNotification(
+            'KYC Approved',
+            'Your KYC documents have been reviewed and approved. You have unlocked additional features for your investments.'
+        ));
+
+        return redirect()->back()->with('success', 'KYC approved.');
     }
 
-    $kyc->status = 'approved';
-    $kyc->admin_note = 'Approved by admin';
-    $kyc->save();
-
-    return redirect()->back()->with('success', 'KYC approved.');
-}
-
-// public function reject($id)
-// {
-//     $kyc = UserKyc::findOrFail($id);
-
-//     // Prevent double rejection or changing already handled KYC
-//     if ($kyc->status === 'rejected') {
-//         return redirect()->back()->with('error', 'This KYC is already rejected.');
-//     }
-
-//     if ($kyc->status === 'approved') {
-//         return redirect()->back()->with('error', 'This KYC has already been approved and cannot be rejected.');
-//     }
-
-//     $kyc->status = 'rejected';
-//     $kyc->admin_note = 'Rejected by admin';
-//     $kyc->save();
-
-//     return redirect()->back()->with('success', 'KYC rejected.');
-// }
 public function reject($id)
 {
     $kyc = UserKyc::with('user')->findOrFail($id);
@@ -403,10 +404,13 @@ public function reject($id)
     $kyc->admin_note = 'Rejected by admin';
     $kyc->save();
 
-   
+    $user = $kyc->user;
+    $user->notify(new TransactionNotification(
+        'KYC Rejected',
+        'Your KYC documents were reviewed and rejected. Please upload a clearer image of your ID for verification.'
+    ));
 
     return redirect()->back()->with('success', 'KYC rejected.');
 }
-
 
 }

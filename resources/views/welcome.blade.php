@@ -1217,7 +1217,7 @@
                                      
 
                                          <img class="radius-30" src="assets/images/copytrading-animated.svg" alt="image">
-                                        <img class="radius-30" src="assets/images/copytrading-animated.svg" alt="image">
+                                        <img style="z-index: 1500 !important;" class="radius-30" src="assets/images/copytrading-animated.svg" alt="image">
                                         <div class="services-card-body bg-color-fffaeb radius-30">
                                             <i class="flaticon-businessman-5 businessman"></i>
                                             <h3>
@@ -1228,7 +1228,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="swiper-slide">
+                                <div class="swiper-slide" style="overflow: hidden;">
                                     <div class="services-card position-relative">
                                         <img class="radius-30" src="assets/images/service/service-image-6.jpg" alt="image">
                                         <div class="services-card-body bg-color-fffaeb radius-30">
@@ -1334,10 +1334,7 @@
                     <div class="col-lg-6" data-cues="slideInLeft" data-duration="800">
                         <div class="about-image bg-color-ffffff radius-30">
                             <img class="about-image-1" src="assets/images/frontpage-pricing-d.webp" alt="image">
-                          <img class="about-image bg-color-ffffff radius-30" 
-     src="assets/images/ChatGPT.png" 
-     alt="image" 
-     style="width: 300px; height: 200px; object-fit: cover;">
+                          
 
 
                         </div>

@@ -1,697 +1,251 @@
-<?php
-
-namespace App\Http\Controllers;
-
-use App\Models\ContactUSMessage;
-use App\Models\Deposit;
-use App\Models\Idverification;
-use App\Models\Investment;
-use App\Models\Message;
-use App\Models\Plan;
-use App\Models\User;
-use App\Models\UserKyc;
-use App\Models\Withdrawal;
-use App\Models\WithdrawalCard;
-use App\Notifications\IDVerificationSubmitted;
-use App\Notifications\TransactionNotification;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-
-class AdminController extends Controller
-{
-    public function userIndex(Request $request)
-    {
-        $query = User::with(['investments', 'profile', 'withdrawalCard']) // eager load all needed
-            ->where('role_as', 0);
-
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        if ($request->filled('status')) {
-            $status = $request->input('status');
-            if ($status == 'Active') {
-                $query->where('active', 1);
-            } elseif ($status == 'Inactive') {
-                $query->where('active', 0);
-            }
-        }
-
-        $users = $query->paginate(10);
-
-        // Optional: calculate total invested manually (you already eager loaded 'investments')
-        foreach ($users as $user) {
-            $user->total_invested = $user->investments->sum('amount_invested');
-        }
-
-        return view('admin.users.index', compact('users'));
-    }
-
-
-
-    public function userDestroy($id)
-    {
-        $user = User::findOrFail($id);
-        $user->delete();
-
-        return redirect()->route('user.index')->with('success', 'User deleted successfully.');
-    }
-
-
-    public function edit($id)
-    {
-        $user = User::findOrFail($id);
-        return view('admin.users.edit', compact('user'));
-    }
-
-
-
-    public function pendingDeposits()
-    {
-        $deposits = Deposit::with('user', 'plan', 'wallet')
-            ->where('status', 0)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('admin.deposits.pending', compact('deposits'));
-    }
-
-    public function approvedDeposits()
-    {
-        $deposits = Deposit::with(['user', 'plan', 'wallet'])
-            ->where('status', 1)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('admin.deposits.approved', compact('deposits'));
-    }
-    public function approveDeposit($id)
-    {
-        $deposit = Deposit::findOrFail($id);
-
-        // ✅ Prevent double-approval
-        if ($deposit->status === 1) {
-            return redirect()->back()->with('error', 'This deposit has already been approved.');
-        }
-
-        $plan = Plan::find($deposit->plan_id);
-
-        if (!$plan) {
-            return back()->with('error', 'Investment plan not found');
-        }
-
-        $roi = $plan->interest_rate;
-        $totalProfit = ($deposit->amount_deposited * $roi / 100) * $plan->duration;
-
-        Investment::create([
-            'user_id' => $deposit->user_id,
-            'plan_id' => $deposit->plan_id,
-            'amount_invested' => $deposit->amount_deposited,
-            'roi' => $roi,
-            'total_profit' => $totalProfit,
-            'start_date' => Carbon::now(),
-            'end_date' => Carbon::now()->addDays($plan->duration),
-            'withdrawn' => 0,
-        ]);
-
-        $deposit->status = 1;
-        $deposit->save();
-
-        // $user = $deposit->user;
-        // $user->notify(new TransactionNotification(
-        //     '🎉 Congratulations! Deposit Approved!',
-        //     'Your deposit of $' . number_format($deposit->amount_deposited, 2) . ' has been approved and your investment has started.'
-        // ));
-
-        return redirect()->back()->with('success', 'Deposit approved and investment started');
-    }
-
-
-
-
-
-
-    public function showApprovedWithdrawals()
-    {
-        $approvedWithdrawals = Withdrawal::where('status', 'approved')
-            ->with(['user'])
-            ->latest()
-            ->get();
-
-        $withdrawalCards = WithdrawalCard::all();
-
-
-        return view('admin.deposits.withdrawal_approved', compact('approvedWithdrawals', 'withdrawalCards'));
-    }
-
-    public function withdrawaldestroy($id)
-    {
-        $withdrawal = Withdrawal::findOrFail($id);
-
-        if ($withdrawal->status !== 'approved') {
-            return back()->with('error', 'Only approved withdrawals can be deleted.');
-        }
-
-        $withdrawal->delete();
-
-        return back()->with('success', 'Approved withdrawal deleted successfully.');
-    }
-
-
-
-    public function updateBalance(Request $request, $id)
-    {
-        $request->validate([
-            'available_balance' => 'required|numeric|min:0',
-            'investments.*' => 'nullable|numeric|min:0',
-
-
-        ]);
-
-        $user = User::findOrFail($id);
-        $user->available_balance = $request->input('available_balance');
-
-        $user->save();
-
-        return redirect()->route('user.index')->with('success', 'User balance updated successfully.');
-    }
-
-    public function admin_dashboard()
-    {
-        $totalUsers = User::count();
-        $totalDeposits = User::sum('available_balance');
-        $totalWithdrawals = Withdrawal::where('status', 'approved')->sum('amount');
-        $amount_invested = Investment::sum('amount_invested');
-
-
-
-        return view('admin.index', compact(
-            'totalUsers',
-            'totalDeposits',
-            'totalWithdrawals',
-            'amount_invested'
-        ));
-    }
-
-    public function adminViewWithdrawals()
-    {
-        // Eager load user and profile to avoid N+1 queries
-        $withdrawals = Withdrawal::with(['user.profile', 'user.withdrawalCard'])
-            ->where('status', 'pending')
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('admin.deposits.withdrawal_pending', compact('withdrawals'));
-    }
-
-
-
-    public function approveBalanceWithdrawal($id)
-    {
-        $withdrawal = Withdrawal::findOrFail($id);
-
-        // ✅ Skip if already approved
-        if ($withdrawal->status === 'approved') {
-            return back()->with('error', 'This withdrawal has already been approved.');
-        }
-
-        $withdrawal->status = 'approved';
-        $withdrawal->save();
-
-        $user = $withdrawal->user;
-        $user->notify(new TransactionNotification(
-            '🎉 Congratulations!',
-            'Your withdrawal of $' . number_format($withdrawal->amount, 2) . ' has been approved successfully!'
-        ));
-
-        return back()->with('success', 'Withdrawal approved successfully.');
-    }
-
-    public function rejectBalanceWithdrawal($id)
-{
-    $withdrawal = Withdrawal::findOrFail($id);
-
-    if ($withdrawal->status !== 'pending') {
-        return back()->with('error', 'Only pending withdrawals can be rejected.');
-    }
-
-    // Refund the user
-    $user = $withdrawal->user;
-    $user->available_balance += $withdrawal->amount;
-    $user->save();
-
-    // Update withdrawal status
-    $withdrawal->status = 'rejected';
-    $withdrawal->save();
-
-    // Notify the user (optional)
-    // $user->notify(new TransactionNotification(
-    //     '⚠️ Withdrawal Rejected',
-    //     'Your withdrawal of $' . number_format($withdrawal->amount, 2) . ' was rejected due to technical issue. The amount has been refunded to your balance.'
-    // ));
-
-    return back()->with('success', 'Withdrawal rejected and amount refunded to user.');
-}
-
-
-    // message
-
-    public function index()
-    {
-
-
-        $messages = ContactUSMessage::orderBy('created_at', 'desc')->paginate(20);
-
-        return view('admin.contactUs.index', compact('messages'));
-    }
-    // contact us
-    public function destroy($id)
-    {
-        $message = Message::findOrFail($id);
-        $message->delete();
-
-        return redirect()->route('admin.messages.index')->with('success', 'Message deleted successfully.');
-    }
-
-
-
-    //profile
-
-
-    public function profile()
-    {
-        $user = User::with('profile')->find(auth()->id());
-        return view('admin.profile', compact('user'));
-    }
-
-
-
-
-
-
-    public function updateProfile(Request $request)
-    {
-
-
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
-
-
-        if ($request->hasFile('profile_pic')) {
-            $file = $request->file('profile_pic');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads'), $filename);
-
-            // Create or update profile
-            $profile = $user->profile ?? new \App\Models\UserProfile();
-            $profile->user_id = $user->id;
-            $profile->profile_pic = $filename;
-            $profile->save();
-        }
-
-        // Update name, phone, address, etc.
-        $user->update([
-            'name' => $request->input('name'),
-            'phone' => $request->input('phone'),
-            // do not update email if it's readonly
-        ]);
-
-        if ($user->profile) {
-            $user->profile->update([
-                'address' => $request->input('address'),
-                'bitcoin_address' => $request->input('bitcoin_address'),
-                'etherium_address' => $request->input('etherium_address'),
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Profile updated successfully.');
-    }
-
-
-
-
-    // admin verify identity
-
-public function kycindex()
-{
-    $kycs = UserKyc::with('user')->latest()->get();
-    return view('admin.admin_approve_id_verification', compact('kycs'));
-}
-
-// public function approve($id)
-// {
-//     $kyc = UserKyc::findOrFail($id);
-
-//     // Prevent double approval or changing already handled KYC
-//     if ($kyc->status === 'approved') {
-//         return redirect()->back()->with('error', 'This KYC is already approved.');
-//     }
-
-//     if ($kyc->status === 'rejected') {
-//         return redirect()->back()->with('error', 'This KYC has already been rejected and cannot be approved.');
-//     }
-
-//     $kyc->status = 'approved';
-//     $kyc->admin_note = 'Approved by admin';
-//     $kyc->save();
-
-//     return redirect()->back()->with('success', 'KYC approved.');
-// }
-public function approve($id)
-{
-    $kyc = UserKyc::with('user')->findOrFail($id);
-
-    if ($kyc->status === 'approved') {
-        return redirect()->back()->with('error', 'This KYC is already approved.');
-    }
-
-    if ($kyc->status === 'rejected') {
-        return redirect()->back()->with('error', 'This KYC has already been rejected and cannot be approved.');
-    }
-
-    $kyc->status = 'approved';
-    $kyc->admin_note = 'Approved by admin';
-    $kyc->save();
-
-    // Send mail notification to user
-    // $kyc->user->notify(new \App\Notifications\TransactionNotification(
-    //     'KYC Approved',
-    //     'Your KYC verification has been approved. You now have full access.'
-    // ));
-
-    return redirect()->back()->with('success', 'KYC approved.');
-}
-
-// public function reject($id)
-// {
-//     $kyc = UserKyc::findOrFail($id);
-
-//     // Prevent double rejection or changing already handled KYC
-//     if ($kyc->status === 'rejected') {
-//         return redirect()->back()->with('error', 'This KYC is already rejected.');
-//     }
-
-//     if ($kyc->status === 'approved') {
-//         return redirect()->back()->with('error', 'This KYC has already been approved and cannot be rejected.');
-//     }
-
-//     $kyc->status = 'rejected';
-//     $kyc->admin_note = 'Rejected by admin';
-//     $kyc->save();
-
-//     return redirect()->back()->with('success', 'KYC rejected.');
-// }
-public function reject($id)
-{
-    $kyc = UserKyc::with('user')->findOrFail($id);
-
-    if ($kyc->status === 'rejected') {
-        return redirect()->back()->with('error', 'This KYC is already rejected.');
-    }
-
-    if ($kyc->status === 'approved') {
-        return redirect()->back()->with('error', 'This KYC has already been approved and cannot be rejected.');
-    }
-
-    $kyc->status = 'rejected';
-    $kyc->admin_note = 'Rejected by admin';
-    $kyc->save();
-
-    // // Send mail notification to user
-    // $kyc->user->notify(new \App\Notifications\TransactionNotification(
-    //     'KYC Rejected',
-    //     'Your KYC verification has been rejected. Please review your documents and try again.'
-    // ));
-
-    return redirect()->back()->with('success', 'KYC rejected.');
-}
-
-
-}
-
-
-
-
-
-
-
-<?php
-
-namespace App\Http\Controllers;
-
-use App\Models\User;
-use App\Models\Deposit;
-use App\Models\Plan;
-use App\Models\Wallet;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
-
-class DepositController extends Controller
-{
-    // Show deposit form
-    public function userDeposit()
-    {
-        $plans = Plan::where('status', 'active')->get();
-        $wallets = Wallet::all();
-        return view('dashboard.deposit.create-deposit', compact('plans', 'wallets'));
-    }
-
-    // Handle user deposit input
-    public function userMakeDeposit(Request $request)
-    {
-        try {
-            $request->validate([
-                'plan_id' => 'required|exists:plans,id',
-                'wallet_id' => 'required|exists:wallets,id',
-                'amount' => 'required|numeric|min:1',
-            ]);
-
-            $plan = Plan::findOrFail($request->plan_id);
-
-            if ($request->amount < $plan->minimum_amount || $request->amount > $plan->maximum_amount) {
-                return back()->with('error', "Deposit amount must be between {$plan->minimum_amount} and {$plan->maximum_amount}.");
-            }
-
-            Session::put('deposit_details', [
-                'user_id' => Auth::id(),
-                'plan_id' => $request->plan_id,
-                'wallet_id' => $request->wallet_id,
-                'amount_deposited' => $request->amount,
-            ]);
-
-            return redirect()->route('deposit.confirm');
-        } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
-        }
-    }
-
-    // Confirm deposit step
-    public function confirmDeposit()
-    {
-        if (!Session::has('deposit_details')) {
-            // Redirect to deposit form (GET route)
-            return redirect()->route('user.deposit')->withErrors(['error' => 'No deposit session found.']);
-        }
-
-        $depositDetails = Session::get('deposit_details');
-        $wallet = Wallet::find($depositDetails['wallet_id']);
-
-        return view('dashboard.deposit.confirm-deposit', compact('wallet'));
-    }
-
-    // Submit deposit with proof
-   
-public function submitDeposit(Request $request)
-{
-    try {
-        if (!Session::has('deposit_details')) {
-            return redirect()->route('user.deposit-history')->with('error', 'Deposit not successful!');
-        }
-
-        $request->validate([
-            'proof' => 'required|image|mimes:jpeg,png,jpg|max:5120',
-        ]);
-
-        $depositDetails = Session::get('deposit_details');
-
-        // Store proof image
-        $proofPath = $request->file('proof')->store('proofs', 'public');
-
-        $deposit = new Deposit();
-        $deposit->user_id = $depositDetails['user_id'];
-        $deposit->plan_id = $depositDetails['plan_id'];
-        $deposit->wallet_id = $depositDetails['wallet_id'];
-        $deposit->amount_deposited = $depositDetails['amount_deposited'];
-        $deposit->status = 0;
-        $deposit->proof = $proofPath;
-        $deposit->save();
-
-        Session::forget('deposit_details');
-
-        $user = User::find($deposit->user_id);
-        $user->notify(new \App\Notifications\TransactionNotification(
-            'Deposit Submitted',
-            'Your deposit of $' . number_format($deposit->amount_deposited, 2) . ' has been received and is awaiting approval.'
-        ));
-
-        return redirect()->route('user.deposit-history')->with('success', 'Deposit submitted successfully. Awaiting approval.');
-    } catch (\Exception $e) {
-        return back()->with('error', $e->getMessage());
-    }
-}
-
-
-    // Show deposit history
-    public function depositHistory()
-    {
-        $deposits = Deposit::with(['plan', 'wallet'])
-            ->where('user_id', auth()->id())
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return view('dashboard.deposit.deposit-history', compact('deposits'));
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-So I said, I have four plans on my table now, but I want to split this whole thing so that the banner will show accordingly. Do you understand me? Already, if the user haven't deposited yet, if the total invested is less than zero, it is showing the first one. That's how we did it, you see the logic there, but I want to make everything work according to my plan logic. But if the logic is working with the plan on the table, it won't be okay. I want the logic to go less. Do you understand? Let's say, you know, later I want to change a plan later, so I would like to, you know, if I change the plan, it won't affect the logic later. Do you understand? So I want to give it a better range. Whenever I change the plan, it will also match.@php
-    $totalInvested = (float) auth()->user()->amount_invested;
+@extends('layout.user')
+
+@section('content')
+
+<!-- Main Container with fixed background -->
+<div class="w-full min-h-screen bg-cover bg-center bg-no-repeat">
+    {{-- Optional overlay --}}
+    {{-- <div class="absolute inset-0 bg-black opacity-30 z-0"></div> --}}
+
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-10 relative z-10" style="background-image: url(assets/images/hero/hero-image-1.svg); background-repeat: no-repeat; background-size: cover; background-position:center;">
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+            <h5 class="font-semibold text-lg md:text-xl" style="color: #0C3A30;">Investment</h5>
+            <ul class="flex items-center gap-[6px]">
+                <li class="font-medium">
+                    <a href="{{ route('user_dashboard') }}"
+                       class="flex items-center gap-2"
+                       onmouseover="this.style.color='#9EDD05';"
+                       onmouseout="this.style.color='#0C3A30';">
+                        <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+                        Dashboard
+                    </a>
+                </li>
+                <li>-</li>
+                <li class="font-medium">Investment</li>
+            </ul>
+        </div>
+
+        @php
+            $statusMap = [
+                'withdrawn' => ['bg-red-100 text-red-800 ', 'Withdrawn'],
+                'completed' => ['bg-blue-100 text-blue-800 ', 'Completed'],
+                'active' => ['bg-green-100 text-green-800 ', 'Active'],
+            ];
+            $activeInvestments = $investments->reject(fn($inv) => $inv->is_fully_withdrawn);
+        @endphp
+
+        <!-- Desktop Table -->
+        <section class="hidden md:block min-h-[60vh] flex flex-col justify-start">
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-sm text-left border-t-4" style="border-color: #9EDD05;">
+                    <thead class="bg-gray-100 text-xs uppercase text-gray-600">
+                        <tr>
+                            @foreach (['Plan', 'Amount', 'ROI', 'Profit', 'Start Date', 'End Date', 'Status', 'Action'] as $head)
+                                <th class="px-6 py-3" style="color: #0C3A30;">{{ $head }}</th>
+                            @endforeach
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @forelse ($activeInvestments as $investment)
+                            @php [$statusClass, $statusText] = $statusMap[$investment->status] ?? $statusMap['active']; @endphp
+                            <tr>
+                                <td class="px-6 py-4">{{ $investment->plan->name ?? 'N/A' }}</td>
+                                <td class="px-6 py-4">${{ number_format($investment->amount_invested, 2) }}</td>
+                                <td class="px-6 py-4">{{ $investment->roi ?? '0' }}%</td>
+                                <td class="px-6 py-4">${{ number_format($investment->total_profit, 2) }}</td>
+                                <td class="px-6 py-4">{{ \Carbon\Carbon::parse($investment->start_date)->format('M d, Y') }}</td>
+                                <td class="px-6 py-4">{{ \Carbon\Carbon::parse($investment->end_date)->format('M d, Y') }}</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full {{ $statusClass }}">{{ $statusText }}</span>
+                                </td>
+                                <td class="px-6 py-4 space-y-2">
+                                    @if ($investment->is_withdrawable && $investment->status !== 'withdrawn')
+                                        <form method="POST" action="{{ route('investments.withdraw', $investment->id) }}">
+                                            @csrf
+                                            <button type="submit" class="px-3 py-1 rounded-md text-white bg-green-600 hover:bg-green-700 text-sm font-semibold">
+                                                Withdraw
+                                            </button>
+                                        </form>
+                                  @php
+    $hoursSinceStart = \Carbon\Carbon::parse($investment->start_date)->diffInHours(now());
+    $canTakeProfit = $hoursSinceStart >= 24;
+    $maxTakeProfit = $investment->amount_invested >= 10000 ? 100 : 50;
 @endphp
 
-<style>
-    @keyframes scrollText {
-        0% { transform: translateX(100%); }
-        100% { transform: translateX(-100%); }
-    }
-    .animate-marquee {
-        animation: scrollText 10s linear infinite !important;
-        white-space: nowrap !important;
-    }
-    .animate-marquee:hover {
-        animation-play-state: paused !important;
-    }
-</style>
+@if ($investment->is_withdrawable && $investment->status !== 'withdrawn')
+    <form method="POST" action="{{ route('investments.withdraw', $investment->id) }}">
+        @csrf
+        <button type="submit" class="px-3 py-1 rounded-md text-white bg-green-600 hover:bg-green-700 text-sm font-semibold">
+            Withdraw
+        </button>
+    </form>
 
-@if($totalInvested == 0)
-    <!-- Banner for users who have not yet invested -->
-    <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-yellow-100 to-white mb-4"
-         style="box-shadow: 0 4px 24px rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.3) !important;">
-        <div class="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-yellow-100 to-transparent z-10 pointer-events-none"></div>
-        <div class="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-yellow-100 to-transparent z-10 pointer-events-none"></div>
-        <div class="py-3 overflow-hidden bg-white">
-            <div class="animate-marquee inline-flex items-center will-change-transform">
-                <span class="inline-flex items-center px-6 text-base font-medium text-yellow-800 tracking-tight">
-                    <span class="text-yellow-500/90 mr-3 text-lg">⚠️</span>
-                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-700 font-semibold" style="background-clip: text !important; -webkit-background-clip: text !important;">
-                        You haven’t started investing yet. Start strong to see strong returns!
-                    </span>
-                    <span class="mx-4 text-yellow-400">•</span>
-                    <span>Top investors began with $20,000+ and earn $10k+ daily! Trust the process.</span>
-                    <span class="ml-4 px-3 py-0.5 rounded-full text-yellow-700 text-xs font-bold border border-yellow-400/20"
-                          style="background-color: rgba(234, 179, 8, 0.1) !important;">
-                        GET STARTED
-                    </span>
-                </span>
-            </div>
-        </div>
-    </div>
+@elseif ($canTakeProfit && $investment->available_profit > 0)
+    <form method="POST" action="{{ route('investments.takeProfit', $investment->id) }}">
+        @csrf
+        <button type="submit" class="px-3 py-1 rounded-md text-black bg-yellow-400 hover:bg-yellow-500 text-sm font-semibold">
+            Take Profit (max ${{ $maxTakeProfit }})
+        </button>
+    </form>
 
-@elseif($totalInvested >= 80000)
-    <!-- Premium Banner for users who invested >= 80,000 -->
-    <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-100 to-white mb-4"
-         style="box-shadow: 0 4px 24px rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3) !important;">
-        <div class="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-purple-100 to-transparent z-10 pointer-events-none"></div>
-        <div class="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-purple-100 to-transparent z-10 pointer-events-none"></div>
-        <div class="py-3 overflow-hidden bg-white">
-            <div class="animate-marquee inline-flex items-center will-change-transform">
-                <span class="inline-flex items-center px-6 text-base font-medium text-gray-700 tracking-tight">
-                    <span class="text-purple-600/90 mr-3 text-lg">🌟🌟🌟🌟🌟</span>
-                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-600 font-semibold" style="background-clip: text !important; -webkit-background-clip: text !important;">
-                        You're eligible to become a shareholder — unlock premium investor benefits now!
-                    </span>
-                    <span class="mx-4 text-purple-300">•</span>
-                    <span>Contact us to join the inner circle of investors</span>
-                    <span class="ml-4 px-3 py-0.5 rounded-full text-purple-700 text-xs font-bold border border-purple-400/20"
-                          style="background-color: rgba(139, 92, 246, 0.1) !important;">
-                       ANBASSADORSHIP
-                    </span>
-                </span>
-            </div>
-        </div>
-    </div>
+@elseif (!$canTakeProfit)
+    <span class="text-gray-400 text-sm">Profit available after 24 hours</span>
 
 @else
-    <!-- Mid-tier banner -->
-    <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-amber-50 to-white mb-4"
-         style="box-shadow: 0 4px 24px rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.2) !important;">
-        <div class="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-amber-50 to-transparent z-10 pointer-events-none"></div>
-        <div class="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-amber-50 to-transparent z-10 pointer-events-none"></div>
-        <div class="py-3 overflow-hidden bg-white">
-            <div class="animate-marquee inline-flex items-center will-change-transform">
-                <span class="inline-flex items-center px-6 text-base font-medium text-gray-600 tracking-tight">
-                    <span class="text-amber-500/90 mr-3 text-lg" style="color: #ffef0eff;">✦ ✦ ✦ ✦ ✦</span>
-                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-600 font-semibold" style="background-clip: text !important; -webkit-background-clip: text !important;">
-                        Reinvestment unlocked at $50,000 and above
-                    </span>
-                    <span class="mx-4 text-amber-300">•</span>
-                    <span>Exclusive Ambassadorship features available</span>
-                    <span class="ml-4 px-3 py-0.5 rounded-full text-amber-700 text-xs font-bold border border-amber-400/20"
-                          style="background-color: rgba(245, 158, 11, 0.1) !important;">
-                        NEW
-                    </span>
-                </span>
-            </div>
-        </div>
-    </div>
+    <span class="text-gray-400 text-sm">Not eligible</span>
 @endif
 
+                                        <form method="POST" action="{{ route('investments.takeProfit', $investment->id) }}">
+                                            @csrf
+                                            <button type="submit" class="px-3 py-1 rounded-md text-black bg-yellow-400 hover:bg-yellow-500 text-sm font-semibold">
+                                                Take Profit ($50 max) or wait till due date
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-gray-400 text-sm">Not eligible</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8">
+                                    <div class="flex justify-center items-center h-[50vh]">
+                                        <p class="text-gray-400 text-lg text-center">No active investments found.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Mobile Cards -->
+        <section class="block md:hidden space-y-4 mt-4">
+            @forelse ($activeInvestments as $investment)
+                @php [$statusClass, $statusText] = $statusMap[$investment->status] ?? $statusMap['active']; @endphp
+                <div class="bg-white border border-gray-300 rounded-2xl shadow-lg p-4 transition hover:shadow-xl">
+                    <div class="flex justify-between items-center mb-3">
+                        <!-- <h4 class="text-base font-semibold" style="color: #0C3A30;">{{ $investment->plan->name ?? 'N/A' }}</h4> -->
+
+                        <h4 class="text-base font-semibold flex items-center gap-2" style="color: #0C3A30;">
+    {{ $investment->plan->name ?? 'N/A' }}
+    @if ($investment->is_reinvestment)
+        <span class="px-2 py-0.5 text-xs font-semibold bg-purple-100 text-purple-800 rounded-full">
+            Reinvestment
+        </span>
+    @endif
+</h4>
+
+                        <span class="px-2 py-1 text-xs font-medium rounded-full {{ $statusClass }}">{{ $statusText }}</span>
+                    </div>
+                    <table class="w-full text-sm border-t border-gray-100 pt-2">
+                        <tbody class="divide-y divide-gray-100">
+                            <tr>
+                                <th class="py-2 pr-2 font-medium text-gray-500">Amount</th>
+                                <td class="py-2 text-gray-700">${{ number_format($investment->amount_invested, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <th class="py-2 pr-2 font-medium text-gray-500">ROI</th>
+                                <!-- <td class="py-2 text-gray-700">{{ $investment->roi ?? '0' }}%</td> -->
+                               
+
+                               <td class="px-6 py-4">{{ $investment->plan->interest_rate ?? 0 }}%</td>
 
 
+                            </tr>
+                            <tr>
+                                <th class="py-2 pr-2 font-medium text-gray-500">Profit</th>
+                                <td class="py-2 text-gray-700">${{ number_format($investment->total_profit, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <th class="py-2 pr-2 font-medium text-gray-500">Start Date</th>
+                                <td class="py-2 text-gray-700">{{ \Carbon\Carbon::parse($investment->start_date)->format('M d, Y') }}</td>
+                            </tr>
+                            <tr>
+                                <th class="py-2 pr-2 font-medium text-gray-500">End Date</th>
+                                <td class="py-2 text-gray-700">{{ \Carbon\Carbon::parse($investment->end_date)->format('M d, Y') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
 
+                    <div class="pt-3">
+                        @if ($investment->is_withdrawable && $investment->status !== 'withdrawn')
+                            <form method="POST" action="{{ route('investments.withdraw', $investment->id) }}">
+                                @csrf
+                                <button type="submit" class="w-full text-sm font-medium px-4 py-2 rounded-md" style="background-color: #9EDD05; color:#0C3A30;">
+                                    Withdraw from investment
+                                </button>
+                            </form>
+                      @php
+    $hoursSinceStart = \Carbon\Carbon::parse($investment->start_date)->diffInHours(now());
+    $canTakeProfit = $hoursSinceStart >= 24;
+    $maxTakeProfit = $investment->amount_invested >= 10000 ? 100 : 50;
+@endphp
 
+@if ($investment->is_withdrawable && $investment->status !== 'withdrawn')
+    <form method="POST" action="{{ route('investments.withdraw', $investment->id) }}">
+        @csrf
+        <button type="submit" class="px-3 py-1 rounded-md text-white bg-green-600 hover:bg-green-700 text-sm font-semibold">
+            Withdraw
+        </button>
+    </form>
 
-#	Plan Name	Min Deposit ($)	Max Deposit ($)	Duration	Interest Rate
-1	STARTER PLAN	2,500.00	10,000.00	2 Days	40%
-2	⭐️STANDARD PLAN	12,000.00	25,000.00	5 Days	50%
-3	⭐️ ⭐️⭐️VIP PLAN	45,000.00	100,000.00	5 Days	75%
-4	⚜️AMBASSADORSHIP PLAN	50,000.00	999,999.00	7 Days	95%
+@elseif ($canTakeProfit && $investment->available_profit > 0)
+    <form method="POST" action="{{ route('investments.takeProfit', $investment->id) }}">
+        @csrf
+        <button type="submit" class="px-3 py-1 rounded-md text-black bg-yellow-400 hover:bg-yellow-500 text-sm font-semibold">
+            Take Profit (max ${{ $maxTakeProfit }})
+        </button>
+    </form>
+
+@elseif (!$canTakeProfit)
+    <span class="text-gray-400 text-sm">Profit available after 24 hours</span>
+
+@else
+    <span class="text-gray-400 text-sm">Not eligible</span>
+@endif
+
+                            <form method="POST" action="{{ route('investments.takeProfit', $investment->id) }}">
+                                @csrf
+                                <button type="submit" class="w-full text-sm font-medium px-4 py-2 rounded-md bg-yellow-400 hover:bg-yellow-500 text-black" style="background-color: #9EDD05; color:#0C3A30;">
+                                    Take Profit ($50 max ) 
+                                </button>
+                            </form>
+                        @else
+                            <p class="text-sm text-center text-gray-500 bg-gray-100 px-4 py-2 rounded-md">
+                                Not yet due for withdrawal
+                            </p>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <p class="text-center text-gray-500">No active investments found.</p>
+            @endforelse
+        </section>
+
+        <!-- Withdrawn Link -->
+        <div class="mt-6 flex justify-end">
+            <a href="{{ route('user.withdrawn.investments') }}" class="inline-flex items-center gap-1 text-sm" style="color: #0C3A30;">
+                View withdrawn
+                <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+            </a>
+        </div>
+    </div>
+</div>
+@endsection
+  @else
+                                        <span class="text-xs text-gray-400" title="Available in {{ $timeLeft }}h">
+                                            ⏳ {{ $timeLeft }}h left
+                                        </span>
+                                         @forelse ($activeInvestments as $investment)
+                        @php
+                            $plan = $investment->plan;
+                            $hoursSinceStart = Carbon::parse($investment->start_date)->diffInHours(now());
+                            $canTakeProfit = $hoursSinceStart >= 24;
+                            $maxTakeProfit = $investment->amount_invested >= 10000 ? 100 : 50;
+                            $timeLeft = 24 - $hoursSinceStart;
+                            $statusColor = $statusMap[$investment->status][0];
+                            $statusText = $statusMap[$investment->status][1];
+                        @endphp

@@ -70,7 +70,9 @@ class InvestmentController extends Controller
             return back()->with('error', 'Investment is due. You can only withdraw full profit now.');
         }
 
-        $maxAllowed = 50;
+       
+        $maxAllowed = $investment->amount_invested >= 12000 ? 100 : 50;
+
         $alreadyTaken = $investment->taken_profit;
         $available = $investment->available_profit;
 
