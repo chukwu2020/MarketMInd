@@ -213,7 +213,7 @@
                     <span>Contact us to join the inner circle of investors</span>
                     <span class="ml-4 px-3 py-0.5 rounded-full text-purple-700 text-xs font-bold border border-purple-400/20"
                           style="background-color: rgba(139, 92, 246, 0.1) !important;">
-                        PREMIUM
+                       ANBASSADORSHIP
                     </span>
                 </span>
             </div>

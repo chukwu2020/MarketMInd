@@ -281,174 +281,87 @@
             }
         </style>
 
-        <script>
-            const activities = [
+       <script>
+    const activities = [
+        { name: "Liam", action: "earned", amount: "$4,200 profit", emoji: "📈" },
+        { name: "Sophie", action: "deposited", amount: "$12,000", emoji: "💰" },
+        { name: "Chen Wei", action: "earned", amount: "$2,800 profit", emoji: "📈" },
+        { name: "Isabelle", action: "deposited", amount: "$7,500", emoji: "💰" },
+        { name: "Yuki Tanaka", action: "earned", amount: "$6,100 profit", emoji: "📈" },
+        { name: "Ivan Petrov", action: "deposited", amount: "$15,000", emoji: "💰" },
+        { name: "Olivia", action: "earned", amount: "$5,000 profit", emoji: "📈" },
+        { name: "Emily", action: "started", plan: "Ambassadorship Plan", emoji: "🚀" },
+        { name: "Thomas Müller", action: "earned", amount: "$3,700 profit", emoji: "📈" },
+        { name: "Lucas", action: "deposited", amount: "$20,000", emoji: "💰" },
+        { name: "Charlotte", action: "upgraded", tier: "VIP Tier", emoji: "🌟" },
+        { name: "Mei Ling", action: "earned", amount: "$2,500 profit", emoji: "📈" },
+        { name: "Dmitri", action: "deposited", amount: "$10,500", emoji: "💰" },
+        { name: "Arthur", action: "earned", amount: "$6,400 profit", emoji: "📈" },
+        { name: "Sophia Dubois", action: "deposited", amount: "$18,000", emoji: "💰" },
+        { name: "Elena Ivanova", action: "earned", amount: "$3,200 profit", emoji: "📈" },
+        { name: "Mateo", action: "deposited", amount: "$9,000", emoji: "💰" },
+        { name: "Amélie", action: "earned", amount: "$4,800 profit", emoji: "📈" },
+        { name: "Sebastian", action: "started", plan: "Premium Plan", emoji: "✨" },
+        { name: "Victor", action: "deposited", amount: "$11,700", emoji: "💰" }
+    ];
 
-                {
-                    name: "Liam",
-                    action: "earned",
-                    amount: "$4,200 profit",
-                    emoji: "📈"
-                },
-                {
-                    name: "Sophie",
-                    action: "deposited",
-                    amount: "$12,000",
-                    emoji: "💰"
-                },
-                {
-                    name: "Chen Wei",
-                    action: "earned",
-                    amount: "$2,800 profit",
-                    emoji: "📈"
-                },
-                {
-                    name: "Isabelle",
-                    action: "deposited",
-                    amount: "$7,500",
-                    emoji: "💰"
-                },
-                {
-                    name: "Yuki Tanaka",
-                    action: "earned",
-                    amount: "$6,100 profit",
-                    emoji: "📈"
-                },
-                {
-                    name: "Ivan Petrov",
-                    action: "deposited",
-                    amount: "$15,000",
-                    emoji: "💰"
-                },
-                {
-                    name: "Olivia",
-                    action: "earned",
-                    amount: "$5,000 profit",
-                    emoji: "📈"
-                },
-                {
-                    name: "Emily",
-                    action: "started",
-                    plan: "Elite Plan",
-                    emoji: "🚀"
-                },
-                {
-                    name: "Thomas Müller",
-                    action: "earned",
-                    amount: "$3,700 profit",
-                    emoji: "📈"
-                },
-                {
-                    name: "Lucas",
-                    action: "deposited",
-                    amount: "$20,000",
-                    emoji: "💰"
-                },
-                {
-                    name: "Charlotte",
-                    action: "upgraded",
-                    tier: "Gold Tier",
-                    emoji: "🌟"
-                },
-                {
-                    name: "Mei Ling",
-                    action: "earned",
-                    amount: "$2,500 profit",
-                    emoji: "📈"
-                },
-                {
-                    name: "Dmitri",
-                    action: "deposited",
-                    amount: "$10,500",
-                    emoji: "💰"
-                },
-                {
-                    name: "Arthur",
-                    action: "earned",
-                    amount: "$6,400 profit",
-                    emoji: "📈"
-                },
-                {
-                    name: "Sophia Dubois",
-                    action: "deposited",
-                    amount: "$18,000",
-                    emoji: "💰"
-                },
-                {
-                    name: "Elena Ivanova",
-                    action: "earned",
-                    amount: "$3,200 profit",
-                    emoji: "📈"
-                },
-                {
-                    name: "Mateo",
-                    action: "deposited",
-                    amount: "$9,000",
-                    emoji: "💰"
-                },
-                {
-                    name: "Amélie",
-                    action: "earned",
-                    amount: "$4,800 profit",
-                    emoji: "📈"
-                },
-                {
-                    name: "Sebastian",
-                    action: "started",
-                    plan: "Premium Plan",
-                    emoji: "✨"
-                },
-                {
-                    name: "Victor",
-                    action: "deposited",
-                    amount: "$11,700",
-                    emoji: "💰"
-                }
-            ];
+    let cycleIndex = 0;
+    const actionTypes = ['deposited', 'earned', 'milestone'];
 
-            function getWeightedRandomActivity() {
-                // 70% deposits, 25% profits, 5% milestones
-                const rand = Math.random();
-                const filtered = activities.filter(a =>
-                    rand < 0.7 ? a.action === "deposited" :
-                    rand < 0.95 ? a.action === "earned" :
-                    a.action !== "deposited" && a.action !== "earned"
-                );
-                return filtered[Math.floor(Math.random() * filtered.length)];
-            }
+    function getNextActionType() {
+        const current = actionTypes[cycleIndex % actionTypes.length];
+        cycleIndex++;
+        return current;
+    }
 
-            function showActivity() {
-                const feed = document.getElementById('activityFeed');
-                const activity = getWeightedRandomActivity();
+    function getNextActivity() {
+        const type = getNextActionType();
 
-                const element = document.createElement('div');
-                element.className = 'absolute top-0 left-0 w-full activity-enter text-sm text-gray-700';
+        const filtered = activities.filter(a => {
+            if (type === 'milestone') return a.action !== 'deposited' && a.action !== 'earned';
+            return a.action === type;
+        });
 
-                let content = '';
-                if (activity.action === 'deposited') {
-                    content = `${activity.emoji} ${activity.name} deposited <span class="font-medium ${activity.color}">${activity.amount}</span>`;
-                } else if (activity.action === 'earned') {
-                    content = `${activity.emoji} ${activity.name} earned <span class="font-medium ${activity.color}">${activity.amount}</span>`;
-                } else {
-                    content = `${activity.emoji} ${activity.name} ${activity.action} <span class="font-medium ${activity.color}">${activity.milestone || activity.benefit}</span>`;
-                }
+        return filtered[Math.floor(Math.random() * filtered.length)];
+    }
 
-                element.innerHTML = content;
-                feed.appendChild(element);
+    function showActivity() {
+        const feed = document.getElementById('activityFeed');
+        const activity = getNextActivity();
 
-                setTimeout(() => {
-                    element.classList.remove('activity-enter');
-                    element.classList.add('activity-exit');
-                    setTimeout(() => element.remove(), 600);
-                }, 3500);
-            }
+        const element = document.createElement('div');
+        element.className = 'absolute top-0 left-0 w-full activity-enter text-sm text-gray-700';
 
-            // Initial activity
-            showActivity();
+        let content = '';
+        if (activity.action === 'deposited') {
+            content = `${activity.emoji} ${activity.name} deposited <span class="font-medium">${activity.amount}</span>`;
+        } else if (activity.action === 'earned') {
+            content = `${activity.emoji} ${activity.name} earned <span class="font-medium">${activity.amount}</span>`;
+        } else if (activity.action === 'started') {
+            content = `${activity.emoji} ${activity.name} started <span class="font-medium">${activity.plan}</span>`;
+        } else if (activity.action === 'upgraded') {
+            content = `${activity.emoji} ${activity.name} upgraded to <span class="font-medium">${activity.tier}</span>`;
+        } else {
+            content = `${activity.emoji} ${activity.name} ${activity.action}`;
+        }
 
-            // Show new activity every 4-6 seconds
-            setInterval(showActivity, Math.random() * 2000 + 4000);
-        </script>
+        element.innerHTML = content;
+        feed.appendChild(element);
+
+        setTimeout(() => {
+            element.classList.remove('activity-enter');
+            element.classList.add('activity-exit');
+            setTimeout(() => element.remove(), 600);
+        }, 3500);
+    }
+
+    // Initial activity
+    showActivity();
+
+    // Show new activity every 4–6 seconds
+    setInterval(showActivity, Math.random() * 2000 + 4000);
+</script>
+
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -492,16 +405,16 @@
                             </h3>
                         </div>
 
-                   @if($totalInvested >= 80000)
+                        @if($totalInvested >= 100000)
 
 
                         <div class="p-2 rounded-xl text-[#0C3A30]">
                             <form action="{{ route('initiate.reinvestment') }}" method="POST" class="inline">
                                 @csrf
                                 <button type="submit" class="px-2 py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition flex items-center">
-                                    <iconify-icon icon="solar:refresh-circle-outline"class="mr-1 " style="color:#8bc905 !important ; font-size:1.4rem;"></iconify-icon>
+                                    <iconify-icon icon="solar:refresh-circle-outline" class="mr-1 " style="color:#8bc905 !important ; font-size:1.4rem;"></iconify-icon>
 
-                                 
+
 
                                     Reinvest
                                 </button>

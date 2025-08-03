@@ -557,3 +557,141 @@ public function submitDeposit(Request $request)
         return view('dashboard.deposit.deposit-history', compact('deposits'));
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+So I said, I have four plans on my table now, but I want to split this whole thing so that the banner will show accordingly. Do you understand me? Already, if the user haven't deposited yet, if the total invested is less than zero, it is showing the first one. That's how we did it, you see the logic there, but I want to make everything work according to my plan logic. But if the logic is working with the plan on the table, it won't be okay. I want the logic to go less. Do you understand? Let's say, you know, later I want to change a plan later, so I would like to, you know, if I change the plan, it won't affect the logic later. Do you understand? So I want to give it a better range. Whenever I change the plan, it will also match.@php
+    $totalInvested = (float) auth()->user()->amount_invested;
+@endphp
+
+<style>
+    @keyframes scrollText {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+    .animate-marquee {
+        animation: scrollText 10s linear infinite !important;
+        white-space: nowrap !important;
+    }
+    .animate-marquee:hover {
+        animation-play-state: paused !important;
+    }
+</style>
+
+@if($totalInvested == 0)
+    <!-- Banner for users who have not yet invested -->
+    <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-yellow-100 to-white mb-4"
+         style="box-shadow: 0 4px 24px rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.3) !important;">
+        <div class="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-yellow-100 to-transparent z-10 pointer-events-none"></div>
+        <div class="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-yellow-100 to-transparent z-10 pointer-events-none"></div>
+        <div class="py-3 overflow-hidden bg-white">
+            <div class="animate-marquee inline-flex items-center will-change-transform">
+                <span class="inline-flex items-center px-6 text-base font-medium text-yellow-800 tracking-tight">
+                    <span class="text-yellow-500/90 mr-3 text-lg">⚠️</span>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-700 font-semibold" style="background-clip: text !important; -webkit-background-clip: text !important;">
+                        You haven’t started investing yet. Start strong to see strong returns!
+                    </span>
+                    <span class="mx-4 text-yellow-400">•</span>
+                    <span>Top investors began with $20,000+ and earn $10k+ daily! Trust the process.</span>
+                    <span class="ml-4 px-3 py-0.5 rounded-full text-yellow-700 text-xs font-bold border border-yellow-400/20"
+                          style="background-color: rgba(234, 179, 8, 0.1) !important;">
+                        GET STARTED
+                    </span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+@elseif($totalInvested >= 80000)
+    <!-- Premium Banner for users who invested >= 80,000 -->
+    <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-100 to-white mb-4"
+         style="box-shadow: 0 4px 24px rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3) !important;">
+        <div class="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-purple-100 to-transparent z-10 pointer-events-none"></div>
+        <div class="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-purple-100 to-transparent z-10 pointer-events-none"></div>
+        <div class="py-3 overflow-hidden bg-white">
+            <div class="animate-marquee inline-flex items-center will-change-transform">
+                <span class="inline-flex items-center px-6 text-base font-medium text-gray-700 tracking-tight">
+                    <span class="text-purple-600/90 mr-3 text-lg">🌟🌟🌟🌟🌟</span>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-indigo-600 font-semibold" style="background-clip: text !important; -webkit-background-clip: text !important;">
+                        You're eligible to become a shareholder — unlock premium investor benefits now!
+                    </span>
+                    <span class="mx-4 text-purple-300">•</span>
+                    <span>Contact us to join the inner circle of investors</span>
+                    <span class="ml-4 px-3 py-0.5 rounded-full text-purple-700 text-xs font-bold border border-purple-400/20"
+                          style="background-color: rgba(139, 92, 246, 0.1) !important;">
+                       ANBASSADORSHIP
+                    </span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+@else
+    <!-- Mid-tier banner -->
+    <div class="relative overflow-hidden rounded-xl bg-gradient-to-r from-amber-50 to-white mb-4"
+         style="box-shadow: 0 4px 24px rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.2) !important;">
+        <div class="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-amber-50 to-transparent z-10 pointer-events-none"></div>
+        <div class="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-amber-50 to-transparent z-10 pointer-events-none"></div>
+        <div class="py-3 overflow-hidden bg-white">
+            <div class="animate-marquee inline-flex items-center will-change-transform">
+                <span class="inline-flex items-center px-6 text-base font-medium text-gray-600 tracking-tight">
+                    <span class="text-amber-500/90 mr-3 text-lg" style="color: #ffef0eff;">✦ ✦ ✦ ✦ ✦</span>
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-600 font-semibold" style="background-clip: text !important; -webkit-background-clip: text !important;">
+                        Reinvestment unlocked at $50,000 and above
+                    </span>
+                    <span class="mx-4 text-amber-300">•</span>
+                    <span>Exclusive Ambassadorship features available</span>
+                    <span class="ml-4 px-3 py-0.5 rounded-full text-amber-700 text-xs font-bold border border-amber-400/20"
+                          style="background-color: rgba(245, 158, 11, 0.1) !important;">
+                        NEW
+                    </span>
+                </span>
+            </div>
+        </div>
+    </div>
+@endif
+
+
+
+
+
+
+#	Plan Name	Min Deposit ($)	Max Deposit ($)	Duration	Interest Rate
+1	STARTER PLAN	2,500.00	10,000.00	2 Days	40%
+2	⭐️STANDARD PLAN	12,000.00	25,000.00	5 Days	50%
+3	⭐️ ⭐️⭐️VIP PLAN	45,000.00	100,000.00	5 Days	75%
+4	⚜️AMBASSADORSHIP PLAN	50,000.00	999,999.00	7 Days	95%
