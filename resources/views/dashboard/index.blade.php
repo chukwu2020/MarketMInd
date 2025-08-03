@@ -492,7 +492,7 @@
                             </h3>
                         </div>
 
-                   @if($totalInvested >= 70000)
+                   @if($totalInvested >= 80000)
 
 
                         <div class="p-2 rounded-xl text-[#0C3A30]">

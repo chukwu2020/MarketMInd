@@ -181,7 +181,7 @@
                         You haven’t started investing yet. Start strong to see strong returns!
                     </span>
                     <span class="mx-4 text-yellow-400">•</span>
-                    <span>Top investors began with $20,000+ and earn $10k+ daily!</span>
+                    <span>Top investors began with $20,000+ and earn $10k+ daily! Trust the process.</span>
                     <span class="ml-4 px-3 py-0.5 rounded-full text-yellow-700 text-xs font-bold border border-yellow-400/20"
                           style="background-color: rgba(234, 179, 8, 0.1) !important;">
                         GET STARTED
@@ -224,7 +224,7 @@
         <div class="py-3 overflow-hidden bg-white">
             <div class="animate-marquee inline-flex items-center will-change-transform">
                 <span class="inline-flex items-center px-6 text-base font-medium text-gray-600 tracking-tight">
-                    <span class="text-amber-500/90 mr-3 text-lg">✦ ✦ ✦ ✦ ✦</span>
+                    <span class="text-amber-500/90 mr-3 text-lg" style="color: #ffef0eff;">✦ ✦ ✦ ✦ ✦</span>
                     <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-yellow-600 font-semibold" style="background-clip: text !important; -webkit-background-clip: text !important;">
                         Reinvestment unlocked at $50,000 and above
                     </span>
@@ -246,13 +246,13 @@
                     <div class="w-full min-w-[600px] sm:min-w-0">
                         <table class="table w-full whitespace-nowrap text-sm">
                             <thead style="background: #fff !important;">
-                                <tr class="text-left" style="background-color: #fff; color:black;">
-                                    <th>#</th>
-                                    <th>Plan Name</th>
-                                    <th>Min Deposit ($)</th>
-                                    <th>Max Deposit ($)</th>
-                                    <th>Duration</th>
-                                    <th>Interest Rate</th>
+                                <tr >
+                                    <th class="text-left" style="background-color: #fff !important; color:black;">#</th>
+                                    <th class="text-left" style="background-color: #fff !important; color:black;">Plan Name</th>
+                                    <th class="text-left" style="background-color: #fff !important; color:black;">Min Deposit ($)</th>
+                                    <th class="text-left" style="background-color: #fff !important; color:black;">Max Deposit ($)</th>
+                                    <th class="text-left" style="background-color: #fff !important; color:black;">Duration</th>
+                                    <th class="text-left" style="background-color: #fff !important; color:black;">Interest Rate</th>
                                 </tr>
                             </thead>
                             <tbody>

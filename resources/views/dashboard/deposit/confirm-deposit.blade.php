@@ -1043,8 +1043,8 @@
                     showMessage('Deposit submitted successfully! Redirecting...', 'success');
                     
                     setTimeout(() => {
-                        window.location.href = '{{ route("user_dashboard") }}';
-                    }, 2000);
+                        window.location.href = '{{ route("user.deposit-history") }}';
+                    },  1500);
                     
                 } else {
                     let errorMessage = 'Submission failed. Please try again.';
