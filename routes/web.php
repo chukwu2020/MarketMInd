@@ -34,29 +34,16 @@ use Illuminate\Support\Facades\Cache;
 |--------------------------------------------------------------------------
 */
 
-// Public Routes
+// --- Public Routes ---
 Route::get('/', function () {
     $plans = Plan::orderBy('created_at', 'DESC')->get();
     return view('welcome', compact('plans'));
 });
 
-
+// Auth scaffolding
 Auth::routes();
 
-
-
-// Route::get('password/forgot', [ForgotPasswordController::class, 'showOtpRequestForm'])->name('password.otp.request');
-
-
-// 🟢 Define the named route first
-Route::get('password/forgot', [ForgotPasswordController::class, 'showOtpRequestForm'])->name('password.otp.request');
-
-// 🔁 Then define the redirect
-Route::get('/password/reset', function () {
-    return redirect()->route('password.otp.request');
-});
-
-
+// Custom Auth pages under 'auth' prefix
 Route::prefix('auth')->group(function () {
     Route::get('/signup', [UserController::class, 'signup'])->name('signup');
     // Route::post('/create', [UserController::class, 'create_user'])->name('user.create');
@@ -65,24 +52,17 @@ Route::prefix('auth')->group(function () {
     Route::get('/OurServices', [UserController::class, 'services'])->name('our.services');
     Route::get('/ContactUs', [UserController::class, 'contactus'])->name('contact.us');
 
-    // contact us 
-
+    // contact us form submission
     Route::post('/contact/send', [UserController::class, 'send'])->name('user.contact.send');
 });
 
-
-//language
-Route::post('/set-language', function (\Illuminate\Http\Request $request) {
+// --- Language ---
+Route::post('/set-language', function (Request $request) {
     session(['locale' => $request->lang]);
     return response()->json(['status' => 'ok']);
 });
 
-// web.php
-
-
-
-
-
+// --- Certificate Overlay ---
 Route::post('/certificate-shown', function (Request $request) {
     $count = session('overlayCountToday', 0);
     if ($count < 2) {
@@ -91,123 +71,96 @@ Route::post('/certificate-shown', function (Request $request) {
     return response()->json(['success' => true]);
 });
 
-
-// Authentication Routes
-Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('login', [LoginController::class, 'login']);
-
-
-// password reset
-// OTP Password Reset
-// Show form to request OTP
-
-
-// Handle sending OTP
-Route::post('password/otp-send', [ForgotPasswordController::class, 'sendOtp'])->name('password.otp.send');
-
-// Show OTP input form
-Route::get('password/otp-verify', [ForgotPasswordController::class, 'showOtpVerifyForm'])->name('password.otp.verify.form');
-
-// Handle OTP verification and password reset
-Route::post('password/otp-verify', [ForgotPasswordController::class, 'verifyOtpAndReset'])->name('password.otp.verify');
-
-Route::get('/password/verify-otp', function () {
-    return view('auth.passwords.otp_verify');
-})->name('password.otp.form');
-
-
-
-// deposit and withdrawal notication
-
-Route::get('/user/notifications', function () {
-    return view('dashboard.user.notifications');
-})->middleware(['auth', 'verified'])->name('user.notifications');
-
-
-
-// certificate 
-
-
 Route::post('/certificate-shown', function () {
-    // Clear the showAt timestamp so it doesn't show again
     session()->forget('certShowAt');
     return response()->json(['success' => true]);
 })->middleware('auth');
 
+// --- Authentication Routes (login) ---
+Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('login', [LoginController::class, 'login']);
+
+// --- Password Reset & OTP Routes ---
+Route::get('password/reset', function () {
+    return redirect()->route('password.otp.request');
+})->name('password.request');
+
+// OTP password reset routes
+Route::get('password/forgot', [ForgotPasswordController::class, 'showOtpRequestForm'])->name('password.otp.request');
+
+// Redirect default password reset URL to OTP request
 
 
-Route::post('/create-user', [UserController::class, 'createUser'])->name('user.create');
+Route::post('password/otp-send', [ForgotPasswordController::class, 'sendOtp'])->name('password.otp.send');
+Route::get('password/otp-verify', [ForgotPasswordController::class, 'showOtpVerifyForm'])->name('password.otp.verify.form');
+Route::post('password/otp-verify', [ForgotPasswordController::class, 'verifyOtpAndReset'])->name('password.otp.verify');
+Route::get('/password/verify-otp', fn() => view('auth.passwords.otp_verify'))->name('password.otp.form');
 
-Route::post('/user/take-profit', [UserController::class, 'takeProfit'])->middleware('auth');
+// --- Other public routes related to OTP verification ---
 Route::get('/verify-otp/{token}', [UserController::class, 'showVerifyOtpForm'])->name('verify.otp');
-
-
 Route::post('/verify-otp', [UserController::class, 'submitOtp'])->name('otp.submit');
-
 Route::post('/resend-otp', [UserController::class, 'resendOtp'])->name('otp.resend');
 
-// Authenticated Routes
+// --- Notifications ---
+Route::get('/user/notifications', fn() => view('dashboard.user.notifications'))
+    ->middleware(['auth', 'verified'])
+    ->name('user.notifications');
+
+// --- User creation ---
+Route::post('/create-user', [UserController::class, 'createUser'])->name('user.create');
+
+// --- Take profit ---
+Route::post('/user/take-profit', [UserController::class, 'takeProfit'])->middleware('auth');
+
+// --- Middleware-protected routes ---
 Route::middleware(['auth'])->group(function () {
 
     // Home and Signout
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::post('/signout', [HomeController::class, 'signout'])->name('signout');
 
-    // Profile Routes
-    Route::middleware(['auth'])->group(function () {
-        // Show profile page
-        Route::get('/profile', [ProfileController::class, 'userProfile'])->name('profile.show');
-
-        // Update profile POST/PUT route
-        Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
-
-        // Update password route
-
-        Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+    // Profile routes
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'userProfile'])->name('profile.show');
+        Route::put('/', [ProfileController::class, 'updateProfile'])->name('profile.update');
+        Route::post('/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
     });
 
- 
-
-
-    // Shared Routes (Dashboard investments & withdrawals)
+    // Investment & Withdrawal shared routes
     Route::post('/user/investments/{id}/withdraw', [InvestmentController::class, 'withdraw'])->name('investments.withdraw');
-// take profit 
-
-
     Route::post('/investments/{id}/take-profit', [InvestmentController::class, 'takeProfit'])->name('investments.takeProfit');
-// dismiss 
-Route::post('/dismiss-banner', function() {
-    session(['dismissed_zero_investment_banner' => true]);
-    return response()->json(['success' => true]);
-})->middleware('auth')->name('user.dismiss-banner');
 
+    // Dismiss banner
+    Route::post('/dismiss-banner', function () {
+        session(['dismissed_zero_investment_banner' => true]);
+        return response()->json(['success' => true]);
+    })->name('user.dismiss-banner');
+
+    // Withdraw from balance
     Route::post('/dashboard/withdraw', [WithdrawalController::class, 'withdrawFromBalance'])->name('user.balance.withdraw');
+
+    // Investments list
     Route::get('/investments', [InvestmentController::class, 'index'])->name('user.investments');
     Route::get('/withdrawn-investments', [InvestmentController::class, 'withdrawnInvestments'])->name('user.withdrawn.investments');
 
-
-    // User-specific Routes
+    // --- User routes under /user prefix ---
     Route::prefix('user')->group(function () {
 
-        // Dashboard & Profile
+        // Dashboard
         Route::get('/dashboard', [UserController::class, 'user_dashboard'])->name('user_dashboard');
 
-
-
-
-        // Deposit
+        // Deposit routes
         Route::controller(DepositController::class)->group(function () {
-
             Route::get('/deposit', 'userDeposit')->name('user.deposit');
-
             Route::post('/make-deposit', 'userMakeDeposit')->name('user.make-deposit');
             Route::get('/confirm-deposit', 'confirmDeposit')->name('deposit.confirm');
             Route::post('/submit-deposit', 'submitDeposit')->name('deposit.submit');
             Route::get('/deposit-history', 'depositHistory')->name('user.deposit-history');
         });
 
-        // reinvest deposit
+        // Reinvestment
         Route::post('/initiate-reinvestment', [UserController::class, 'initiateReinvestment'])->name('initiate.reinvestment');
+
         // Plans
         Route::get('/planlist', [PlanController::class, 'plan_dashboard'])->name('plan.dashboard');
 
@@ -215,7 +168,6 @@ Route::post('/dismiss-banner', function() {
         Route::get('/withdraw/form', [WithdrawalController::class, 'showWithdrawForm'])->name('user.withdraw.form');
         Route::post('/withdraw/request', [WithdrawalController::class, 'submitWithdrawRequest'])->name('balance.withdraw.request');
         Route::get('/withdrawals/list', [WithdrawalController::class, 'withdrawalList'])->name('user.withdrawals.list');
-        
 
         Route::prefix('withdrawals')->controller(WithdrawalController::class)->group(function () {
             Route::get('/', 'index')->name('withdrawals.index');
@@ -224,34 +176,25 @@ Route::post('/dismiss-banner', function() {
         });
     });
 
-
-
-    // Admin Routes
+    // --- Admin Routes ---
     Route::prefix('admin')->middleware('isAdmin')->group(function () {
 
-        // Dashboard
+        // Admin dashboard & withdrawals reject
         Route::get('/dashboard', [AdminController::class, 'admin_dashboard'])->name('admin_dashboard');
-        Route::post('/admin/withdrawals/{id}/reject', [AdminController::class, 'rejectBalanceWithdrawal'])->name('admin.withdraw.reject');
+        Route::post('/withdrawals/{id}/reject', [AdminController::class, 'rejectBalanceWithdrawal'])->name('admin.withdraw.reject');
 
-        // 
-        // admin contact us
-
-
-
-
+        // Admin messages
         Route::get('/messages', [AdminController::class, 'index'])->name('admin.messages.index');
-        Route::delete('/admin/messages/{message}', [AdminController::class, 'destroy'])->name('admin.messages.destroy');
+        Route::delete('/messages/{message}', [AdminController::class, 'destroy'])->name('admin.messages.destroy');
 
+        // Admin profile routes with auth middleware
         Route::middleware(['auth'])->group(function () {
-
-            Route::get('/admin/profile', [AdminController::class, 'profile'])->name('admin.profile');
+            Route::get('/profile', [AdminController::class, 'profile'])->name('admin.profile');
             Route::post('/profile/update', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
         });
     });
 
-
-
-    // Plans
+    // Plans management
     Route::prefix('plans')->group(function () {
         Route::get('/', [PlanController::class, 'planList'])->name('plan.list');
         Route::get('/create', [PlanController::class, 'addPlan'])->name('create_plan');
@@ -261,7 +204,7 @@ Route::post('/dismiss-banner', function() {
         Route::get('/delete/{id}', [PlanController::class, 'deletePlan'])->name('plan.delete');
     });
 
-    // Wallets
+    // Wallets management
     Route::prefix('wallets')->group(function () {
         Route::get('/', [WalletController::class, 'index'])->name('wallet.index');
         Route::get('/create', [WalletController::class, 'addWallet'])->name('create_wallet');
@@ -269,7 +212,7 @@ Route::post('/dismiss-banner', function() {
         Route::delete('/{id}', [WalletController::class, 'destroy'])->name('wallet.delete');
     });
 
-    // Users
+    // Users management
     Route::prefix('users')->group(function () {
         Route::get('/', [AdminController::class, 'userIndex'])->name('user.index');
         Route::get('/{id}/edit', [AdminController::class, 'edit'])->name('user.edit');
@@ -277,14 +220,14 @@ Route::post('/dismiss-banner', function() {
         Route::delete('/{id}', [AdminController::class, 'userDestroy'])->name('user.destroy');
     });
 
-    // Deposits
+    // Deposits management
     Route::prefix('deposits')->controller(AdminController::class)->group(function () {
         Route::get('/pending', 'pendingDeposits')->name('admin.deposits.pending');
         Route::get('/approved', 'approvedDeposits')->name('admin.deposits.approved');
         Route::post('/approve/{id}', 'approveDeposit')->name('admin.approve.deposit');
     });
 
-    // Withdrawals
+    // Withdrawals management
     Route::prefix('withdrawals')->group(function () {
         Route::get('/pending', [AdminController::class, 'adminViewWithdrawals'])->name('withdrawals.pending');
         Route::get('/approved', [AdminController::class, 'showApprovedWithdrawals'])->name('admin.withdrawals.approved');
@@ -292,37 +235,20 @@ Route::post('/dismiss-banner', function() {
         Route::delete('/{id}', [AdminController::class, 'withdrawaldestroy'])->name('withdraw.delete');
     });
 
+    // --- User Document Verification ---
+    Route::middleware(['verified'])->group(function () {
+        Route::get('/user/kyc', [UserKycController::class, 'create'])->name('user.kyc.upload');
+        Route::post('/user/kyc', [UserKycController::class, 'store'])->name('user.kyc.submit');
+    });
 
+    // Dismiss KYC alert
+    Route::post('/id-verification/alert-dismiss', [UserController::class, 'dismissAlert'])
+        ->name('user.kyc.dismiss-alert');
 
-
- 
-
-// ✅ User Routes - Document Verification (Upload & View)
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/user/kyc', [UserKycController::class, 'create'])->name('user.kyc.upload');
-    Route::post('/user/kyc', [UserKycController::class, 'store'])->name('user.kyc.submit');
-});
-
-
-
-// Route::post('/id-verification/alert-dismiss', function () {
-//     Cache::forever('user_'.auth()->id().'_id_verification_alert_dismissed', true);
-//     return response()->json(['dismissed' => true]);
-// })->middleware(['auth'])->name('user.kyc.dismiss-alert'); // Or 'id.alert.dismiss'
-
-Route::post('/id-verification/alert-dismiss', [userController::class, 'dismissAlert'])
-    ->middleware(['auth'])
-    ->name('user.kyc.dismiss-alert');
-
-
-Route::prefix('admin')->middleware(['auth', 'isAdmin'])->group(function () {
-    Route::get('kyc', [AdminController::class, 'kycindex'])->name('admin.kyc.index');
-   Route::patch('/admin/kyc/{id}/approve', [AdminController::class, 'approve'])->name('admin.kyc.approve');
-Route::patch('/admin/kyc/{id}/reject', [AdminController::class, 'reject'])->name('admin.kyc.reject');
-
-});
-
-
-
-
+    // Admin KYC management
+    Route::prefix('admin')->middleware(['isAdmin'])->group(function () {
+        Route::get('kyc', [AdminController::class, 'kycindex'])->name('admin.kyc.index');
+        Route::patch('kyc/{id}/approve', [AdminController::class, 'approve'])->name('admin.kyc.approve');
+        Route::patch('kyc/{id}/reject', [AdminController::class, 'reject'])->name('admin.kyc.reject');
+    });
 });
