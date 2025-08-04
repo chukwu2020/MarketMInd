@@ -412,7 +412,7 @@
                         <button type="button"
                             onclick="addToAmount({{ $preset }})"
                             class="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-lg hover:bg-green-100 border border-gray-300 text-sm shadow-sm transition">
-                            ₦{{ number_format($preset) }}
+                            ${{ number_format($preset) }}
                         </button>
                         @endforeach
                     </div>

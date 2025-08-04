@@ -36,7 +36,7 @@ class WithdrawalController extends Controller
             'card_number' => str_pad(mt_rand(0, 9999999999999999), 16, '0', STR_PAD_LEFT),
             'pin' => rand(1000, 9999),
             'name_on_card' => $user->name,
-            'card_worth' => rand(500, 2000),  // card worth between 500 and 2000
+            
         ]);
 
         return back()->with('success', 'Withdrawal card generated!');
