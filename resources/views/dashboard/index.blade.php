@@ -460,29 +460,37 @@
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-800">PROFIT PERFORMANCE</h3>
-                            <h6 class="text-xs text-gray-500 mt-1">Live Updates • <span id="user-time">
-                                    <script>
-                                        document.addEventListener("DOMContentLoaded", function() {
-                                            const options = {
-                                                month: 'short',
-                                                day: 'numeric',
-                                                hour: 'numeric',
-                                                minute: '2-digit',
-                                                hour12: true
-                                            };
-
-                                            const now = new Date();
-                                            const formattedTime = now.toLocaleString('en-US', options);
-
-                                            const userTimeElement = document.getElementById('user-time');
-                                            if (userTimeElement) {
-                                                userTimeElement.textContent = formattedTime;
-                                            }
-                                        });
-                                    </script>
-                                </span>
-
+                            <h6 class="text-xs text-gray-500 mt-1"> <span class="pulse-dot me-2"></span>
+Live Updates   
                             </h6>
+                            <style>
+                                
+        .pulse-dot {
+    width: 6px;
+    height: 6px;
+    background-color: var(--primary-accent);
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulseAnim 1.5s infinite;
+    box-shadow: 0 0 0 rgba(187, 255, 40, 0.4);
+}
+
+@keyframes pulseAnim {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(139, 201, 5, 0.7) ;
+    }
+    70% {
+        transform: scale(1.5);
+        box-shadow: 0 0 0 10px  rgba(139, 201, 5, 0.7);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(139, 201, 5, 0.7);
+    }
+}
+
+                            </style>
                         </div>
                     </div>
 

@@ -36,6 +36,15 @@
         align-items: center;
         margin-bottom: 1rem;
     }
+.card-flip.flipped {
+    transform: rotateY(180deg);
+    background-color: none !important;
+}
+
+
+.toggle-btn iconify-icon {
+    color: black !important;
+}
 
     .card-brand {
         font-size: 1.5rem;
@@ -138,9 +147,6 @@
         transition: transform 0.8s ease;
     }
 
-    .card-wrapper:hover .card-flip {
-        transform: rotateY(180deg);
-    }
 
     .card-front, .card-back {
         position: absolute;
@@ -253,8 +259,8 @@
             @endphp
 
             <div class="relative z-10">
-                <div class="card-wrapper">
-                    <div class="card-flip">
+                <div class="card-wrapper" id="cardWrapper">
+                    <div class="card-flip" id="cardFlip">
                         <!-- Front of card -->
                         <div class="card-front">
                             <div class="atm-card">
@@ -319,9 +325,20 @@
                                 </div>
                             </div>
                         </div>
-
+   
+       
                     </div>
-                </div>
+                    <div class="flex justify-center mt-2">
+    <button id="flipCardBtn" >
+        <iconify-icon icon="mdi:rotate-3d-variant" style="font-size: 24px; color: white;"></iconify-icon>
+    </button>
+</div>
+                          </div>
+            
+
+
+
+
             </div>
 
             {{-- Card Worth Balance Display --}}
@@ -396,6 +413,15 @@
             }, 1500);
         });
     }
+
+
+
+    // flip 
+    document.getElementById('flipCardBtn').addEventListener('click', () => {
+    const flipCard = document.getElementById('cardFlip');
+    flipCard.classList.toggle('flipped');
+});
+
 </script>
 
 @endsection

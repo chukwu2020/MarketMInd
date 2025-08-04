@@ -232,6 +232,33 @@
             background-size: 20px 20px;
             pointer-events: none;
         }
+
+
+        .pulse-dot {
+    width: 10px;
+    height: 10px;
+    background-color: var(--primary-accent);
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulseAnim 1.5s infinite;
+    box-shadow: 0 0 0 rgba(139, 201, 5, 0.4);
+}
+
+@keyframes pulseAnim {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(139, 201, 5, 0.7);
+    }
+    70% {
+        transform: scale(1.5);
+        box-shadow: 0 0 0 10px rgba(139, 201, 5, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(139, 201, 5, 0);
+    }
+}
+
     </style>
 
 
