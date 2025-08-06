@@ -125,7 +125,7 @@ $usdt = $profile->usdt_address ?? null;
         </button>
 
     </form>
-   
+
 </div>
 
 {{-- SCRIPT --}}
@@ -161,7 +161,7 @@ $usdt = $profile->usdt_address ?? null;
         });
 
         document.querySelectorAll('.option-item').forEach(option => {
-            option.addEventListener('click', function () {
+            option.addEventListener('click', function() {
                 const value = this.dataset.value;
                 selectedText.textContent = this.textContent;
                 select.value = value;
@@ -207,13 +207,13 @@ $usdt = $profile->usdt_address ?? null;
                 } else if (value === 'digital_wallet') {
                     walletInfo.classList.remove('hidden');
                     walletInfo.innerHTML = `
-                        <div class="text-sm text-gray-800 bg-[#f9f9f9] border border-[#8AC304] p-4 rounded-lg shadow-sm">
-                            For digital transfer withdrawals, please 
-                           
-                            <a href="#" onclick="Tawk_API.maximize(); return false;" class="underline text-blue-600">(click to contact contact support )</a>
-
-                            
-                        </div>
+                      
+<div class="text-sm text-gray-800 bg-[#f9f9f9] border border-[#8AC304] p-4 rounded-lg shadow-sm">
+    For digital transfer withdrawals, please 
+    <a href="#" onclick="window.chaport && chaport.open(); return false;" class="underline text-blue-600" style"color:blue !important;">
+        (click to contact support)
+    </a>
+</div>
                     `;
                 } else {
                     walletInfo.classList.add('hidden');
@@ -231,19 +231,19 @@ $usdt = $profile->usdt_address ?? null;
 
             if (!walletDropdown || !walletOptions) return;
 
-            walletDropdown.addEventListener('click', function (e) {
+            walletDropdown.addEventListener('click', function(e) {
                 walletOptions.classList.toggle('hidden');
                 e.stopPropagation();
             });
 
-            document.addEventListener('click', function (event) {
+            document.addEventListener('click', function(event) {
                 if (!walletDropdown.contains(event.target) && !walletOptions.contains(event.target)) {
                     walletOptions.classList.add('hidden');
                 }
             });
 
             document.querySelectorAll('.wallet-item').forEach(item => {
-                item.addEventListener('click', function () {
+                item.addEventListener('click', function() {
                     const text = this.textContent;
                     const val = this.dataset.wallet;
                     walletText.textContent = text;

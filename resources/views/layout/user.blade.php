@@ -3,18 +3,18 @@
 
 <head>
 
- 
+
 
     <base href="/public">
     <meta charset="UTF-8">
-      <meta charset="utf-8">
+    <meta charset="utf-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Title -->
     <!-- Title -->
     <title>MarketMind Investments</title>
     <!-- 5star color -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <!-- Favicons for different devices -->
     <link rel="icon" type="image/png" href="{{ asset('assets/images/mymarketmindmainicon.png') }}" sizes="32x32">
@@ -25,8 +25,8 @@
     <link rel="apple-touch-icon" href="{{ asset('assets/images/mymarketmindmainicon.png') }}" sizes="180x180">
 
 
-<!-- Add this to your main Blade layout file -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Add this to your main Blade layout file -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
@@ -53,17 +53,17 @@
     <!-- Custom Style -->
     <link rel="stylesheet" href="{{ asset('admin_assets/css/style.css') }}">
 
-      <style>
-                html,
-                body {
-                    color: #0C3A30 !important;
-                }
+    <style>
+        html,
+        body {
+            color: #0C3A30 !important;
+        }
 
-                div,
-                * {
-                    color: #0C3A30 !important;
-                }
-            </style>
+        div,
+        * {
+            color: #0C3A30 !important;
+        }
+    </style>
 
 
 </head>
@@ -250,8 +250,8 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
 
- <!--Start of Tawk.to Script-->
-<script type="text/javascript">
+    <!--Start of Tawk.to Script-->
+    <!-- <script type="text/javascript">
 var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
 (function(){
 var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
@@ -261,8 +261,86 @@ s1.charset='UTF-8';
 s1.setAttribute('crossorigin','*');
 s0.parentNode.insertBefore(s1,s0);
 })();
-</script>
-<!--End of Tawk.to Script-->
+</script> -->
+    <!--End of Tawk.to Script-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+
+
+
+
+
+    <script type="text/javascript">
+        (function(w, d, v3) {
+            w.chaportConfig = {
+                appId: '68936a61ed32cced2c909662'
+            };
+
+            if (w.chaport) return;
+            v3 = w.chaport = {};
+            v3._q = [];
+            v3._l = {};
+            v3.q = function() {
+                v3._q.push(arguments)
+            };
+            v3.on = function(e, fn) {
+                if (!v3._l[e]) v3._l[e] = [];
+                v3._l[e].push(fn)
+            };
+            var s = d.createElement('script');
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'https://app.chaport.com/javascripts/insert.js';
+            var ss = d.getElementsByTagName('script')[0];
+            ss.parentNode.insertBefore(s, ss)
+        })(window, document);
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+    
 
 
 
